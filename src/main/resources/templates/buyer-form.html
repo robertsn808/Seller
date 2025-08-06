@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buyer Information - Real Estate Connect</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { color: #333; font-size: 2rem; margin-bottom: 10px; }
+        .header p { color: #666; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #333; }
+        input, select, textarea { width: 100%; padding: 12px; border: 2px solid #e1e1e1; border-radius: 8px; font-size: 1rem; transition: border-color 0.3s; }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: #667eea; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .checkbox-group { display: flex; align-items: center; }
+        .checkbox-group input { width: auto; margin-right: 10px; }
+        .error { color: #e74c3c; font-size: 0.9rem; margin-top: 5px; }
+        .btn { width: 100%; padding: 15px; background: linear-gradient(45deg, #667eea, #764ba2); color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        .back-link { display: inline-block; margin-bottom: 20px; color: #667eea; text-decoration: none; }
+        .back-link:hover { text-decoration: underline; }
+        @media (max-width: 768px) { 
+            .form-row { grid-template-columns: 1fr; }
+            .container { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-link">← Back to Home</a>
+        
+        <div class="header">
+            <h1>Tell Us About Your Dream Home</h1>
+            <p>Fill out your buy box so we can match you with the perfect property</p>
+        </div>
+        
+        <form th:action="@{/buyer}" th:object="${buyer}" method="post">
+            <div class="form-group">
+                <label for="name">Full Name *</label>
+                <input type="text" id="name" th:field="*{name}" required>
+                <div class="error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="email">Email *</label>
+                    <input type="email" id="email" th:field="*{email}" required>
+                    <div class="error" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="phone">Phone *</label>
+                    <input type="tel" id="phone" th:field="*{phone}" required>
+                    <div class="error" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}"></div>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="minBudget">Minimum Budget *</label>
+                    <input type="number" id="minBudget" th:field="*{minBudget}" min="0" step="1000" required>
+                    <div class="error" th:if="${#fields.hasErrors('minBudget')}" th:errors="*{minBudget}"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="maxBudget">Maximum Budget *</label>
+                    <input type="number" id="maxBudget" th:field="*{maxBudget}" min="0" step="1000" required>
+                    <div class="error" th:if="${#fields.hasErrors('maxBudget')}" th:errors="*{maxBudget}"></div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="preferredAreas">Preferred Areas/Neighborhoods</label>
+                <input type="text" id="preferredAreas" th:field="*{preferredAreas}" placeholder="e.g., Downtown, Suburbs, Near schools">
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="minBedrooms">Minimum Bedrooms</label>
+                    <select id="minBedrooms" th:field="*{minBedrooms}">
+                        <option value="">Any</option>
+                        <option value="1">1+</option>
+                        <option value="2">2+</option>
+                        <option value="3">3+</option>
+                        <option value="4">4+</option>
+                        <option value="5">5+</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="minBathrooms">Minimum Bathrooms</label>
+                    <select id="minBathrooms" th:field="*{minBathrooms}">
+                        <option value="">Any</option>
+                        <option value="1">1+</option>
+                        <option value="2">2+</option>
+                        <option value="3">3+</option>
+                        <option value="4">4+</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="propertyType">Property Type</label>
+                    <select id="propertyType" th:field="*{propertyType}">
+                        <option value="">Any</option>
+                        <option value="Single Family">Single Family</option>
+                        <option value="Condo">Condo</option>
+                        <option value="Townhouse">Townhouse</option>
+                        <option value="Multi-Family">Multi-Family</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="timeframe">Purchase Timeframe</label>
+                    <select id="timeframe" th:field="*{timeframe}">
+                        <option value="">Select timeframe</option>
+                        <option value="ASAP">ASAP</option>
+                        <option value="30 days">Within 30 days</option>
+                        <option value="90 days">Within 90 days</option>
+                        <option value="6 months">Within 6 months</option>
+                        <option value="Flexible">Flexible</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="needsFinancing" th:field="*{needsFinancing}">
+                    <label for="needsFinancing">I will need financing</label>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="openToCreativeFinancing" th:field="*{openToCreativeFinancing}">
+                    <label for="openToCreativeFinancing">I'm open to creative financing options (seller financing, lease-to-own, etc.)</label>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="additionalNotes">Additional Notes</label>
+                <textarea id="additionalNotes" th:field="*{additionalNotes}" rows="4" placeholder="Tell us about any specific requirements, preferences, or questions you have..."></textarea>
+            </div>
+            
+            <button type="submit" class="btn">Submit My Buy Box</button>
+        </form>
+    </div>
+</body>
+</html>
