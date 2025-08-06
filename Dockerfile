@@ -29,4 +29,4 @@ RUN mkdir -p /tmp/uploads/property-photos
 EXPOSE $PORT
 
 # Run the application
-CMD ["java", "-Dserver.port=${PORT:-8080}", "-jar", "target/seller-funnel-1.0-SNAPSHOT.jar", "--spring.profiles.active=render"]
+CMD ["sh", "-c", "java -Dserver.port=${PORT:-8080} -Dspring.profiles.active=render -jar target/seller-funnel-1.0-SNAPSHOT.jar"]
