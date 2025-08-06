@@ -208,10 +208,12 @@
                                     <!-- Submit Buttons -->
                                     <div class="d-flex justify-content-end mt-4">
                                         <a href="/admin/marketing/campaigns" class="btn btn-secondary me-2">Cancel</a>
-                                        <button type="submit" class="btn btn-primary">
+                                        <button type="submit" class="btn btn-primary" id="submitBtn">
                                             <i class="fas fa-save me-2"></i>
                                             <span th:text="${campaign.id != null ? 'Update Campaign' : 'Create Campaign'}">Save</span>
                                         </button>
+                                        <button type="button" class="btn btn-warning ms-2" onclick="debugForm()" style="display: none;" id="debugBtn">Debug</button>
+                                        <button type="button" class="btn btn-success ms-2" onclick="submitWithoutValidation()" style="display: none;" id="bypassBtn">Submit Anyway</button>
                                     </div>
                                 </form>
                             </div>
@@ -264,7 +266,7 @@
             const form = document.querySelector('form');
             const submitBtn = document.querySelector('button[type="submit"]');
             const submitBtnText = submitBtn.querySelector('span');
-            const originalBtnText = submitBtnText.textContent;
+            const originalBtnText = submitBtnText ? submitBtnText.textContent : 'Save';
             
             // Form validation
             function validateForm() {
@@ -280,6 +282,13 @@
                 
                 requiredFields.forEach(item => {
                     const field = document.querySelector(`[name="${item.field}"]`);
+                    if (!field) {
+                        console.error('Field not found:', item.field);
+                        errors.push(`${item.name} field not found`);
+                        isValid = false;
+                        return;
+                    }
+                    
                     if (!field.value.trim()) {
                         field.classList.add('is-invalid');
                         errors.push(`${item.name} is required`);
@@ -327,27 +336,33 @@
             
             // Form submission handling
             form.addEventListener('submit', function(e) {
-                e.preventDefault();
+                console.log('Form submission started');
                 
+                // Don't prevent default immediately - let validation run first
                 const validation = validateForm();
+                console.log('Validation result:', validation);
                 
                 if (!validation.isValid) {
-                    // Show validation errors
+                    // Prevent submission only if validation fails
+                    e.preventDefault();
+                    console.log('Form submission prevented due to validation errors:', validation.errors);
                     showAlert('Please fix the following errors: ' + validation.errors.join(', '), 'danger');
-                    return;
+                    return false;
                 }
                 
-                // Show loading state
+                // Show loading state for valid submissions
                 submitBtn.disabled = true;
-                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Saving Campaign...';
+                if (submitBtnText) {
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Saving Campaign...';
+                } else {
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Saving...';
+                }
                 
                 // Show progress message
                 showAlert('Processing your campaign...', 'info');
                 
-                // Submit the form
-                setTimeout(() => {
-                    form.submit();
-                }, 500);
+                // Let the form submit normally
+                return true;
             });
             
             // Helper function to show alerts
@@ -457,7 +472,50 @@
                     return e.returnValue;
                 }
             });
+            
+            // Show debug buttons if there are issues
+            setTimeout(() => {
+                document.getElementById('debugBtn').style.display = 'inline-block';
+                document.getElementById('bypassBtn').style.display = 'inline-block';
+            }, 5000);
         });
+        
+        // Debug function
+        function debugForm() {
+            const form = document.querySelector('form');
+            const formData = new FormData(form);
+            
+            console.log('=== FORM DEBUG INFO ===');
+            console.log('Form action:', form.action);
+            console.log('Form method:', form.method);
+            console.log('Form data:');
+            for (let [key, value] of formData.entries()) {
+                console.log(`  ${key}: ${value}`);
+            }
+            
+            // Check required fields
+            const requiredFields = ['name', 'type', 'targetAudience'];
+            console.log('Required field validation:');
+            requiredFields.forEach(fieldName => {
+                const field = document.querySelector(`[name="${fieldName}"]`);
+                console.log(`  ${fieldName}:`, field ? field.value : 'FIELD NOT FOUND');
+            });
+            
+            alert('Check browser console for debug information');
+        }
+        
+        // Submit without client-side validation
+        function submitWithoutValidation() {
+            const form = document.querySelector('form');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            // Remove the event listener temporarily
+            const newForm = form.cloneNode(true);
+            form.parentNode.replaceChild(newForm, form);
+            
+            // Submit the form directly
+            newForm.submit();
+        }
     </script>
 </body>
 </html>
