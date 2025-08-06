@@ -12,10 +12,15 @@ Real Estate Connect is a Spring Boot web application that serves as a funnel for
 - **Start the application**: `mvn spring-boot:run`
 - **Access H2 console**: http://localhost:8080/h2-console (JDBC URL: jdbc:h2:mem:testdb)
 
-### Running with PostgreSQL (Production)
+### Running with PostgreSQL (Local Production)
 - **Start PostgreSQL**: `docker-compose up -d`
 - **Start with PostgreSQL**: `mvn spring-boot:run -Dspring.profiles.active=postgres`
 - **Stop PostgreSQL**: `docker-compose down`
+
+### Deployment (Render)
+- **Deploy Guide**: See `DEPLOYMENT.md` for complete Render deployment instructions
+- **Live Demo**: Deploy to Render for public access
+- **Auto-deploy**: Configured via `render.yaml` blueprint
 
 ### General Commands
 - **Build the project**: `mvn clean package`
