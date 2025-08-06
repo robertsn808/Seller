@@ -8,6 +8,8 @@ import com.realestate.sellerfunnel.repository.ContentTemplateRepository;
 import com.realestate.sellerfunnel.repository.BuyerRepository;
 import com.realestate.sellerfunnel.repository.SellerRepository;
 import com.realestate.sellerfunnel.service.CampaignPublishingService;
+import com.realestate.sellerfunnel.service.CampaignValidationService;
+import com.realestate.sellerfunnel.service.CampaignPostSubmissionService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -40,6 +42,12 @@ public class MarketingController {
     
     @Autowired
     private CampaignPublishingService campaignPublishingService;
+    
+    @Autowired
+    private CampaignValidationService campaignValidationService;
+    
+    @Autowired
+    private CampaignPostSubmissionService campaignPostSubmissionService;
 
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
@@ -109,24 +117,52 @@ public class MarketingController {
     @PostMapping("/campaigns")
     public String saveCampaign(@Valid @ModelAttribute Campaign campaign, 
                               BindingResult result, 
+                              Model model,
                               RedirectAttributes redirectAttributes) {
+        
+        // Basic form validation
         if (result.hasErrors()) {
+            model.addAttribute("campaign", campaign);
             return "admin/marketing/campaign-form";
         }
         
-        Campaign savedCampaign = campaignRepository.save(campaign);
+        // Determine if this is a new campaign
+        boolean isNewCampaign = campaign.getId() == null;
         
-        // Attempt to publish campaign if it's active
-        if ("ACTIVE".equals(campaign.getStatus())) {
-            boolean published = campaignPublishingService.publishCampaign(savedCampaign);
-            if (published) {
-                redirectAttributes.addFlashAttribute("message", "Campaign created and published successfully!");
-            } else {
-                redirectAttributes.addFlashAttribute("message", "Campaign saved. Publishing failed - check API configuration.");
+        // Process the campaign submission using our enhanced service
+        CampaignPostSubmissionService.CampaignProcessResult processResult = 
+            campaignPostSubmissionService.processCampaignSubmission(campaign, isNewCampaign);
+        
+        if (!processResult.isSuccess()) {
+            // If processing failed, return to form with errors
+            for (String error : processResult.getErrors()) {
+                result.rejectValue("", "", error);
             }
-        } else {
-            redirectAttributes.addFlashAttribute("message", "Campaign saved successfully!");
+            model.addAttribute("campaign", campaign);
+            return "admin/marketing/campaign-form";
         }
+        
+        // Success! Add messages and redirect
+        redirectAttributes.addFlashAttribute("message", processResult.getSuccessMessage());
+        
+        // Add warnings if any
+        if (processResult.hasWarnings()) {
+            redirectAttributes.addFlashAttribute("warnings", processResult.getWarnings());
+        }
+        
+        // Add suggestions if any
+        if (processResult.hasSuggestions()) {
+            redirectAttributes.addFlashAttribute("suggestions", processResult.getSuggestions());
+        }
+        
+        // Add completed actions
+        if (!processResult.getCompletedActions().isEmpty()) {
+            redirectAttributes.addFlashAttribute("actions", processResult.getCompletedActions());
+        }
+        
+        // Get next steps for the user
+        List<String> nextSteps = campaignPostSubmissionService.getNextSteps(processResult.getCampaign());
+        redirectAttributes.addFlashAttribute("nextSteps", nextSteps);
         
         return "redirect:/admin/marketing/campaigns";
     }
@@ -160,6 +196,54 @@ public class MarketingController {
         }
         
         return "redirect:/admin/marketing/campaigns/" + id;
+    }
+    
+    @GetMapping("/campaigns/{id}/validate")
+    @ResponseBody
+    public CampaignValidationService.ValidationResult validateCampaign(@PathVariable Long id) {
+        Campaign campaign = campaignRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Campaign not found"));
+        
+        return campaignValidationService.validateCampaign(campaign);
+    }
+    
+    @PostMapping("/campaigns/{id}/duplicate")
+    public String duplicateCampaign(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        Campaign originalCampaign = campaignRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Campaign not found"));
+        
+        // Create a copy of the campaign
+        Campaign duplicatedCampaign = new Campaign();
+        duplicatedCampaign.setName(originalCampaign.getName() + " (Copy)");
+        duplicatedCampaign.setType(originalCampaign.getType());
+        duplicatedCampaign.setTargetAudience(originalCampaign.getTargetAudience());
+        duplicatedCampaign.setStatus("DRAFT"); // Always start as draft
+        duplicatedCampaign.setDescription(originalCampaign.getDescription());
+        duplicatedCampaign.setBudget(originalCampaign.getBudget());
+        duplicatedCampaign.setAdCopy(originalCampaign.getAdCopy());
+        duplicatedCampaign.setHeadline(originalCampaign.getHeadline());
+        duplicatedCampaign.setCallToAction(originalCampaign.getCallToAction());
+        duplicatedCampaign.setKeywords(originalCampaign.getKeywords());
+        duplicatedCampaign.setDemographicTargeting(originalCampaign.getDemographicTargeting());
+        
+        // Reset performance metrics
+        duplicatedCampaign.setImpressions(0);
+        duplicatedCampaign.setClicks(0);
+        duplicatedCampaign.setLeads(0);
+        duplicatedCampaign.setCost(null);
+        
+        CampaignPostSubmissionService.CampaignProcessResult result = 
+            campaignPostSubmissionService.processCampaignSubmission(duplicatedCampaign, true);
+        
+        if (result.isSuccess()) {
+            redirectAttributes.addFlashAttribute("message", 
+                "Campaign duplicated successfully as '" + duplicatedCampaign.getName() + "'");
+        } else {
+            redirectAttributes.addFlashAttribute("error", 
+                "Failed to duplicate campaign: " + String.join(", ", result.getErrors()));
+        }
+        
+        return "redirect:/admin/marketing/campaigns";
     }
     
     @GetMapping("/api-config")
