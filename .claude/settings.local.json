@@ -15,7 +15,12 @@
       "Bash(git commit:*)",
       "Bash(gh repo create:*)",
       "Bash(git push:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(./gradlew:*)",
+      "Bash(java:*)",
+      "Bash(echo $JAVA_HOME)",
+      "Bash(update-alternatives:*)",
+      "Bash(export:*)"
     ],
     "deny": []
   }

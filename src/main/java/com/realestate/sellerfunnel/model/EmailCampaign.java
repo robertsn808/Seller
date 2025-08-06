@@ -214,4 +214,13 @@ public class EmailCampaign {
         return "SCHEDULED".equals(status) && scheduledDate != null && 
                scheduledDate.isBefore(LocalDateTime.now());
     }
+    
+    // Alias methods for compatibility
+    public String getHtmlContent() {
+        return getContent();
+    }
+    
+    public String getSubject() {
+        return getSubjectLine();
+    }
 } 

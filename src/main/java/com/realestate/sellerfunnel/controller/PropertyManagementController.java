@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
+
 
 @Controller
 @RequestMapping("/property")
@@ -53,37 +53,58 @@ public class PropertyManagementController {
 
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
-        // Get statistics
-        Long totalRooms = roomRepository.count();
-        Long vacantRooms = roomRepository.countVacantRooms();
-        Long occupiedRooms = roomRepository.countOccupiedRooms();
-        Long activeBookings = bookingRepository.countActiveBookings();
-        Long pendingPayments = bookingRepository.countPendingPayments();
-        Long overduePayments = bookingRepository.countOverduePayments();
-        BigDecimal totalOutstanding = bookingRepository.getTotalOutstandingBalance();
-        
-        // Get recent bookings
-        List<Booking> recentBookings = bookingRepository.findByIsActiveTrueOrderByCreatedAtDesc();
-        if (recentBookings.size() > 10) {
-            recentBookings = recentBookings.subList(0, 10);
+        try {
+            // Get statistics with safe fallbacks
+            Long totalRooms = roomRepository.count();
+            Long vacantRooms = roomRepository.countVacantRooms();
+            Long occupiedRooms = roomRepository.countOccupiedRooms();
+            Long activeBookings = bookingRepository.countActiveBookings();
+            Long pendingPayments = bookingRepository.countPendingPayments();
+            Long overduePayments = bookingRepository.countOverduePayments();
+            BigDecimal totalOutstanding = bookingRepository.getTotalOutstandingBalance();
+            
+            // Get recent bookings
+            List<Booking> recentBookings = bookingRepository.findByIsActiveTrueOrderByCreatedAtDesc();
+            if (recentBookings != null && recentBookings.size() > 10) {
+                recentBookings = recentBookings.subList(0, 10);
+            }
+            
+            // Get overdue bookings
+            List<Booking> overdueBookings = bookingRepository.findOverdueBookings();
+            
+            // Get rooms with outstanding balances
+            List<Booking> outstandingBookings = bookingRepository.findBookingsWithOutstandingBalance();
+            
+            // Set attributes with safe defaults
+            model.addAttribute("totalRooms", totalRooms != null ? totalRooms : 0L);
+            model.addAttribute("vacantRooms", vacantRooms != null ? vacantRooms : 0L);
+            model.addAttribute("occupiedRooms", occupiedRooms != null ? occupiedRooms : 0L);
+            model.addAttribute("activeBookings", activeBookings != null ? activeBookings : 0L);
+            model.addAttribute("pendingPayments", pendingPayments != null ? pendingPayments : 0L);
+            model.addAttribute("overduePayments", overduePayments != null ? overduePayments : 0L);
+            model.addAttribute("totalOutstanding", totalOutstanding != null ? totalOutstanding : BigDecimal.ZERO);
+            model.addAttribute("recentBookings", recentBookings != null ? recentBookings : new java.util.ArrayList<>());
+            model.addAttribute("overdueBookings", overdueBookings != null ? overdueBookings : new java.util.ArrayList<>());
+            model.addAttribute("outstandingBookings", outstandingBookings != null ? outstandingBookings : new java.util.ArrayList<>());
+            
+        } catch (Exception e) {
+            // Log the error and provide default values
+            System.err.println("Error loading dashboard data: " + e.getMessage());
+            e.printStackTrace();
+            
+            // Set default values
+            model.addAttribute("totalRooms", 0L);
+            model.addAttribute("vacantRooms", 0L);
+            model.addAttribute("occupiedRooms", 0L);
+            model.addAttribute("activeBookings", 0L);
+            model.addAttribute("pendingPayments", 0L);
+            model.addAttribute("overduePayments", 0L);
+            model.addAttribute("totalOutstanding", BigDecimal.ZERO);
+            model.addAttribute("recentBookings", new java.util.ArrayList<>());
+            model.addAttribute("overdueBookings", new java.util.ArrayList<>());
+            model.addAttribute("outstandingBookings", new java.util.ArrayList<>());
+            model.addAttribute("error", "Database initialization required. Please check application logs.");
         }
-        
-        // Get overdue bookings
-        List<Booking> overdueBookings = bookingRepository.findOverdueBookings();
-        
-        // Get rooms with outstanding balances
-        List<Booking> outstandingBookings = bookingRepository.findBookingsWithOutstandingBalance();
-        
-        model.addAttribute("totalRooms", totalRooms);
-        model.addAttribute("vacantRooms", vacantRooms);
-        model.addAttribute("occupiedRooms", occupiedRooms);
-        model.addAttribute("activeBookings", activeBookings);
-        model.addAttribute("pendingPayments", pendingPayments);
-        model.addAttribute("overduePayments", overduePayments);
-        model.addAttribute("totalOutstanding", totalOutstanding != null ? totalOutstanding : BigDecimal.ZERO);
-        model.addAttribute("recentBookings", recentBookings);
-        model.addAttribute("overdueBookings", overdueBookings);
-        model.addAttribute("outstandingBookings", outstandingBookings);
         
         return "property/dashboard";
     }

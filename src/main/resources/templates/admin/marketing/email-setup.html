@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DKIM Email Setup - Admin Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/admin">Admin Portal</a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/admin">Dashboard</a>
+                <a class="nav-link active" href="/admin/marketing/dashboard">Marketing</a>
+                <a class="nav-link" href="/logout">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-2">
+                <div class="list-group">
+                    <a href="/admin/marketing/dashboard" class="list-group-item list-group-item-action">
+                        <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                    </a>
+                    <a href="/admin/marketing/campaigns" class="list-group-item list-group-item-action">
+                        <i class="fas fa-bullhorn me-2"></i>Campaigns
+                    </a>
+                    <a href="/admin/email-campaigns" class="list-group-item list-group-item-action">
+                        <i class="fas fa-envelope me-2"></i>Email Campaigns
+                    </a>
+                    <a href="/admin/marketing/email-setup" class="list-group-item list-group-item-action active">
+                        <i class="fas fa-cog me-2"></i>Email Setup
+                    </a>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-10">
+                <h1 class="mb-4">DKIM Email Configuration</h1>
+
+                <!-- Alert Messages -->
+                <div th:if="${message}" class="alert alert-success alert-dismissible fade show" role="alert">
+                    <span th:text="${message}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+
+                <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <span th:text="${error}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+
+                <!-- Current Configuration Status -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Current Email Configuration</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Basic Settings</h6>
+                                <ul class="list-unstyled">
+                                    <li><strong>SMTP Host:</strong> <span th:text="${smtpHost}">Not configured</span></li>
+                                    <li><strong>SMTP Port:</strong> <span th:text="${smtpPort}">Not configured</span></li>
+                                    <li><strong>Sender Email:</strong> <span th:text="${senderEmail}">Not configured</span></li>
+                                    <li><strong>From Domain:</strong> <span th:text="${fromDomain ?: 'Not configured'}">Not configured</span></li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>DKIM Configuration</h6>
+                                <ul class="list-unstyled">
+                                    <li><strong>DKIM Enabled:</strong> 
+                                        <span th:class="${dkimEnabled} ? 'text-success' : 'text-warning'"
+                                              th:text="${dkimEnabled} ? 'Yes' : 'No'">No</span>
+                                    </li>
+                                    <li><strong>DKIM Domain:</strong> <span th:text="${dkimDomain ?: 'Not configured'}">Not configured</span></li>
+                                    <li><strong>DKIM Selector:</strong> <span th:text="${dkimSelector ?: 'default'}">default</span></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <span class="badge" th:classappend="${configurationComplete} ? 'bg-success' : 'bg-warning'">
+                                <span th:text="${configurationStatus}">Configuration Status</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Your DKIM DNS Record -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Your DKIM DNS Record</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>We detected you have the following DKIM DNS record configured:</p>
+                        <div class="bg-light p-3 rounded font-monospace small">
+                            <strong>Record Name:</strong> default._domainkey<br>
+                            <strong>Record Type:</strong> TXT<br>
+                            <strong>Record Value:</strong> v=DKIM1;k=rsa;p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvgn5VVvCnMnAHOk7TBQ1Fq3auIa+CaZeHMz3gHOwkiIA5IZPXmho3BHuxCXzo7I3PnLsiZA18TOQQqVvhVbNU7aRAdaKDsz5q4KmPuHAQkHqPj6aSRmGUtYzeRUxzuc8ys8w9Eff2QpCICF1ArRlVdPIJPgJIftk8ByrKao+qwB+Cjemb5K7cya4i/ssVf9Hm2VH7cGOlmRluBY1VTvUeNA5Gr9d7alGrlYBZkmYCX2g/gZ9FEpPNamlS4n/t/SiKtHACZW3i9QaGnglo616+KakVn9kGeWaQ8m3Wxxo43IdPd5CZMBVP8Ji9mbXRNbRhY3E/ptnMD1eE9maCisNoQIDAQAB
+                        </div>
+                        <div class="alert alert-info mt-3">
+                            <i class="fas fa-info-circle me-2"></i>
+                            This DKIM record will authenticate emails sent from your domain, improving deliverability and reducing spam classification.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Configuration Form -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Configure Email Settings</h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" action="/admin/marketing/email-setup">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6 class="mb-3">Basic Email Settings</h6>
+                                    <div class="mb-3">
+                                        <label for="senderEmail" class="form-label">Sender Email Address</label>
+                                        <input type="email" class="form-control" id="senderEmail" name="senderEmail" 
+                                               th:value="${senderEmail}" placeholder="noreply@yourdomain.com" required>
+                                        <div class="form-text">The email address that will appear as the sender</div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="senderName" class="form-label">Sender Name</label>
+                                        <input type="text" class="form-control" id="senderName" name="senderName" 
+                                               th:value="${senderName}" placeholder="Real Estate Team" required>
+                                        <div class="form-text">The name that will appear as the sender</div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="replyToEmail" class="form-label">Reply-To Email (Optional)</label>
+                                        <input type="email" class="form-control" id="replyToEmail" name="replyToEmail" 
+                                               th:value="${replyToEmail}" placeholder="support@yourdomain.com">
+                                        <div class="form-text">Where replies should be sent (if different from sender)</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6 class="mb-3">DKIM Authentication</h6>
+                                    <div class="mb-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="dkimEnabled" name="dkimEnabled" 
+                                                   th:checked="${dkimEnabled}">
+                                            <label class="form-check-label" for="dkimEnabled">
+                                                Enable DKIM Authentication
+                                            </label>
+                                        </div>
+                                        <div class="form-text">Improves email deliverability and reduces spam classification</div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="dkimDomain" class="form-label">DKIM Domain</label>
+                                        <input type="text" class="form-control" id="dkimDomain" name="dkimDomain" 
+                                               th:value="${dkimDomain}" placeholder="yourdomain.com">
+                                        <div class="form-text">The domain where your DKIM record is configured</div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="dkimSelector" class="form-label">DKIM Selector</label>
+                                        <input type="text" class="form-control" id="dkimSelector" name="dkimSelector" 
+                                               th:value="${dkimSelector}" placeholder="default">
+                                        <div class="form-text">The selector used in your DKIM DNS record</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>Save Configuration
+                                </button>
+                                <button type="button" class="btn btn-outline-success" onclick="testEmail()">
+                                    <i class="fas fa-paper-plane me-2"></i>Send Test Email
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Setup Instructions -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Setup Instructions</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-primary">
+                            <h6><i class="fas fa-info-circle me-2"></i>How to Configure Your Email for Professional Sending</h6>
+                        </div>
+                        
+                        <div class="accordion" id="setupAccordion">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" 
+                                            data-bs-target="#step1" aria-expanded="true">
+                                        <i class="fas fa-envelope me-2"></i>Step 1: Configure Your Email Service
+                                    </button>
+                                </h2>
+                                <div id="step1" class="accordion-collapse collapse show">
+                                    <div class="accordion-body">
+                                        <p>Set these environment variables on your server or in your <code>.env</code> file:</p>
+                                        <pre class="bg-dark text-light p-3 rounded"><code>EMAIL_SMTP_HOST=smtp.yourmailprovider.com
+EMAIL_SMTP_PORT=587
+EMAIL_USERNAME=your-email@yourdomain.com
+EMAIL_PASSWORD=your-app-password
+EMAIL_FROM_DOMAIN=yourdomain.com
+EMAIL_REPLY_TO=support@yourdomain.com</code></pre>
+                                        <div class="alert alert-warning mt-2">
+                                            <strong>Note:</strong> Use app-specific passwords for Gmail, Outlook, etc. Never use your main account password.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
+                                            data-bs-target="#step2">
+                                        <i class="fas fa-shield-alt me-2"></i>Step 2: Enable DKIM Authentication
+                                    </button>
+                                </h2>
+                                <div id="step2" class="accordion-collapse collapse">
+                                    <div class="accordion-body">
+                                        <p>Your DKIM record is already configured! Set these environment variables:</p>
+                                        <pre class="bg-dark text-light p-3 rounded"><code>DKIM_ENABLED=true
+DKIM_DOMAIN=yourdomain.com
+DKIM_SELECTOR=default</code></pre>
+                                        <div class="alert alert-success">
+                                            <strong>Your DKIM is Ready!</strong> The DNS record you provided is properly formatted and will authenticate your emails.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
+                                            data-bs-target="#step3">
+                                        <i class="fas fa-cog me-2"></i>Step 3: Professional Email Providers
+                                    </button>
+                                </h2>
+                                <div id="step3" class="accordion-collapse collapse">
+                                    <div class="accordion-body">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <h6>Recommended Providers:</h6>
+                                                <ul>
+                                                    <li><strong>SendGrid:</strong> 100 emails/day free</li>
+                                                    <li><strong>Mailgun:</strong> 5,000 emails/month free</li>
+                                                    <li><strong>AWS SES:</strong> $0.10 per 1,000 emails</li>
+                                                    <li><strong>Google Workspace:</strong> Professional email with SMTP</li>
+                                                </ul>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <h6>Benefits of Professional Services:</h6>
+                                                <ul>
+                                                    <li>Better deliverability rates</li>
+                                                    <li>Built-in DKIM/SPF authentication</li>
+                                                    <li>Detailed analytics and tracking</li>
+                                                    <li>Higher sending limits</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Test Email Section -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Test Your Configuration</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="mb-3">
+                                    <label for="testEmailAddress" class="form-label">Test Email Address</label>
+                                    <input type="email" class="form-control" id="testEmailAddress" 
+                                           placeholder="your-email@example.com" required>
+                                </div>
+                            </div>
+                            <div class="col-md-4 d-flex align-items-end">
+                                <button type="button" class="btn btn-success w-100" onclick="sendTestEmail()">
+                                    <i class="fas fa-paper-plane me-2"></i>Send Test Email
+                                </button>
+                            </div>
+                        </div>
+                        <div id="testResult" class="mt-3" style="display: none;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function sendTestEmail() {
+            const email = document.getElementById('testEmailAddress').value;
+            if (!email) {
+                alert('Please enter a test email address');
+                return;
+            }
+
+            const resultDiv = document.getElementById('testResult');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '<div class="alert alert-info"><i class="fas fa-spinner fa-spin me-2"></i>Sending test email...</div>';
+
+            fetch('/admin/marketing/email-setup/test', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'testEmail=' + encodeURIComponent(email)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    resultDiv.innerHTML = '<div class="alert alert-success"><i class="fas fa-check me-2"></i>Test email sent successfully! Check your inbox.</div>';
+                } else {
+                    resultDiv.innerHTML = '<div class="alert alert-danger"><i class="fas fa-times me-2"></i>Failed to send test email: ' + data.message + '</div>';
+                }
+            })
+            .catch(error => {
+                resultDiv.innerHTML = '<div class="alert alert-danger"><i class="fas fa-times me-2"></i>Error sending test email: ' + error.message + '</div>';
+            });
+        }
+    </script>
+</body>
+</html>

@@ -168,4 +168,13 @@ public class EmailLog {
     public boolean isEngaged() {
         return "OPENED".equals(status) || "CLICKED".equals(status);
     }
+    
+    // Alias methods for compatibility
+    public void setSubject(String subject) {
+        setSubjectLine(subject);
+    }
+    
+    public void setSentAt(LocalDateTime sentAt) {
+        setSentDate(sentAt);
+    }
 } 

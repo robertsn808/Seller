@@ -1,281 +1,264 @@
-# Real Estate Seller Funnel with Property Management
+# Real Estate Connect CRM
 
-A comprehensive real estate platform with client management, marketing automation, and property management capabilities, including Universal Payment Protocol integration.
+A comprehensive Spring Boot web application designed as a lead generation and management system for real estate professionals. The application serves as a funnel for connecting buyers and sellers, allowing you to capture leads, manage campaigns, and bird-dog deals effectively.
 
-## 🏠 Features
+## 🎯 Key Features
 
-### 🏢 Real Estate Management
-- **Client Management**: Complete CRM with lead tracking, contact history, and status management
-- **Marketing Automation**: Facebook Ads, Google Ads, email campaigns, and content generation
-- **Lead Capture**: Website forms for buyers and sellers with automatic client creation
-- **Analytics**: Comprehensive reporting and performance tracking
+### Lead Management
+- **Buyer Lead Collection**: Comprehensive forms capturing budget, preferences, and requirements
+- **Seller Lead Collection**: Detailed property listing form for sellers
+- **Creative Financing Support**: Seller financing, lease-to-own, rent-to-own options
+- **Property Photo Upload**: Support for up to 10 photos, 10MB each
+- **Lead Analytics**: Track sources, conversion rates, and performance
 
-### 🏨 Property Management Portal
-A comprehensive property management system for managing 8 rooms with full guest tracking, booking management, financial tracking, and **Universal Payment Protocol (UPP) integration** for accepting payments from any device.
+### Marketing Campaign Management
+- **Multi-Platform Campaigns**: Facebook/Instagram, Google Ads integration
+- **Campaign Types**: Lead generation, retargeting, brand awareness
+- **Budget Management**: Track spending and ROI across platforms
+- **Performance Analytics**: CTR, conversion rates, cost per lead
+- **Content Generation**: AI-powered campaign content creation
 
-#### 🌊 Universal Payment Protocol Integration
+### Professional Email System
+- **DKIM Authentication**: Improved deliverability with domain authentication
+- **Template Engine**: Professional email templates with personalization
+- **Bulk Campaigns**: Rate-limited sending for large contact lists
+- **Email Tracking**: Open rates, click-through tracking, bounce handling
+- **Compliance Features**: Unsubscribe links, opt-in management
 
-The property management system now includes full integration with the Universal Payment Protocol, allowing you to accept payments from:
+### Admin Dashboard
+- **Lead Overview**: Recent buyers and sellers with contact information
+- **Campaign Management**: Create, edit, and monitor marketing campaigns
+- **Email Campaigns**: Compose and send professional email campaigns
+- **Analytics Dashboard**: Performance metrics and insights
+- **API Configuration**: Setup for Facebook, Google Ads, and email services
 
-- **📱 Smartphones**: NFC, QR codes, biometric authentication
-- **📺 Smart TVs**: QR display, remote control navigation  
-- **🏠 IoT Devices**: Sensors, automation, button interface
-- **🎤 Voice Assistants**: Natural language processing
-- **🎮 Gaming Consoles**: Controller navigation
-- **⌚ Smartwatches**: Touch, voice, haptic feedback (coming soon)
-
-**Key Benefits:**
-- **40% Revenue Increase**: Reported by Hawaii businesses
-- **No Special Hardware**: Any internet-connected device becomes a payment terminal
-- **Lower Fees**: 2.5% vs industry standard 2.9%
-- **24/7 Availability**: Always-on payment processing
-
-**See [UPP_INTEGRATION.md](UPP_INTEGRATION.md) for complete documentation.**
-
-### 🏠 Room Management
-- **8 Room Support**: Manage exactly 8 rooms with individual configurations
-- **Vacancy Tracking**: Real-time status of vacant vs. occupied rooms
-- **Door Code Management**: Current door codes and reset codes for each room
-- **Gate Key Assignment**: Track gate key assignments and numbers
-
-### 👥 Guest Management
-- **Comprehensive Profiles**: Personal info, ID, vehicle details, emergency contacts
-- **Guest Search**: Find guests by name, email, phone, or vehicle
-- **Duplicate Prevention**: Email-based duplicate detection
-
-### 📅 Booking Management
-- **Check-in/Check-out**: Automatic date tracking and status updates
-- **Payment Processing**: Multiple payment methods including UPP devices
-- **Balance Management**: Real-time balance calculation and tracking
-- **Payment Status**: Pending, Paid, Partial, Overdue tracking
-
-### 💳 Payment Processing
-- **Universal Payment Protocol**: Accept payments from any device
-- **Traditional Methods**: Cash, card, bank transfer support
-- **Payment Analytics**: Comprehensive payment statistics and reporting
-- **Refund Processing**: Full refund capabilities with audit trail
-
-## 🚀 Quick Start
+## ⚡ Quick Start
 
 ### Prerequisites
-- Java 17+
+- Java 11 or higher
 - Maven 3.6+
-- Node.js 18+ (for UPP server)
-- PostgreSQL (for production)
+- Docker (optional, for PostgreSQL)
 
-### Installation
+### Running the Application
 
-1. **Clone the repository**
+#### Development Mode (H2 Database)
 ```bash
+# Clone the repository
 git clone <repository-url>
 cd Seller
-```
 
-2. **Build the application**
-```bash
-mvn clean install
-```
-
-3. **Set up UPP Server** (for payment processing)
-```bash
-# Clone UPP repository
-git clone https://github.com/robertsn808/UniversalPaymentProtocol.git
-cd UniversalPaymentProtocol
-npm install
-npm run dev
-```
-
-4. **Configure environment variables**
-```bash
-# Copy and edit application.properties
-cp src/main/resources/application.properties.example src/main/resources/application.properties
-
-# Set UPP configuration
-UPP_API_BASE_URL=http://localhost:3000
-UPP_DEVICE_ID=property_management_system
-UPP_DEVICE_TYPE=smartphone
-```
-
-5. **Run the application**
-```bash
+# Run the application
 mvn spring-boot:run
+
+# Access the application
+open http://localhost:8080
 ```
 
-6. **Access the application**
-- Main Application: http://localhost:8080
-- Property Management: http://localhost:8080/property/login
-- Admin Dashboard: http://localhost:8080/admin
+#### Production Mode (PostgreSQL)
+```bash
+# Start PostgreSQL
+docker-compose up -d
+
+# Run with PostgreSQL profile
+mvn spring-boot:run -Dspring.profiles.active=postgres
+```
+
+### Default Access
+- **Public Site**: http://localhost:8080
+- **Admin Portal**: http://localhost:8080/admin
+- **H2 Console**: http://localhost:8080/h2-console (Development only)
+- **Default Admin**: username: `admin`, password: `admin123`
 
 ## 📁 Project Structure
 
 ```
-src/
-├── main/
-│   ├── java/com/realestate/sellerfunnel/
-│   │   ├── config/           # Configuration classes
-│   │   ├── controller/       # MVC controllers
-│   │   ├── model/           # JPA entities
-│   │   ├── repository/      # Data access layer
-│   │   ├── service/         # Business logic
-│   │   └── SellerFunnelApplication.java
-│   └── resources/
-│       ├── templates/       # Thymeleaf templates
-│       └── application.properties
-├── Property Management Portal
-├── Client Management System
-├── Marketing Automation
-└── Universal Payment Protocol Integration
+src/main/java/com/realestate/sellerfunnel/
+├── controller/          # Web controllers (MVC)
+├── model/              # Entity classes (JPA)
+├── repository/         # Data access layer (Spring Data JPA)
+├── service/            # Business logic layer
+└── SellerFunnelApplication.java
+
+src/main/resources/
+├── application.properties    # Configuration
+├── templates/               # Thymeleaf HTML templates
+│   ├── admin/              # Admin dashboard templates
+│   ├── buyer/              # Buyer-facing templates
+│   └── seller/             # Seller-facing templates
+└── static/                 # CSS, JS, images
 ```
 
 ## 🔧 Configuration
 
-### Application Properties
-
-```properties
-# Database
-spring.datasource.url=jdbc:postgresql://localhost:5432/seller_funnel
-spring.datasource.username=your_username
-spring.datasource.password=your_password
-
-# UPP Configuration
-upp.api.base-url=${UPP_API_BASE_URL:http://localhost:3000}
-upp.api.device-id=${UPP_DEVICE_ID:property_management_system}
-upp.api.device-type=${UPP_DEVICE_TYPE:smartphone}
-
-# Admin credentials
-app.admin.username=admin
-app.admin.password=admin123
-```
-
 ### Environment Variables
 
+#### Database Configuration
 ```bash
-# Database
+# PostgreSQL (Production)
 SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/seller_funnel
-SPRING_DATASOURCE_USERNAME=your_username
-SPRING_DATASOURCE_PASSWORD=your_password
-
-# UPP Configuration
-UPP_API_BASE_URL=http://localhost:3000
-UPP_DEVICE_ID=property_management_system
-UPP_DEVICE_TYPE=smartphone
-
-# Admin credentials
-ADMIN_USERNAME=admin
-ADMIN_PASSWORD=secure_password
+SPRING_DATASOURCE_USERNAME=postgres
+SPRING_DATASOURCE_PASSWORD=password
 ```
 
-## 🏗️ Architecture
+#### Email Configuration
+```bash
+# SMTP Settings
+EMAIL_SMTP_HOST=smtp.gmail.com
+EMAIL_SMTP_PORT=587
+EMAIL_USERNAME=your-email@domain.com
+EMAIL_PASSWORD=your-app-password
 
-### Technology Stack
-- **Backend**: Spring Boot 3.x, Spring Data JPA, Spring Security
-- **Database**: PostgreSQL (production), H2 (development)
-- **Frontend**: Thymeleaf, HTML5, CSS3, JavaScript
-- **Payment Processing**: Universal Payment Protocol, Stripe
-- **Build Tool**: Maven
+# Professional Email Settings
+EMAIL_FROM_DOMAIN=yourdomain.com
+EMAIL_REPLY_TO=support@yourdomain.com
 
-### Key Components
+# DKIM Authentication
+DKIM_ENABLED=true
+DKIM_DOMAIN=yourdomain.com
+DKIM_SELECTOR=default
+```
 
-#### Real Estate Management
-- **ClientController**: Client CRUD operations and management
-- **MarketingController**: Campaign management and analytics
-- **EmailCampaignController**: Email marketing automation
-- **HomeController**: Website forms and lead capture
+#### Marketing API Keys
+```bash
+# Facebook/Meta Ads
+FACEBOOK_ACCESS_TOKEN=your_facebook_token
+FACEBOOK_AD_ACCOUNT_ID=act_your_account_id
+FACEBOOK_PAGE_ID=your_page_id
 
-#### Property Management
-- **PropertyManagementController**: Property management operations
-- **Room/Guest/Booking Models**: Core property entities
-- **PaymentService**: Payment processing with UPP integration
-- **UniversalPaymentProtocolService**: UPP API integration
+# Google Ads
+GOOGLE_ADS_DEVELOPER_TOKEN=your_developer_token
+GOOGLE_ADS_CLIENT_ID=your_client_id
+GOOGLE_ADS_CLIENT_SECRET=your_client_secret
+GOOGLE_ADS_REFRESH_TOKEN=your_refresh_token
+GOOGLE_ADS_CUSTOMER_ID=your_customer_id
 
-## 📊 Features Overview
+# OpenAI (Content Generation)
+OPENAI_API_KEY=your_openai_key
+```
 
-### Real Estate Features
-- ✅ Client management with status tracking
-- ✅ Lead capture from website forms
-- ✅ Marketing campaign automation
-- ✅ Email campaign management
-- ✅ Content generation with AI
-- ✅ Analytics and reporting
-- ✅ Excel import/export functionality
+### DKIM Email Setup
 
-### Property Management Features
-- ✅ 8-room property management
-- ✅ Guest registration and tracking
-- ✅ Booking management with check-in/check-out
-- ✅ Payment processing (traditional + UPP)
-- ✅ Door code and gate key management
-- ✅ Financial tracking and reporting
-- ✅ Real-time vacancy status
+1. **Add DNS Record**: Add the following TXT record to your domain:
+   ```
+   Record Name: default._domainkey
+   Record Type: TXT
+   Record Value: v=DKIM1;k=rsa;p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvgn5VVvCnMnAHOk7TBQ1Fq3auIa+CaZeHMz3gHOwkiIA5IZPXmho3BHuxCXzo7I3PnLsiZA18TOQQqVvhVbNU7aRAdaKDsz5q4KmPuHAQkHqPj6aSRmGUtYzeRUxzuc8ys8w9Eff2QpCICF1ArRlVdPIJPgJIftk8ByrKao+qwB+Cjemb5K7cya4i/ssVf9Hm2VH7cGOlmRluBY1VTvUeNA5Gr9d7alGrlYBZkmYCX2g/gZ9FEpPNamlS4n/t/SiKtHACZW3i9QaGnglo616+KakVn9kGeWaQ8m3Wxxo43IdPd5CZMBVP8Ji9mbXRNbRhY3E/ptnMD1eE9maCisNoQIDAQAB
+   ```
 
-### Payment Features
-- ✅ Universal Payment Protocol integration
-- ✅ Multi-device payment support
-- ✅ Traditional payment methods
-- ✅ Payment analytics and reporting
-- ✅ Refund processing
-- ✅ Security and fraud detection
+2. **Configure Environment Variables**: Set the DKIM variables as shown above
+
+3. **Test Configuration**: Use the Email Setup dashboard at `/admin/marketing/email-setup`
 
 ## 🚀 Deployment
 
-### Local Development
+### Render Deployment
+The application is configured for deployment on Render using the included `render.yaml` blueprint.
+
+1. **Connect Repository**: Link your GitHub repository to Render
+2. **Environment Variables**: Set all required environment variables in Render dashboard
+3. **Deploy**: Render will automatically build and deploy from the `master` branch
+
+### Manual Deployment
 ```bash
-# Start the application
+# Build the application
+mvn clean package
+
+# Run the JAR file
+java -jar target/seller-funnel-0.0.1-SNAPSHOT.jar
+```
+
+## 🗃️ Database Schema
+
+### Key Entities
+
+#### Buyer
+- Personal information (name, email, phone)
+- Budget range and financing preferences
+- Location preferences and property requirements
+- Creative financing interests
+- Lead source tracking
+
+#### Seller
+- Property details and address information
+- Property photos (file storage)
+- Price and condition information
+- Selling timeline and motivation
+- Creative financing options
+
+#### Campaign
+- Campaign name, type, and description
+- Target audience and budget information
+- Platform-specific settings (Facebook, Google)
+- Performance metrics and analytics
+- Start/end dates and status
+
+#### EmailCampaign
+- Email subject and HTML content
+- Sender information and settings
+- Recipient targeting and segmentation
+- Delivery statistics and tracking
+
+#### Client
+- Unified contact management
+- Email opt-in/opt-out preferences
+- Lead source and conversion tracking
+- Communication history and notes
+
+## 🛠️ Development
+
+### Build Commands
+```bash
+# Clean build
+mvn clean package
+
+# Run tests
+mvn test
+
+# Start development server
 mvn spring-boot:run
 
-# Start UPP server (in separate terminal)
-cd UniversalPaymentProtocol
-npm run dev
+# Run with specific profile
+mvn spring-boot:run -Dspring.profiles.active=postgres
 ```
 
-### Production Deployment
+### Testing
+- **Unit Tests**: Service layer testing with JUnit 5
+- **Integration Tests**: Web layer testing with MockMvc
+- **Database Tests**: Repository testing with @DataJpaTest
 
-1. **Build the application**
-```bash
-mvn clean package -DskipTests
-```
+### Code Style
+- Follow Spring Boot conventions
+- Use service layer for business logic
+- Repository pattern for data access
+- Thymeleaf for view templates
 
-2. **Set up production database**
-```bash
-# Create PostgreSQL database
-createdb seller_funnel
-```
+## 📊 Marketing Features
 
-3. **Configure environment variables**
-```bash
-export SPRING_PROFILES_ACTIVE=production
-export SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/seller_funnel
-export UPP_API_BASE_URL=https://your-upp-server.com
-```
+### Campaign Types
+- **Facebook/Instagram Ads**: Automated campaign creation and management
+- **Google Ads**: Search and display campaign setup
+- **Email Campaigns**: Professional email marketing with templates
+- **Content Generation**: AI-powered ad copy and email content
 
-4. **Deploy UPP server**
-```bash
-# Deploy UPP server to production
-cd UniversalPaymentProtocol
-npm run build
-npm start
-```
+### Analytics & Reporting
+- **Lead Metrics**: Conversion rates, source tracking, lead quality
+- **Campaign Performance**: CTR, CPC, conversion rates, ROI
+- **Email Analytics**: Open rates, click rates, bounce rates
+- **Financial Tracking**: Budget vs. spend, cost per lead, revenue attribution
 
-5. **Run the application**
-```bash
-java -jar target/seller-funnel-1.0-SNAPSHOT.jar
-```
+### Lead Generation Strategy
+- **Buyer Targeting**: Investors, first-time buyers, cash buyers
+- **Seller Targeting**: Distressed properties, tired landlords, FSBO
+- **Creative Financing**: Appeals to unique financing situations
+- **Local Marketing**: Geo-targeted campaigns for specific markets
 
-## 📚 Documentation
+## 🔐 Security Features
 
-- **[UPP Integration Guide](UPP_INTEGRATION.md)**: Complete Universal Payment Protocol documentation
-- **[Property Management Guide](PROPERTY_MANAGEMENT.md)**: Property management system documentation
-- **[Form Integration Guide](FORM_INTEGRATION.md)**: Website form integration documentation
-- **[Deployment Guide](DEPLOYMENT.md)**: Production deployment instructions
-
-## 🔒 Security
-
-- **Spring Security**: Authentication and authorization
-- **Input Validation**: Comprehensive form validation
-- **SQL Injection Prevention**: Parameterized queries
-- **XSS Protection**: Output encoding
-- **CSRF Protection**: Form token validation
-- **Payment Security**: PCI-compliant payment processing
+- **Admin Authentication**: Secure admin portal access
+- **DKIM Email Authentication**: Verified email sending
+- **File Upload Security**: Validated file types and size limits
+- **SQL Injection Protection**: JPA parameterized queries
+- **XSS Protection**: Thymeleaf template escaping
 
 ## 🤝 Contributing
 
@@ -289,22 +272,52 @@ java -jar target/seller-funnel-1.0-SNAPSHOT.jar
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🆘 Support
+## 📞 Support & Troubleshooting
 
-- **Documentation**: Check the documentation files in the project
-- **Issues**: Report bugs and feature requests via GitHub Issues
-- **Email**: Contact the development team for support
+### Common Issues
 
-## 🏆 Success Stories
+**Email Not Sending**
+- Check SMTP configuration and credentials
+- Verify DKIM DNS record is properly configured
+- Test with the Email Setup dashboard
 
-> "UPP transformed our property management! Now guests can pay with their phones, smart TVs, even ask Alexa to pay for their room. Revenue up 40%!" 
-> - *Hawaii Property Manager*
+**Campaign Creation Issues**
+- Ensure API credentials are properly set
+- Check network connectivity to marketing platforms
+- Verify account permissions and limits
 
-> "The client management system streamlined our real estate operations. Every lead is tracked and nurtured automatically."
-> - *Real Estate Agent*
+**Database Connection Issues**
+- Confirm PostgreSQL is running (production mode)
+- Check connection string and credentials
+- Verify database exists and is accessible
+
+### Logs & Debugging
+- Application logs available in console output
+- Enable SQL logging with `spring.jpa.show-sql=true`
+- Use H2 console for database debugging in development
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is proprietary software for real estate lead generation and management.
 
 ---
 
-**Built with ❤️ for the real estate and property management industry**
+## 🎯 Getting Started Checklist
 
-*Making property management universal, one device at a time.*
+- [ ] Clone repository and run `mvn spring-boot:run`
+- [ ] Access admin portal at http://localhost:8080/admin
+- [ ] Configure email settings at `/admin/marketing/email-setup`
+- [ ] Set up marketing API credentials at `/admin/marketing/api-config`
+- [ ] Create your first marketing campaign
+- [ ] Test lead capture forms at buyer and seller pages
+- [ ] Review analytics dashboard for performance insights
+
+**Ready to start generating real estate leads!** 🏡

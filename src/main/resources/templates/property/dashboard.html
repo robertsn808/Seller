@@ -207,6 +207,13 @@
     </div>
 
     <div class="container">
+        <!-- Error Alert -->
+        <div th:if="${error}" class="alert alert-danger">
+            <h4>⚠️ Database Initialization Required</h4>
+            <p th:text="${error}">Database initialization required. Please check application logs.</p>
+            <p><strong>Solution:</strong> Restart the application to initialize the database schema with the new payment system.</p>
+        </div>
+        
         <!-- Statistics Grid -->
         <div class="stats-grid">
             <div class="stat-card vacant">
