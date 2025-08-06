@@ -35,6 +35,10 @@ public class CampaignPostSubmissionService {
     public CampaignProcessResult processCampaignSubmission(Campaign campaign, boolean isNewCampaign) {
         CampaignProcessResult result = new CampaignProcessResult();
         
+        System.out.println("=== PROCESSING CAMPAIGN SUBMISSION ===");
+        System.out.println("Campaign: " + campaign.getName());
+        System.out.println("Is new campaign: " + isNewCampaign);
+        
         try {
             // Step 1: Set timestamps
             if (isNewCampaign) {
@@ -48,9 +52,13 @@ public class CampaignPostSubmissionService {
             // Step 3: Advanced validation
             CampaignValidationService.ValidationResult validation = validationService.validateCampaign(campaign);
             if (!validation.isValid()) {
+                System.out.println("=== VALIDATION FAILED ===");
+                System.out.println("Validation errors: " + validation.getErrors());
                 result.setSuccess(false);
                 result.getErrors().addAll(validation.getErrors());
                 return result;
+            } else {
+                System.out.println("=== VALIDATION PASSED ===");
             }
             result.getWarnings().addAll(validation.getWarnings());
             
