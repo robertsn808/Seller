@@ -45,6 +45,8 @@ public class Buyer {
     
     private Boolean openToCreativeFinancing;
     
+    private String purchasePurpose; // Primary Residence, Investment Property, Vacation Home, etc.
+    
     private String timeframe; // ASAP, 30 days, 90 days, etc.
     
     @Column(length = 1000)
@@ -97,6 +99,9 @@ public class Buyer {
     
     public Boolean getOpenToCreativeFinancing() { return openToCreativeFinancing; }
     public void setOpenToCreativeFinancing(Boolean openToCreativeFinancing) { this.openToCreativeFinancing = openToCreativeFinancing; }
+    
+    public String getPurchasePurpose() { return purchasePurpose; }
+    public void setPurchasePurpose(String purchasePurpose) { this.purchasePurpose = purchasePurpose; }
     
     public String getTimeframe() { return timeframe; }
     public void setTimeframe(String timeframe) { this.timeframe = timeframe; }

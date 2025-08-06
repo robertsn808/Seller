@@ -116,16 +116,29 @@
                 </div>
                 
                 <div class="form-group">
-                    <label for="timeframe">Purchase Timeframe</label>
-                    <select id="timeframe" th:field="*{timeframe}">
-                        <option value="">Select timeframe</option>
-                        <option value="ASAP">ASAP</option>
-                        <option value="30 days">Within 30 days</option>
-                        <option value="90 days">Within 90 days</option>
-                        <option value="6 months">Within 6 months</option>
-                        <option value="Flexible">Flexible</option>
+                    <label for="purchasePurpose">Purchase Purpose</label>
+                    <select id="purchasePurpose" th:field="*{purchasePurpose}">
+                        <option value="">Select purpose</option>
+                        <option value="Primary Residence">Primary Residence</option>
+                        <option value="Investment Property">Investment Property</option>
+                        <option value="Vacation Home">Vacation Home</option>
+                        <option value="Rental Property">Rental Property</option>
+                        <option value="Fix and Flip">Fix and Flip</option>
+                        <option value="Other">Other</option>
                     </select>
                 </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="timeframe">Purchase Timeframe</label>
+                <select id="timeframe" th:field="*{timeframe}">
+                    <option value="">Select timeframe</option>
+                    <option value="ASAP">ASAP</option>
+                    <option value="30 days">Within 30 days</option>
+                    <option value="90 days">Within 90 days</option>
+                    <option value="6 months">Within 6 months</option>
+                    <option value="Flexible">Flexible</option>
+                </select>
             </div>
             
             <div class="form-group">

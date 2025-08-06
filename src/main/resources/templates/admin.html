@@ -89,6 +89,7 @@
                                 <div th:text="${buyer.minBedrooms != null ? buyer.minBedrooms + '+ BR' : 'Any BR'}">3+ BR</div>
                                 <div th:text="${buyer.minBathrooms != null ? buyer.minBathrooms + '+ BA' : 'Any BA'}">2+ BA</div>
                                 <div th:text="${buyer.propertyType ?: 'Any Type'}">Single Family</div>
+                                <div th:if="${buyer.purchasePurpose}" style="color: #8e44ad; font-weight: 600;" th:text="${buyer.purchasePurpose}">Investment</div>
                             </td>
                             <td>
                                 <div th:if="${buyer.needsFinancing}" style="color: #e67e22;">Needs Financing</div>
