@@ -8,8 +8,10 @@ import com.realestate.sellerfunnel.repository.ContentTemplateRepository;
 import com.realestate.sellerfunnel.repository.BuyerRepository;
 import com.realestate.sellerfunnel.repository.SellerRepository;
 import com.realestate.sellerfunnel.service.CampaignPublishingService;
-import com.realestate.sellerfunnel.service.CampaignValidationService;
-import com.realestate.sellerfunnel.service.CampaignPostSubmissionService;
+import com.realestate.sellerfunnel.service.AIContentGenerationService;
+import com.realestate.sellerfunnel.service.ContentMemoryService;
+import com.realestate.sellerfunnel.model.AIGeneratedContent;
+import com.realestate.sellerfunnel.repository.AIGeneratedContentRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -20,6 +22,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/admin/marketing")
@@ -44,10 +48,13 @@ public class MarketingController {
     private CampaignPublishingService campaignPublishingService;
     
     @Autowired
-    private CampaignValidationService campaignValidationService;
+    private AIContentGenerationService aiContentGenerationService;
     
     @Autowired
-    private CampaignPostSubmissionService campaignPostSubmissionService;
+    private ContentMemoryService contentMemoryService;
+    
+    @Autowired
+    private AIGeneratedContentRepository aiGeneratedContentRepository;
 
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
@@ -292,7 +299,128 @@ public class MarketingController {
         model.addAttribute("buyerTemplates", templateRepository.findByTargetAudienceAndIsActiveTrueOrderByCreatedAtDesc("BUYERS"));
         model.addAttribute("generalTemplates", templateRepository.findByTargetAudienceAndIsActiveTrueOrderByCreatedAtDesc("BOTH"));
         
+        // Add AI-generated content
+        model.addAttribute("aiSellerContent", aiGeneratedContentRepository.findByContentTypeAndTargetAudienceOrderByCreatedAtDesc("FACEBOOK_POST", "SELLERS"));
+        model.addAttribute("aiBuyerContent", aiGeneratedContentRepository.findByContentTypeAndTargetAudienceOrderByCreatedAtDesc("FACEBOOK_POST", "BUYERS"));
+        
+        // Add content statistics
+        Map<String, Object> contentStats = contentMemoryService.getContentStats();
+        model.addAttribute("contentStats", contentStats);
+        
         return "admin/marketing/content-generator";
+    }
+    
+    @PostMapping("/content-generator/generate")
+    @ResponseBody
+    public Map<String, Object> generateAIContent(@RequestParam String prompt,
+                                                @RequestParam String contentType,
+                                                @RequestParam String targetAudience,
+                                                @RequestParam(required = false) String category,
+                                                @RequestParam(required = false) String context) {
+        
+        try {
+            AIGeneratedContent generatedContent = aiContentGenerationService.generateContent(
+                prompt, contentType, targetAudience, category, context, 3);
+            
+            return Map.of(
+                "success", true,
+                "content", generatedContent,
+                "message", "Content generated successfully!"
+            );
+        } catch (Exception e) {
+            return Map.of(
+                "success", false,
+                "message", "Failed to generate content: " + e.getMessage()
+            );
+        }
+    }
+    
+    @PostMapping("/content-generator/generate-variations")
+    @ResponseBody
+    public Map<String, Object> generateContentVariations(@RequestParam String prompt,
+                                                        @RequestParam String contentType,
+                                                        @RequestParam String targetAudience,
+                                                        @RequestParam(required = false) String category,
+                                                        @RequestParam(required = false) String context,
+                                                        @RequestParam(defaultValue = "3") int count) {
+        
+        try {
+            List<AIGeneratedContent> variations = aiContentGenerationService.generateContentVariations(
+                prompt, contentType, targetAudience, category, context, count);
+            
+            return Map.of(
+                "success", true,
+                "variations", variations,
+                "message", count + " content variations generated successfully!"
+            );
+        } catch (Exception e) {
+            return Map.of(
+                "success", false,
+                "message", "Failed to generate variations: " + e.getMessage()
+            );
+        }
+    }
+    
+    @GetMapping("/content-generator/similarity-check")
+    @ResponseBody
+    public Map<String, Object> checkSimilarity(@RequestParam String content,
+                                              @RequestParam String contentType,
+                                              @RequestParam String targetAudience) {
+        
+        try {
+            List<Map<String, Object>> similarContent = contentMemoryService.findSimilarContent(
+                content, contentType, targetAudience);
+            
+            return Map.of(
+                "success", true,
+                "similarContent", similarContent,
+                "count", similarContent.size()
+            );
+        } catch (Exception e) {
+            return Map.of(
+                "success", false,
+                "message", "Failed to check similarity: " + e.getMessage()
+            );
+        }
+    }
+    
+    @GetMapping("/content-generator/suggestions")
+    @ResponseBody
+    public Map<String, Object> getSuggestions(@RequestParam String contentType,
+                                             @RequestParam String targetAudience) {
+        
+        try {
+            List<String> suggestions = contentMemoryService.getContentSuggestions(contentType, targetAudience);
+            
+            return Map.of(
+                "success", true,
+                "suggestions", suggestions
+            );
+        } catch (Exception e) {
+            return Map.of(
+                "success", false,
+                "message", "Failed to get suggestions: " + e.getMessage()
+            );
+        }
+    }
+    
+    @PostMapping("/content-generator/use-content")
+    @ResponseBody
+    public Map<String, Object> useContent(@RequestParam Long contentId) {
+        
+        try {
+            contentMemoryService.updateContentUsage(contentId);
+            
+            return Map.of(
+                "success", true,
+                "message", "Content usage updated successfully!"
+            );
+        } catch (Exception e) {
+            return Map.of(
+                "success", false,
+                "message", "Failed to update usage: " + e.getMessage()
+            );
+        }
     }
 
     @GetMapping("/analytics")
