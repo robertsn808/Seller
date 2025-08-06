@@ -10,6 +10,8 @@ import com.realestate.sellerfunnel.repository.SellerRepository;
 import com.realestate.sellerfunnel.service.CampaignPublishingService;
 import com.realestate.sellerfunnel.service.AIContentGenerationService;
 import com.realestate.sellerfunnel.service.ContentMemoryService;
+import com.realestate.sellerfunnel.service.CampaignPostSubmissionService;
+import com.realestate.sellerfunnel.service.CampaignValidationService;
 import com.realestate.sellerfunnel.model.AIGeneratedContent;
 import com.realestate.sellerfunnel.repository.AIGeneratedContentRepository;
 import jakarta.validation.Valid;
@@ -55,6 +57,12 @@ public class MarketingController {
     
     @Autowired
     private AIGeneratedContentRepository aiGeneratedContentRepository;
+    
+    @Autowired
+    private CampaignPostSubmissionService campaignPostSubmissionService;
+    
+    @Autowired
+    private CampaignValidationService campaignValidationService;
 
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
