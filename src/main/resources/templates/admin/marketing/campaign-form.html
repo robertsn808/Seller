@@ -214,6 +214,7 @@
                                         </button>
                                         <button type="button" class="btn btn-warning ms-2" onclick="debugForm()" style="display: none;" id="debugBtn">Debug</button>
                                         <button type="button" class="btn btn-success ms-2" onclick="submitWithoutValidation()" style="display: none;" id="bypassBtn">Submit Anyway</button>
+                                        <button type="button" class="btn btn-info ms-2" onclick="submitWithFetch()" style="display: none;" id="fetchBtn">Submit with Fetch</button>
                                     </div>
                                 </form>
                             </div>
@@ -477,6 +478,7 @@
             setTimeout(() => {
                 document.getElementById('debugBtn').style.display = 'inline-block';
                 document.getElementById('bypassBtn').style.display = 'inline-block';
+                document.getElementById('fetchBtn').style.display = 'inline-block';
             }, 5000);
         });
         
@@ -506,15 +508,58 @@
         
         // Submit without client-side validation
         function submitWithoutValidation() {
+            console.log('Attempting direct form submission...');
             const form = document.querySelector('form');
-            const submitBtn = document.getElementById('submitBtn');
             
-            // Remove the event listener temporarily
-            const newForm = form.cloneNode(true);
-            form.parentNode.replaceChild(newForm, form);
+            // Create a new form element to bypass all event listeners
+            const tempForm = document.createElement('form');
+            tempForm.action = form.action;
+            tempForm.method = form.method;
             
-            // Submit the form directly
-            newForm.submit();
+            // Copy all form data
+            const formData = new FormData(form);
+            for (let [key, value] of formData.entries()) {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = key;
+                input.value = value;
+                tempForm.appendChild(input);
+            }
+            
+            // Add to document and submit
+            document.body.appendChild(tempForm);
+            console.log('Submitting form with action:', tempForm.action);
+            tempForm.submit();
+        }
+        
+        // Submit using fetch API
+        function submitWithFetch() {
+            console.log('Attempting fetch submission...');
+            const form = document.querySelector('form');
+            const formData = new FormData(form);
+            
+            fetch(form.action, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                console.log('Fetch response:', response.status, response.statusText);
+                if (response.ok) {
+                    // If response is a redirect, follow it
+                    if (response.redirected) {
+                        window.location.href = response.url;
+                    } else {
+                        // Reload the page or redirect manually
+                        window.location.reload();
+                    }
+                } else {
+                    alert('Server error: ' + response.status + ' ' + response.statusText);
+                }
+            })
+            .catch(error => {
+                console.error('Fetch error:', error);
+                alert('Network error: ' + error.message);
+            });
         }
     </script>
 </body>
