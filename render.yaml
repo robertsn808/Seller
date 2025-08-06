@@ -13,6 +13,10 @@ services:
           property: connectionString
       - key: SPRING_PROFILES_ACTIVE
         value: render
+      - key: ADMIN_USERNAME
+        value: admin
+      - key: ADMIN_PASSWORD
+        value: admin123
       - key: SPRING_JPA_HIBERNATE_DDL_AUTO
         value: update
       - key: SPRING_JPA_DATABASE_PLATFORM
