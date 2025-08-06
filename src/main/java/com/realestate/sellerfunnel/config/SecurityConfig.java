@@ -28,6 +28,7 @@ public class SecurityConfig {
         http
             .authorizeHttpRequests(authz -> authz
                 .requestMatchers("/admin/**").authenticated()
+                .requestMatchers("/property/**").authenticated()
                 .requestMatchers("/", "/buyer", "/buyer/**", "/seller", "/seller/**", 
                                "/photos/**", "/css/**", "/js/**", "/images/**").permitAll()
                 .anyRequest().permitAll()

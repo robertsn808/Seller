@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Management - Property Portal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .nav-bar {
+            background: #f8f9fa;
+            padding: 15px 30px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .nav-links a {
+            text-decoration: none;
+            color: #495057;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .nav-links a:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .nav-links a.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .upp-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+        
+        .upp-status.healthy {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .upp-status.unhealthy {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            text-align: center;
+            border-left: 4px solid #667eea;
+        }
+        
+        .stat-card h3 {
+            font-size: 2em;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        
+        .stat-card p {
+            color: #6c757d;
+            font-weight: 500;
+        }
+        
+        .stat-card.upp { border-left-color: #28a745; }
+        .stat-card.upp h3 { color: #28a745; }
+        
+        .stat-card.pending { border-left-color: #ffc107; }
+        .stat-card.pending h3 { color: #ffc107; }
+        
+        .stat-card.failed { border-left-color: #dc3545; }
+        .stat-card.failed h3 { color: #dc3545; }
+        
+        .filters {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .filters form {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .filters input, .filters select {
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        .filters button {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .filters button:hover {
+            background: #5a6fd8;
+        }
+        
+        .payments-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+        
+        .payments-table th {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        .payments-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .payments-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .payment-status {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .status-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-failed {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .payment-method {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .method-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .method-upp {
+            background: #28a745;
+            color: white;
+        }
+        
+        .method-card {
+            background: #007bff;
+            color: white;
+        }
+        
+        .method-cash {
+            background: #28a745;
+            color: white;
+        }
+        
+        .method-transfer {
+            background: #6f42c1;
+            color: white;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 0.9em;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-view {
+            background: #17a2b8;
+            color: white;
+        }
+        
+        .btn-view:hover {
+            background: #138496;
+        }
+        
+        .btn-refund {
+            background: #ffc107;
+            color: #212529;
+        }
+        
+        .btn-refund:hover {
+            background: #e0a800;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+        
+        .empty-state h3 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+        
+        .empty-state p {
+            font-size: 1.1em;
+            margin-bottom: 20px;
+        }
+        
+        .upp-info {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .upp-info h3 {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .upp-info p {
+            margin-bottom: 15px;
+            opacity: 0.9;
+        }
+        
+        .upp-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .upp-feature {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .upp-feature h4 {
+            margin-bottom: 5px;
+            font-size: 1.1em;
+        }
+        
+        .upp-feature p {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+        
+        @media (max-width: 768px) {
+            .nav-bar {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .filters form {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .payments-table {
+                font-size: 0.9em;
+            }
+            
+            .payments-table th,
+            .payments-table td {
+                padding: 10px 8px;
+            }
+            
+            .actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💳 Payment Management</h1>
+            <p>Process payments from any device using Universal Payment Protocol</p>
+        </div>
+        
+        <div class="nav-bar">
+            <div class="nav-links">
+                <a href="/property/dashboard">🏠 Dashboard</a>
+                <a href="/property/rooms">🏨 Rooms</a>
+                <a href="/property/guests">👥 Guests</a>
+                <a href="/property/bookings">📅 Bookings</a>
+                <a href="/property/payments" class="active">💳 Payments</a>
+            </div>
+            
+            <div th:class="${uppHealthy ? 'upp-status healthy' : 'upp-status unhealthy'}">
+                <span th:text="${uppHealthy ? '✅' : '❌'}">✅</span>
+                <span th:text="${uppHealthy ? 'UPP Connected' : 'UPP Disconnected'}">UPP Connected</span>
+            </div>
+        </div>
+        
+        <div class="content">
+            <!-- UPP Information -->
+            <div class="upp-info" th:if="${uppHealthy}">
+                <h3>🌊 Universal Payment Protocol Active</h3>
+                <p>Accept payments from smartphones, smart TVs, IoT devices, voice assistants, and more!</p>
+                <div class="upp-features">
+                    <div class="upp-feature">
+                        <h4>📱 Smartphones</h4>
+                        <p>NFC, QR codes, biometric</p>
+                    </div>
+                    <div class="upp-feature">
+                        <h4>📺 Smart TVs</h4>
+                        <p>QR display, remote control</p>
+                    </div>
+                    <div class="upp-feature">
+                        <h4>🏠 IoT Devices</h4>
+                        <p>Sensors, automation</p>
+                    </div>
+                    <div class="upp-feature">
+                        <h4>🎤 Voice Assistants</h4>
+                        <p>Natural language</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Statistics -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3 th:text="${stats.completedCount}">0</h3>
+                    <p>Completed Payments</p>
+                </div>
+                <div class="stat-card upp">
+                    <h3 th:text="${stats.uppCount}">0</h3>
+                    <p>UPP Payments</p>
+                </div>
+                <div class="stat-card pending">
+                    <h3 th:text="${stats.pendingCount}">0</h3>
+                    <p>Pending Payments</p>
+                </div>
+                <div class="stat-card failed">
+                    <h3 th:text="${stats.failedCount}">0</h3>
+                    <p>Failed Payments</p>
+                </div>
+                <div class="stat-card">
+                    <h3 th:text="${'$' + stats.totalUppPayments}">$0</h3>
+                    <p>Total UPP Revenue</p>
+                </div>
+            </div>
+            
+            <!-- Filters -->
+            <div class="filters">
+                <form method="get" action="/property/payments">
+                    <input type="text" name="search" placeholder="Search payments..." 
+                           th:value="${search}" th:if="${search != null}">
+                    <select name="status">
+                        <option value="">All Statuses</option>
+                        <option value="PENDING" th:selected="${status == 'PENDING'}">Pending</option>
+                        <option value="COMPLETED" th:selected="${status == 'COMPLETED'}">Completed</option>
+                        <option value="FAILED" th:selected="${status == 'FAILED'}">Failed</option>
+                    </select>
+                    <select name="method">
+                        <option value="">All Methods</option>
+                        <option value="UPP_DEVICE" th:selected="${method == 'UPP_DEVICE'}">Universal Payment Device</option>
+                        <option value="CARD" th:selected="${method == 'CARD'}">Credit/Debit Card</option>
+                        <option value="CASH" th:selected="${method == 'CASH'}">Cash</option>
+                        <option value="TRANSFER" th:selected="${method == 'TRANSFER'}">Bank Transfer</option>
+                    </select>
+                    <button type="submit">🔍 Filter</button>
+                    <a href="/property/payments" class="btn btn-view">🔄 Clear</a>
+                </form>
+            </div>
+            
+            <!-- Payments Table -->
+            <div th:if="${not #lists.isEmpty(payments)}">
+                <table class="payments-table">
+                    <thead>
+                        <tr>
+                            <th>Payment ID</th>
+                            <th>Booking</th>
+                            <th>Amount</th>
+                            <th>Method</th>
+                            <th>Status</th>
+                            <th>Device</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="payment : payments">
+                            <td th:text="${payment.id}">#123</td>
+                            <td>
+                                <strong th:text="${payment.booking.room.roomNumber}">101</strong>
+                                <br>
+                                <small th:text="${payment.booking.guest.fullName}">John Doe</small>
+                            </td>
+                            <td>
+                                <strong th:text="${'$' + payment.amount}">$150.00</strong>
+                                <br>
+                                <small th:text="${payment.currency}">USD</small>
+                            </td>
+                            <td>
+                                <div class="payment-method">
+                                    <span th:class="${'method-icon method-' + payment.paymentMethod.toLowerCase()}">
+                                        <span th:text="${payment.paymentMethod == 'UPP_DEVICE' ? '🌊' : 
+                                                       payment.paymentMethod == 'CARD' ? '💳' : 
+                                                       payment.paymentMethod == 'CASH' ? '💰' : '🏦'}">🌊</span>
+                                    </span>
+                                    <span th:text="${payment.paymentMethodDisplay}">Universal Payment Device</span>
+                                </div>
+                            </td>
+                            <td>
+                                <span th:class="${'payment-status status-' + payment.paymentStatus.toLowerCase()}"
+                                      th:text="${payment.paymentStatus}">COMPLETED</span>
+                            </td>
+                            <td>
+                                <span th:if="${payment.deviceType != null}" 
+                                      th:text="${payment.deviceTypeDisplay}">Smartphone</span>
+                                <span th:unless="${payment.deviceType != null}">N/A</span>
+                            </td>
+                            <td th:text="${#temporals.format(payment.createdAt, 'MM/dd/yyyy HH:mm')}">12/01/2024 14:30</td>
+                            <td>
+                                <div class="actions">
+                                    <a th:href="@{/property/payments/{id}(id=${payment.id})}" 
+                                       class="btn btn-view">👁️ View</a>
+                                    <a th:if="${payment.isCompleted()}" 
+                                       th:href="@{/property/payments/{id}(id=${payment.id})}" 
+                                       class="btn btn-refund">💰 Refund</a>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Empty State -->
+            <div class="empty-state" th:if="${#lists.isEmpty(payments)}">
+                <h3>💳 No Payments Found</h3>
+                <p>No payments match your current filters.</p>
+                <a href="/property/payments" class="btn btn-view">🔄 Show All Payments</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
