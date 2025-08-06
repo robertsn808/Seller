@@ -80,3 +80,6 @@ For persistent data storage, use PostgreSQL:
 ## Architecture Notes
 
 This is a Spring MVC web application using Thymeleaf for templating. The architecture follows standard Spring Boot patterns with clearly separated layers (Controller → Service → Repository → Entity). Form validation uses Bean Validation annotations, and the H2 console is available for development database access.
+
+## Git Practices
+- Do not put your signature in the commit messages

@@ -97,6 +97,11 @@ public class HomeController {
         return "seller-success";
     }
 
+    @GetMapping("/login")
+    public String login() {
+        return "login";
+    }
+
     @GetMapping("/admin")
     public String admin(Model model) {
         model.addAttribute("buyers", buyerRepository.findAllByOrderByCreatedAtDesc());
