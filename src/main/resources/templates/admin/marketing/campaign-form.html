@@ -76,6 +76,7 @@
                                             <select class="form-select" th:field="*{type}"
                                                     th:classappend="${#fields.hasErrors('type')} ? 'is-invalid' : ''">
                                                 <option value="">Select Type</option>
+                                                <option value="FACEBOOK_POST">Facebook Post</option>
                                                 <option value="FACEBOOK">Facebook Ads</option>
                                                 <option value="GOOGLE_ADS">Google Ads</option>
                                                 <option value="CRAIGSLIST">Craigslist</option>
@@ -83,6 +84,7 @@
                                                 <option value="YARD_SIGNS">Yard Signs</option>
                                                 <option value="BUSINESS_CARDS">Business Cards</option>
                                                 <option value="COLD_CALLING">Cold Calling</option>
+                                                <option value="INSTAGRAM">Instagram Post</option>
                                             </select>
                                             <div th:if="${#fields.hasErrors('type')}" 
                                                  class="invalid-feedback" th:errors="*{type}">Type error</div>
@@ -225,7 +227,9 @@
                             <div class="card-body">
                                 <h6>Campaign Types:</h6>
                                 <ul class="small mb-3">
+                                    <li><strong>Facebook Post:</strong> Direct Facebook page posts</li>
                                     <li><strong>Facebook Ads:</strong> Paid social media advertising</li>
+                                    <li><strong>Instagram Post:</strong> Direct Instagram posts</li>
                                     <li><strong>Google Ads:</strong> Search and display advertising</li>
                                     <li><strong>Craigslist:</strong> Local classified ads</li>
                                     <li><strong>Direct Mail:</strong> Physical mail campaigns</li>
@@ -385,6 +389,9 @@
                 if (campaignType === 'FACEBOOK' || campaignType === 'GOOGLE_ADS') {
                     budgetField.setAttribute('required', 'required');
                     showCampaignTypeHelp(campaignType);
+                } else if (campaignType === 'FACEBOOK_POST' || campaignType === 'INSTAGRAM') {
+                    budgetField.removeAttribute('required');
+                    showCampaignTypeHelp(campaignType);
                 } else {
                     budgetField.removeAttribute('required');
                 }
@@ -400,8 +407,14 @@
                 let helpText = '';
                 
                 switch(type) {
+                    case 'FACEBOOK_POST':
+                        helpText = 'Facebook posts will be published directly to your Facebook page. Make sure your content is engaging and includes a clear call-to-action.';
+                        break;
                     case 'FACEBOOK':
                         helpText = 'Facebook campaigns require a budget and compelling ad copy. Consider your target demographics.';
+                        break;
+                    case 'INSTAGRAM':
+                        helpText = 'Instagram posts will be published directly to your Instagram account. Use visual content and relevant hashtags.';
                         break;
                     case 'GOOGLE_ADS':
                         helpText = 'Google Ads campaigns require keywords and budget. Research high-performing keywords in real estate.';

@@ -2,8 +2,10 @@ package com.realestate.sellerfunnel.controller;
 
 import com.realestate.sellerfunnel.model.Buyer;
 import com.realestate.sellerfunnel.model.Seller;
+import com.realestate.sellerfunnel.model.Client;
 import com.realestate.sellerfunnel.repository.BuyerRepository;
 import com.realestate.sellerfunnel.repository.SellerRepository;
+import com.realestate.sellerfunnel.repository.ClientRepository;
 import com.realestate.sellerfunnel.service.FileUploadService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +32,9 @@ public class HomeController {
 
     @Autowired
     private FileUploadService fileUploadService;
+    
+    @Autowired
+    private ClientRepository clientRepository;
 
     @GetMapping("/")
     public String home() {
@@ -50,7 +55,12 @@ public class HomeController {
             return "buyer-form";
         }
         
-        buyerRepository.save(buyer);
+        // Save the buyer
+        Buyer savedBuyer = buyerRepository.save(buyer);
+        
+        // Create or update client record
+        createOrUpdateClientFromBuyer(savedBuyer);
+        
         redirectAttributes.addFlashAttribute("message", "Thank you! Your buyer information has been submitted successfully.");
         return "redirect:/buyer/success";
     }
@@ -79,6 +89,9 @@ public class HomeController {
             // Save seller first
             Seller savedSeller = sellerRepository.save(seller);
             
+            // Create or update client record
+            createOrUpdateClientFromSeller(savedSeller);
+            
             // Then save photos
             if (photos != null && !photos.isEmpty()) {
                 fileUploadService.savePropertyPhotos(photos, savedSeller);
@@ -106,6 +119,7 @@ public class HomeController {
     public String admin(Model model) {
         model.addAttribute("buyers", buyerRepository.findAllByOrderByCreatedAtDesc());
         model.addAttribute("sellers", sellerRepository.findAllByOrderByCreatedAtDesc());
+        model.addAttribute("clients", clientRepository.findByIsActiveTrueOrderByCreatedAtDesc());
         return "admin";
     }
     

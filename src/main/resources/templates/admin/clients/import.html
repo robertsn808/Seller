@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Import Clients - Admin Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .nav {
+            background: #f8f9fa;
+            padding: 15px 30px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .nav a {
+            color: #667eea;
+            text-decoration: none;
+            margin-right: 20px;
+            font-weight: 500;
+        }
+        
+        .nav a:hover {
+            color: #764ba2;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .import-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .import-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+        
+        .file-upload {
+            border: 2px dashed #667eea;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            background: white;
+            margin-bottom: 20px;
+        }
+        
+        .file-upload:hover {
+            border-color: #764ba2;
+            background: #f8f9fa;
+        }
+        
+        .file-upload input[type="file"] {
+            display: none;
+        }
+        
+        .file-upload label {
+            cursor: pointer;
+            color: #667eea;
+            font-weight: 500;
+            font-size: 1.1em;
+        }
+        
+        .file-upload label:hover {
+            color: #764ba2;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .template-section {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .template-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .template-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        
+        .template-table th,
+        .template-table td {
+            border: 1px solid #e9ecef;
+            padding: 10px;
+            text-align: left;
+        }
+        
+        .template-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+        
+        .template-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .alert-warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .results-section {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 30px;
+        }
+        
+        .results-section h3 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        .result-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .stat-card h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .stat-card .number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .result-lists {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .result-list {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        
+        .result-list h4 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .result-list ul {
+            list-style: none;
+        }
+        
+        .result-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .result-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .download-template {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 15px;
+        }
+        
+        .download-template:hover {
+            background: #218838;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📥 Import Clients</h1>
+            <p>Upload an Excel file to import multiple clients at once</p>
+        </div>
+        
+        <div class="nav">
+            <a href="/admin">🏠 Dashboard</a>
+            <a href="/admin/clients">👥 Client Management</a>
+            <a href="/admin/marketing">📊 Marketing Dashboard</a>
+        </div>
+        
+        <div class="content">
+            <!-- Alerts -->
+            <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+            <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+            <div th:if="${warning}" class="alert alert-warning" th:text="${warning}"></div>
+            
+            <!-- Import Form -->
+            <div class="import-section">
+                <h2>📁 Upload Excel File</h2>
+                <form th:action="@{/admin/clients/import}" method="post" enctype="multipart/form-data">
+                    <div class="file-upload">
+                        <input type="file" id="file" name="file" accept=".xlsx" onchange="updateFileName()">
+                        <label for="file">
+                            <div>📄 Click to select Excel file (.xlsx)</div>
+                            <div id="fileName" style="margin-top: 10px; font-size: 0.9em; color: #666;"></div>
+                        </label>
+                    </div>
+                    <button type="submit" class="btn" id="submitBtn" disabled>🚀 Import Clients</button>
+                </form>
+            </div>
+            
+            <!-- Template Section -->
+            <div class="template-section">
+                <h3>📋 Excel Template Format</h3>
+                <p>Your Excel file should have the following columns in the first row (headers):</p>
+                
+                <table class="template-table">
+                    <thead>
+                        <tr>
+                            <th>Column Name</th>
+                            <th>Required</th>
+                            <th>Description</th>
+                            <th>Example</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>First Name</strong></td>
+                            <td>✅ Yes</td>
+                            <td>Client's first name</td>
+                            <td>John</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Last Name</strong></td>
+                            <td>✅ Yes</td>
+                            <td>Client's last name</td>
+                            <td>Doe</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Email</strong></td>
+                            <td>✅ Yes</td>
+                            <td>Client's email address</td>
+                            <td>john.doe@email.com</td>
+                        </tr>
+                        <tr>
+                            <td>Phone</td>
+                            <td>❌ No</td>
+                            <td>Client's phone number</td>
+                            <td>(555) 123-4567</td>
+                        </tr>
+                        <tr>
+                            <td>Client Type</td>
+                            <td>❌ No</td>
+                            <td>SELLER, BUYER, INVESTOR, AGENT, VENDOR</td>
+                            <td>BUYER</td>
+                        </tr>
+                        <tr>
+                            <td>Client Status</td>
+                            <td>❌ No</td>
+                            <td>SUSPECT, PROSPECT, LEAD, CONTRACT, DEAL</td>
+                            <td>LEAD</td>
+                        </tr>
+                        <tr>
+                            <td>Lead Source</td>
+                            <td>❌ No</td>
+                            <td>WEBSITE, REFERRAL, SOCIAL_MEDIA, etc.</td>
+                            <td>WEBSITE</td>
+                        </tr>
+                        <tr>
+                            <td>Company</td>
+                            <td>❌ No</td>
+                            <td>Client's company name</td>
+                            <td>ABC Corp</td>
+                        </tr>
+                        <tr>
+                            <td>Job Title</td>
+                            <td>❌ No</td>
+                            <td>Client's job title</td>
+                            <td>Manager</td>
+                        </tr>
+                        <tr>
+                            <td>Address</td>
+                            <td>❌ No</td>
+                            <td>Street address</td>
+                            <td>123 Main St</td>
+                        </tr>
+                        <tr>
+                            <td>City</td>
+                            <td>❌ No</td>
+                            <td>City name</td>
+                            <td>New York</td>
+                        </tr>
+                        <tr>
+                            <td>State</td>
+                            <td>❌ No</td>
+                            <td>State abbreviation</td>
+                            <td>NY</td>
+                        </tr>
+                        <tr>
+                            <td>Zip Code</td>
+                            <td>❌ No</td>
+                            <td>ZIP code</td>
+                            <td>10001</td>
+                        </tr>
+                        <tr>
+                            <td>Active</td>
+                            <td>❌ No</td>
+                            <td>Yes/No or True/False</td>
+                            <td>Yes</td>
+                        </tr>
+                        <tr>
+                            <td>Email Opted In</td>
+                            <td>❌ No</td>
+                            <td>Yes/No or True/False</td>
+                            <td>Yes</td>
+                        </tr>
+                        <tr>
+                            <td>Date Added</td>
+                            <td>❌ No</td>
+                            <td>Date format: MM/dd/yyyy</td>
+                            <td>12/25/2023</td>
+                        </tr>
+                        <tr>
+                            <td>Email Contact Count</td>
+                            <td>❌ No</td>
+                            <td>Number of email contacts</td>
+                            <td>3</td>
+                        </tr>
+                        <tr>
+                            <td>Phone Contact Count</td>
+                            <td>❌ No</td>
+                            <td>Number of phone contacts</td>
+                            <td>2</td>
+                        </tr>
+                        <tr>
+                            <td>Notes</td>
+                            <td>❌ No</td>
+                            <td>Additional notes</td>
+                            <td>Interested in 3BR house</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <a href="/admin/clients/export/csv" class="download-template">📥 Download Sample Template</a>
+            </div>
+            
+            <!-- Import Results -->
+            <div th:if="${importResult}" class="results-section">
+                <h3>📊 Import Results</h3>
+                
+                <div class="result-stats">
+                    <div class="stat-card">
+                        <h4>✅ Successful</h4>
+                        <div class="number" th:text="${importResult.successCount}">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h4>❌ Errors</h4>
+                        <div class="number" th:text="${importResult.errorCount}">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h4>⏭️ Skipped</h4>
+                        <div class="number" th:text="${importResult.skippedCount}">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h4>📋 Total Processed</h4>
+                        <div class="number" th:text="${importResult.totalProcessed}">0</div>
+                    </div>
+                </div>
+                
+                <div class="result-lists">
+                    <div th:if="${#lists.size(importResult.successes) > 0}" class="result-list">
+                        <h4>✅ Successfully Imported</h4>
+                        <ul>
+                            <li th:each="success : ${importResult.successes}" th:text="${success}"></li>
+                        </ul>
+                    </div>
+                    
+                    <div th:if="${#lists.size(importResult.errors) > 0}" class="result-list">
+                        <h4>❌ Errors</h4>
+                        <ul>
+                            <li th:each="error : ${importResult.errors}" th:text="${error}"></li>
+                        </ul>
+                    </div>
+                    
+                    <div th:if="${#lists.size(importResult.skipped) > 0}" class="result-list">
+                        <h4>⏭️ Skipped (Duplicate Emails)</h4>
+                        <ul>
+                            <li th:each="skipped : ${importResult.skipped}" th:text="${skipped}"></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function updateFileName() {
+            const fileInput = document.getElementById('file');
+            const fileName = document.getElementById('fileName');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                fileName.textContent = `Selected: ${file.name}`;
+                submitBtn.disabled = false;
+            } else {
+                fileName.textContent = '';
+                submitBtn.disabled = true;
+            }
+        }
+    </script>
+</body>
+</html>

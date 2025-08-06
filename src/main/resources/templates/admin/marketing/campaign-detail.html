@@ -64,6 +64,11 @@
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
 
+                <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <span th:text="${error}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+
                 <div class="row">
                     <!-- Campaign Overview -->
                     <div class="col-md-8">
@@ -104,13 +109,27 @@
                                             </form>
                                         </li>
                                         <li><hr class="dropdown-divider"></li>
-                                        <li th:if="${campaign.type == 'FACEBOOK' or campaign.type == 'GOOGLE_ADS' or campaign.type == 'INSTAGRAM'}">
+                                        <li th:if="${campaign.type == 'FACEBOOK' or campaign.type == 'GOOGLE_ADS'}">
                                             <form th:action="@{/admin/marketing/campaigns/{id}/publish(id=${campaign.id})}" 
                                                   method="post" class="m-0">
                                                 <button type="submit" class="dropdown-item">
                                                     <i class="fas fa-rocket me-2"></i>Publish to Platform
                                                 </button>
                                             </form>
+                                        </li>
+                                        <li th:if="${campaign.type == 'FACEBOOK_POST' or campaign.type == 'INSTAGRAM'}">
+                                            <form th:action="@{/admin/marketing/campaigns/{id}/post-now(id=${campaign.id})}" 
+                                                  method="post" class="m-0">
+                                                <button type="submit" class="dropdown-item text-primary">
+                                                    <i class="fab fa-facebook me-2"></i>Post to Facebook Now
+                                                </button>
+                                            </form>
+                                        </li>
+                                        <li th:if="${campaign.type == 'FACEBOOK_POST' or campaign.type == 'INSTAGRAM'}">
+                                            <a th:href="@{/admin/marketing/facebook-credentials(returnUrl=${'/admin/marketing/campaigns/' + campaign.id})}" 
+                                               class="dropdown-item">
+                                                <i class="fas fa-cog me-2"></i>Configure Facebook API
+                                            </a>
                                         </li>
                                     </ul>
                                 </div>

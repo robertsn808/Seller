@@ -16,6 +16,9 @@ public class CampaignPublishingService {
     private FacebookAdsService facebookAdsService;
     
     @Autowired
+    private FacebookPostService facebookPostService;
+    
+    @Autowired
     private GoogleAdsService googleAdsService;
     
     @Autowired
@@ -27,8 +30,11 @@ public class CampaignPublishingService {
         try {
             switch (campaign.getType()) {
                 case "FACEBOOK":
+                    success = publishToFacebookAds(campaign);
+                    break;
+                    
                 case "FACEBOOK_POST":
-                    success = publishToFacebook(campaign);
+                    success = publishToFacebookPost(campaign);
                     break;
                     
                 case "GOOGLE_ADS":
@@ -38,7 +44,7 @@ public class CampaignPublishingService {
                     
                 case "INSTAGRAM":
                     // Instagram uses Facebook's API
-                    success = publishToFacebook(campaign);
+                    success = publishToFacebookPost(campaign);
                     break;
                     
                 case "CRAIGSLIST":
@@ -70,9 +76,9 @@ public class CampaignPublishingService {
         return success;
     }
     
-    private boolean publishToFacebook(Campaign campaign) {
+    private boolean publishToFacebookAds(Campaign campaign) {
         if (!facebookAdsService.isConfigured()) {
-            logger.info("Facebook API not configured. Campaign saved locally only.");
+            logger.info("Facebook Ads API not configured. Campaign saved locally only.");
             return true; // Don't fail if API isn't configured
         }
         
@@ -81,12 +87,34 @@ public class CampaignPublishingService {
             boolean campaignCreated = facebookAdsService.createCampaign(campaign);
             
             if (campaignCreated) {
-                logger.info("Facebook campaign created for: {}", campaign.getName());
+                logger.info("Facebook Ads campaign created for: {}", campaign.getName());
                 return true;
             }
             
         } catch (Exception e) {
-            logger.error("Error creating Facebook campaign: {}", e.getMessage());
+            logger.error("Error creating Facebook Ads campaign: {}", e.getMessage());
+        }
+        
+        return false;
+    }
+    
+    private boolean publishToFacebookPost(Campaign campaign) {
+        if (!facebookPostService.isConfigured()) {
+            logger.info("Facebook posting API not configured. Campaign saved locally only.");
+            return true; // Don't fail if API isn't configured
+        }
+        
+        try {
+            // Create direct Facebook post
+            boolean postCreated = facebookPostService.createPost(campaign);
+            
+            if (postCreated) {
+                logger.info("Facebook post created for campaign: {}", campaign.getName());
+                return true;
+            }
+            
+        } catch (Exception e) {
+            logger.error("Error creating Facebook post: {}", e.getMessage());
         }
         
         return false;
@@ -131,9 +159,12 @@ public class CampaignPublishingService {
         try {
             switch (campaign.getType()) {
                 case "FACEBOOK":
+                    syncFacebookAdsStats(campaign);
+                    break;
+                    
                 case "FACEBOOK_POST":
                 case "INSTAGRAM":
-                    syncFacebookStats(campaign);
+                    syncFacebookPostStats(campaign);
                     break;
                     
                 case "GOOGLE_ADS":
@@ -149,10 +180,16 @@ public class CampaignPublishingService {
         }
     }
     
-    private void syncFacebookStats(Campaign campaign) {
-        // This would sync impressions, clicks, leads from Facebook API
+    private void syncFacebookAdsStats(Campaign campaign) {
+        // This would sync impressions, clicks, leads from Facebook Ads API
         // Implementation depends on storing external campaign IDs
-        logger.info("Syncing Facebook stats for campaign: {}", campaign.getName());
+        logger.info("Syncing Facebook Ads stats for campaign: {}", campaign.getName());
+    }
+    
+    private void syncFacebookPostStats(Campaign campaign) {
+        // This would sync likes, comments, shares from Facebook Graph API
+        // Implementation depends on storing external post IDs
+        logger.info("Syncing Facebook Post stats for campaign: {}", campaign.getName());
     }
     
     private void syncGoogleAdsStats(Campaign campaign) {
@@ -168,9 +205,12 @@ public class CampaignPublishingService {
             
             switch (campaign.getType()) {
                 case "FACEBOOK":
+                    // Pause Facebook Ads campaign via API
+                    break;
+                    
                 case "FACEBOOK_POST":
                 case "INSTAGRAM":
-                    // Pause Facebook campaign via API
+                    // Facebook posts cannot be paused once published
                     break;
                     
                 case "GOOGLE_ADS":

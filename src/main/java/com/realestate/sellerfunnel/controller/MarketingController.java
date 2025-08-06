@@ -14,6 +14,9 @@ import com.realestate.sellerfunnel.service.CampaignPostSubmissionService;
 import com.realestate.sellerfunnel.service.CampaignValidationService;
 import com.realestate.sellerfunnel.model.AIGeneratedContent;
 import com.realestate.sellerfunnel.repository.AIGeneratedContentRepository;
+import com.realestate.sellerfunnel.repository.ClientRepository;
+import com.realestate.sellerfunnel.service.FacebookPostService;
+import com.realestate.sellerfunnel.service.CredentialManagementService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -26,6 +29,8 @@ import java.time.LocalDateTime;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/admin/marketing")
@@ -63,6 +68,15 @@ public class MarketingController {
     
     @Autowired
     private CampaignValidationService campaignValidationService;
+    
+    @Autowired
+    private FacebookPostService facebookPostService;
+    
+    @Autowired
+    private ClientRepository clientRepository;
+    
+    @Autowired
+    private CredentialManagementService credentialManagementService;
 
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
@@ -70,6 +84,20 @@ public class MarketingController {
         model.addAttribute("totalCampaigns", campaignRepository.count());
         model.addAttribute("activeCampaigns", campaignRepository.findActiveCampaigns(LocalDateTime.now()).size());
         model.addAttribute("totalLeads", campaignLeadRepository.count());
+        
+        // Client statistics
+        model.addAttribute("totalClients", clientRepository.count());
+        model.addAttribute("activeClients", clientRepository.findByIsActiveTrueOrderByCreatedAtDesc().size());
+        model.addAttribute("emailOptedInClients", clientRepository.findByEmailOptedInTrueAndIsActiveTrueOrderByCreatedAtDesc().size());
+        
+        // Client status breakdown
+        List<Object[]> statusCounts = clientRepository.countByClientStatus();
+        Map<String, Long> statusMap = statusCounts.stream()
+            .collect(Collectors.toMap(
+                row -> (String) row[0],
+                row -> (Long) row[1]
+            ));
+        model.addAttribute("clientStatusCounts", statusMap);
         
         // Recent campaigns
         model.addAttribute("recentCampaigns", campaignRepository.findAllByOrderByCreatedAtDesc());
@@ -208,6 +236,43 @@ public class MarketingController {
             redirectAttributes.addFlashAttribute("message", "Campaign published successfully!");
         } else {
             redirectAttributes.addFlashAttribute("message", "Failed to publish campaign. Check API configuration.");
+        }
+        
+        return "redirect:/admin/marketing/campaigns/" + id;
+    }
+    
+    @PostMapping("/campaigns/{id}/post-now")
+    public String postToFacebookNow(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        Campaign campaign = campaignRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Campaign not found"));
+        
+        if (!campaign.getType().equals("FACEBOOK_POST") && !campaign.getType().equals("INSTAGRAM")) {
+            redirectAttributes.addFlashAttribute("error", "This campaign type doesn't support direct posting.");
+            return "redirect:/admin/marketing/campaigns/" + id;
+        }
+        
+        if (!credentialManagementService.hasValidCredentials("FACEBOOK")) {
+            // Redirect to credential configuration page
+            redirectAttributes.addFlashAttribute("message", 
+                "Please configure your Facebook API credentials first.");
+            try {
+                String returnUrl = java.net.URLEncoder.encode("/admin/marketing/campaigns/" + id, "UTF-8");
+                return "redirect:/admin/marketing/facebook-credentials?returnUrl=" + returnUrl;
+            } catch (Exception e) {
+                return "redirect:/admin/marketing/facebook-credentials";
+            }
+        }
+        
+        boolean posted = facebookPostService.createPost(campaign);
+        
+        if (posted) {
+            campaign.setStatus("ACTIVE");
+            campaignRepository.save(campaign);
+            redirectAttributes.addFlashAttribute("message", 
+                "Successfully posted to Facebook! Campaign is now active.");
+        } else {
+            redirectAttributes.addFlashAttribute("error", 
+                "Failed to post to Facebook. Please check your API configuration and try again.");
         }
         
         return "redirect:/admin/marketing/campaigns/" + id;
@@ -462,5 +527,85 @@ public class MarketingController {
         }
         
         return "admin/marketing/analytics";
+    }
+    
+    @GetMapping("/facebook-credentials")
+    public String facebookCredentials(@RequestParam(required = false) String returnUrl, Model model) {
+        model.addAttribute("returnUrl", returnUrl);
+        model.addAttribute("isConfigured", credentialManagementService.hasValidCredentials("FACEBOOK"));
+        
+        // Load existing credentials if available
+        var credentials = credentialManagementService.getFacebookCredentials();
+        if (!credentials.isEmpty()) {
+            // Show partial token for security (first 20 chars + ...)
+            String accessToken = credentials.get("accessToken");
+            if (accessToken != null && accessToken.length() > 20) {
+                model.addAttribute("currentAccessToken", accessToken.substring(0, 20) + "...");
+            }
+            model.addAttribute("currentPageId", credentials.get("pageId"));
+        }
+        
+        return "admin/marketing/facebook-credentials";
+    }
+    
+    @PostMapping("/facebook-credentials")
+    public String saveFacebookCredentials(@RequestParam String accessToken,
+                                        @RequestParam String pageId,
+                                        @RequestParam(required = false) String returnUrl,
+                                        RedirectAttributes redirectAttributes) {
+        try {
+            // Test credentials first
+            if (!credentialManagementService.testFacebookCredentials(accessToken, pageId)) {
+                redirectAttributes.addFlashAttribute("error", "Invalid credentials provided.");
+                if (returnUrl != null) {
+                    redirectAttributes.addAttribute("returnUrl", returnUrl);
+                }
+                return "redirect:/admin/marketing/facebook-credentials";
+            }
+            
+            // Save credentials
+            credentialManagementService.saveFacebookCredentials(accessToken, pageId);
+            redirectAttributes.addFlashAttribute("message", 
+                "Facebook credentials saved successfully! You can now post to Facebook.");
+            
+            // Redirect back to original page or campaigns
+            if (returnUrl != null && !returnUrl.isEmpty()) {
+                return "redirect:" + returnUrl;
+            } else {
+                return "redirect:/admin/marketing/campaigns";
+            }
+            
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", 
+                "Error saving credentials: " + e.getMessage());
+            if (returnUrl != null) {
+                redirectAttributes.addAttribute("returnUrl", returnUrl);
+            }
+            return "redirect:/admin/marketing/facebook-credentials";
+        }
+    }
+    
+    @PostMapping("/facebook-credentials/test")
+    @ResponseBody
+    public Map<String, Object> testFacebookCredentials(@RequestParam String accessToken,
+                                                      @RequestParam String pageId) {
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            boolean isValid = credentialManagementService.testFacebookCredentials(accessToken, pageId);
+            response.put("success", isValid);
+            
+            if (isValid) {
+                response.put("message", "Credentials are valid and working!");
+            } else {
+                response.put("message", "Invalid credentials. Please check your access token and page ID.");
+            }
+            
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Error testing credentials: " + e.getMessage());
+        }
+        
+        return response;
     }
 }

@@ -47,6 +47,9 @@ public class Client {
     @Column(name = "client_type")
     private String clientType; // SELLER, BUYER, INVESTOR, AGENT, VENDOR
     
+    @Column(name = "client_status")
+    private String clientStatus; // SUSPECT, PROSPECT, LEAD, CONTRACT, DEAL
+    
     @Column(name = "lead_source")
     private String leadSource; // WEBSITE, REFERRAL, SOCIAL_MEDIA, COLD_CALL, etc.
     
@@ -61,6 +64,15 @@ public class Client {
     
     @Column(name = "last_contact_date")
     private LocalDateTime lastContactDate;
+    
+    @Column(name = "email_contact_count")
+    private Integer emailContactCount;
+    
+    @Column(name = "phone_contact_count")
+    private Integer phoneContactCount;
+    
+    @Column(name = "total_contact_count")
+    private Integer totalContactCount;
     
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -77,6 +89,18 @@ public class Client {
         }
         if (emailOptedIn == null) {
             emailOptedIn = true;
+        }
+        if (emailContactCount == null) {
+            emailContactCount = 0;
+        }
+        if (phoneContactCount == null) {
+            phoneContactCount = 0;
+        }
+        if (totalContactCount == null) {
+            totalContactCount = 0;
+        }
+        if (clientStatus == null) {
+            clientStatus = "SUSPECT";
         }
     }
     
@@ -131,6 +155,9 @@ public class Client {
     public String getClientType() { return clientType; }
     public void setClientType(String clientType) { this.clientType = clientType; }
     
+    public String getClientStatus() { return clientStatus; }
+    public void setClientStatus(String clientStatus) { this.clientStatus = clientStatus; }
+    
     public String getLeadSource() { return leadSource; }
     public void setLeadSource(String leadSource) { this.leadSource = leadSource; }
     
@@ -145,6 +172,15 @@ public class Client {
     
     public LocalDateTime getLastContactDate() { return lastContactDate; }
     public void setLastContactDate(LocalDateTime lastContactDate) { this.lastContactDate = lastContactDate; }
+    
+    public Integer getEmailContactCount() { return emailContactCount; }
+    public void setEmailContactCount(Integer emailContactCount) { this.emailContactCount = emailContactCount; }
+    
+    public Integer getPhoneContactCount() { return phoneContactCount; }
+    public void setPhoneContactCount(Integer phoneContactCount) { this.phoneContactCount = phoneContactCount; }
+    
+    public Integer getTotalContactCount() { return totalContactCount; }
+    public void setTotalContactCount(Integer totalContactCount) { this.totalContactCount = totalContactCount; }
     
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
@@ -175,5 +211,26 @@ public class Client {
             address.append(zipCode);
         }
         return address.toString();
+    }
+    
+    // Contact tracking methods
+    public void incrementEmailContact() {
+        this.emailContactCount = (this.emailContactCount != null ? this.emailContactCount : 0) + 1;
+        this.totalContactCount = (this.totalContactCount != null ? this.totalContactCount : 0) + 1;
+        this.lastContactDate = LocalDateTime.now();
+    }
+    
+    public void incrementPhoneContact() {
+        this.phoneContactCount = (this.phoneContactCount != null ? this.phoneContactCount : 0) + 1;
+        this.totalContactCount = (this.totalContactCount != null ? this.totalContactCount : 0) + 1;
+        this.lastContactDate = LocalDateTime.now();
+    }
+    
+    public void incrementContact(String contactType) {
+        if ("EMAIL".equalsIgnoreCase(contactType)) {
+            incrementEmailContact();
+        } else if ("PHONE".equalsIgnoreCase(contactType)) {
+            incrementPhoneContact();
+        }
     }
 } 

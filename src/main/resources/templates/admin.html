@@ -46,6 +46,7 @@
     <div class="nav">
         <a href="/">← Back to Website</a>
         <a href="/admin/marketing/dashboard">📊 Marketing Dashboard</a>
+        <a href="/admin/clients">👥 Client Management</a>
         <a href="/h2-console" target="_blank">Database Console</a>
         <a href="/logout" style="float: right;">Logout</a>
     </div>
@@ -59,6 +60,10 @@
             <div class="stat-card">
                 <h2 th:text="${#lists.size(sellers)}">0</h2>
                 <p>Active Sellers</p>
+            </div>
+            <div class="stat-card">
+                <h2 th:text="${#lists.size(clients)}">0</h2>
+                <p>Total Clients</p>
             </div>
         </div>
         
