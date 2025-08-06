@@ -141,6 +141,21 @@
                                     <!-- Campaign Content -->
                                     <h5 class="mb-3 mt-4">Campaign Content</h5>
                                     
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="headline" class="form-label">Headline</label>
+                                            <input type="text" class="form-control" th:field="*{headline}" 
+                                                   placeholder="Catchy headline for your campaign">
+                                            <div class="form-text">Keep it short and compelling</div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="callToAction" class="form-label">Call to Action</label>
+                                            <input type="text" class="form-control" th:field="*{callToAction}" 
+                                                   placeholder="e.g., Call Now, Get Free Quote, Learn More">
+                                            <div class="form-text">What do you want people to do?</div>
+                                        </div>
+                                    </div>
+
                                     <div class="mb-3">
                                         <label for="adCopy" class="form-label">Ad Copy / Content</label>
                                         <textarea class="form-control" th:field="*{adCopy}" rows="5"
@@ -148,11 +163,19 @@
                                         <div class="form-text">This will be the main content of your campaign</div>
                                     </div>
 
-                                    <div class="mb-3">
-                                        <label for="keywords" class="form-label">Keywords / Tags</label>
-                                        <input type="text" class="form-control" th:field="*{keywords}" 
-                                               placeholder="e.g., real estate, investment, cash buyer">
-                                        <div class="form-text">Separate multiple keywords with commas</div>
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="keywords" class="form-label">Keywords / Tags</label>
+                                            <input type="text" class="form-control" th:field="*{keywords}" 
+                                                   placeholder="e.g., real estate, investment, cash buyer">
+                                            <div class="form-text">Separate multiple keywords with commas</div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="demographicTargeting" class="form-label">Demographic Targeting</label>
+                                            <input type="text" class="form-control" th:field="*{demographicTargeting}" 
+                                                   placeholder="e.g., Age 25-55, Location: Metro area">
+                                            <div class="form-text">Target demographics and locations</div>
+                                        </div>
                                     </div>
 
                                     <!-- Performance Tracking (for existing campaigns) -->
@@ -232,5 +255,196 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            const submitBtn = document.querySelector('button[type="submit"]');
+            const submitBtnText = submitBtn.querySelector('span');
+            const originalBtnText = submitBtnText.textContent;
+            
+            // Form validation
+            function validateForm() {
+                let isValid = true;
+                const errors = [];
+                
+                // Required field validation
+                const requiredFields = [
+                    { field: 'name', name: 'Campaign Name' },
+                    { field: 'type', name: 'Campaign Type' },
+                    { field: 'targetAudience', name: 'Target Audience' }
+                ];
+                
+                requiredFields.forEach(item => {
+                    const field = document.querySelector(`[name="${item.field}"]`);
+                    if (!field.value.trim()) {
+                        field.classList.add('is-invalid');
+                        errors.push(`${item.name} is required`);
+                        isValid = false;
+                    } else {
+                        field.classList.remove('is-invalid');
+                        field.classList.add('is-valid');
+                    }
+                });
+                
+                // Date validation
+                const startDate = document.querySelector('[name="startDate"]').value;
+                const endDate = document.querySelector('[name="endDate"]').value;
+                
+                if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
+                    document.querySelector('[name="endDate"]').classList.add('is-invalid');
+                    errors.push('End date must be after start date');
+                    isValid = false;
+                } else if (endDate) {
+                    document.querySelector('[name="endDate"]').classList.remove('is-invalid');
+                    document.querySelector('[name="endDate"]').classList.add('is-valid');
+                }
+                
+                // Budget validation
+                const budget = document.querySelector('[name="budget"]').value;
+                if (budget && parseFloat(budget) < 0) {
+                    document.querySelector('[name="budget"]').classList.add('is-invalid');
+                    errors.push('Budget cannot be negative');
+                    isValid = false;
+                } else if (budget) {
+                    document.querySelector('[name="budget"]').classList.remove('is-invalid');
+                    document.querySelector('[name="budget"]').classList.add('is-valid');
+                }
+                
+                return { isValid, errors };
+            }
+            
+            // Real-time validation
+            const inputs = form.querySelectorAll('input, select, textarea');
+            inputs.forEach(input => {
+                input.addEventListener('blur', function() {
+                    validateForm();
+                });
+            });
+            
+            // Form submission handling
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const validation = validateForm();
+                
+                if (!validation.isValid) {
+                    // Show validation errors
+                    showAlert('Please fix the following errors: ' + validation.errors.join(', '), 'danger');
+                    return;
+                }
+                
+                // Show loading state
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Saving Campaign...';
+                
+                // Show progress message
+                showAlert('Processing your campaign...', 'info');
+                
+                // Submit the form
+                setTimeout(() => {
+                    form.submit();
+                }, 500);
+            });
+            
+            // Helper function to show alerts
+            function showAlert(message, type) {
+                // Remove existing alerts
+                const existingAlert = document.querySelector('.dynamic-alert');
+                if (existingAlert) {
+                    existingAlert.remove();
+                }
+                
+                const alertHtml = `
+                    <div class="alert alert-${type} alert-dismissible fade show dynamic-alert" role="alert">
+                        ${message}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                `;
+                
+                const mainContent = document.querySelector('.col-md-10');
+                mainContent.insertAdjacentHTML('afterbegin', alertHtml);
+                
+                // Auto-hide info alerts after 3 seconds
+                if (type === 'info') {
+                    setTimeout(() => {
+                        const alert = document.querySelector('.dynamic-alert');
+                        if (alert) {
+                            alert.remove();
+                        }
+                    }, 3000);
+                }
+            }
+            
+            // Campaign type specific validations
+            document.querySelector('[name="type"]').addEventListener('change', function() {
+                const campaignType = this.value;
+                const budgetField = document.querySelector('[name="budget"]');
+                const keywordsField = document.querySelector('[name="keywords"]');
+                
+                // Show/hide relevant fields based on campaign type
+                if (campaignType === 'FACEBOOK' || campaignType === 'GOOGLE_ADS') {
+                    budgetField.setAttribute('required', 'required');
+                    showCampaignTypeHelp(campaignType);
+                } else {
+                    budgetField.removeAttribute('required');
+                }
+                
+                if (campaignType === 'GOOGLE_ADS') {
+                    keywordsField.setAttribute('required', 'required');
+                } else {
+                    keywordsField.removeAttribute('required');
+                }
+            });
+            
+            function showCampaignTypeHelp(type) {
+                let helpText = '';
+                
+                switch(type) {
+                    case 'FACEBOOK':
+                        helpText = 'Facebook campaigns require a budget and compelling ad copy. Consider your target demographics.';
+                        break;
+                    case 'GOOGLE_ADS':
+                        helpText = 'Google Ads campaigns require keywords and budget. Research high-performing keywords in real estate.';
+                        break;
+                    case 'CRAIGSLIST':
+                        helpText = 'Craigslist posts are free but require manual posting. Prepare multiple ad variations.';
+                        break;
+                    case 'DIRECT_MAIL':
+                        helpText = 'Direct mail campaigns have longer lead times. Budget should include printing and postage costs.';
+                        break;
+                }
+                
+                if (helpText) {
+                    showAlert(helpText, 'info');
+                }
+            }
+            
+            // Auto-save functionality (optional)
+            let autoSaveTimer;
+            inputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    clearTimeout(autoSaveTimer);
+                    autoSaveTimer = setTimeout(() => {
+                        // Could implement auto-save to localStorage here
+                        console.log('Form data auto-saved');
+                    }, 2000);
+                });
+            });
+            
+            // Warn user before leaving with unsaved changes
+            let formChanged = false;
+            inputs.forEach(input => {
+                input.addEventListener('change', () => formChanged = true);
+            });
+            
+            window.addEventListener('beforeunload', function(e) {
+                if (formChanged && !submitBtn.disabled) {
+                    e.preventDefault();
+                    e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
+                    return e.returnValue;
+                }
+            });
+        });
+    </script>
 </body>
 </html>

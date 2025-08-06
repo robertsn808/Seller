@@ -54,7 +54,48 @@
 
                 <!-- Alert Messages -->
                 <div th:if="${message}" class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>
                     <span th:text="${message}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                
+                <!-- Warnings -->
+                <div th:if="${warnings}" class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Warnings:</strong>
+                    <ul class="mb-0 mt-2">
+                        <li th:each="warning : ${warnings}" th:text="${warning}"></li>
+                    </ul>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                
+                <!-- Suggestions -->
+                <div th:if="${suggestions}" class="alert alert-info alert-dismissible fade show" role="alert">
+                    <i class="fas fa-lightbulb me-2"></i>
+                    <strong>Suggestions to improve your campaign:</strong>
+                    <ul class="mb-0 mt-2">
+                        <li th:each="suggestion : ${suggestions}" th:text="${suggestion}"></li>
+                    </ul>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                
+                <!-- Completed Actions -->
+                <div th:if="${actions}" class="alert alert-success alert-dismissible fade show bg-light border-success" role="alert">
+                    <i class="fas fa-tasks me-2"></i>
+                    <strong>Actions completed:</strong>
+                    <ul class="mb-0 mt-2">
+                        <li th:each="action : ${actions}" th:text="${action}"></li>
+                    </ul>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                
+                <!-- Next Steps -->
+                <div th:if="${nextSteps}" class="alert alert-primary alert-dismissible fade show" role="alert">
+                    <i class="fas fa-arrow-right me-2"></i>
+                    <strong>Next steps:</strong>
+                    <ol class="mb-0 mt-2">
+                        <li th:each="step : ${nextSteps}" th:text="${step}"></li>
+                    </ol>
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
 

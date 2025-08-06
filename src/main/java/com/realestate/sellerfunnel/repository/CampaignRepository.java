@@ -29,4 +29,6 @@ public interface CampaignRepository extends JpaRepository<Campaign, Long> {
     
     @Query("SELECT SUM(c.leads) FROM Campaign c WHERE c.createdAt >= :startDate AND c.createdAt <= :endDate")
     Integer getTotalLeadsByDateRange(LocalDateTime startDate, LocalDateTime endDate);
+    
+    List<Campaign> findByNameIgnoreCase(String name);
 }
