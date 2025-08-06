@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campaign Details - Marketing Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/admin">Admin Portal</a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/admin">Dashboard</a>
+                <a class="nav-link active" href="/admin/marketing/dashboard">Marketing</a>
+                <a class="nav-link" href="/logout">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-2">
+                <div class="list-group">
+                    <a href="/admin/marketing/dashboard" class="list-group-item list-group-item-action">
+                        <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                    </a>
+                    <a href="/admin/marketing/campaigns" class="list-group-item list-group-item-action active">
+                        <i class="fas fa-bullhorn me-2"></i>Campaigns
+                    </a>
+                    <a href="/admin/marketing/templates" class="list-group-item list-group-item-action">
+                        <i class="fas fa-file-alt me-2"></i>Templates
+                    </a>
+                    <a href="/admin/marketing/content-generator" class="list-group-item list-group-item-action">
+                        <i class="fas fa-magic me-2"></i>Content Generator
+                    </a>
+                    <a href="/admin/marketing/analytics" class="list-group-item list-group-item-action">
+                        <i class="fas fa-chart-bar me-2"></i>Analytics
+                    </a>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-10">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h1 th:text="${campaign.name}">Campaign Details</h1>
+                    <div>
+                        <a th:href="@{/admin/marketing/campaigns/{id}/edit(id=${campaign.id})}" 
+                           class="btn btn-primary me-2">
+                            <i class="fas fa-edit me-2"></i>Edit Campaign
+                        </a>
+                        <a href="/admin/marketing/campaigns" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Campaigns
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Alert Messages -->
+                <div th:if="${message}" class="alert alert-success alert-dismissible fade show" role="alert">
+                    <span th:text="${message}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+
+                <div class="row">
+                    <!-- Campaign Overview -->
+                    <div class="col-md-8">
+                        <div class="card mb-4">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">Campaign Overview</h5>
+                                <div class="dropdown">
+                                    <button class="btn btn-outline-secondary dropdown-toggle btn-sm" 
+                                            type="button" data-bs-toggle="dropdown">
+                                        <i class="fas fa-cog"></i> Actions
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li th:if="${campaign.status != 'ACTIVE'}">
+                                            <form th:action="@{/admin/marketing/campaigns/{id}/status(id=${campaign.id})}" 
+                                                  method="post" class="m-0">
+                                                <input type="hidden" name="status" value="ACTIVE">
+                                                <button type="submit" class="dropdown-item">
+                                                    <i class="fas fa-play me-2"></i>Activate Campaign
+                                                </button>
+                                            </form>
+                                        </li>
+                                        <li th:if="${campaign.status == 'ACTIVE'}">
+                                            <form th:action="@{/admin/marketing/campaigns/{id}/status(id=${campaign.id})}" 
+                                                  method="post" class="m-0">
+                                                <input type="hidden" name="status" value="PAUSED">
+                                                <button type="submit" class="dropdown-item">
+                                                    <i class="fas fa-pause me-2"></i>Pause Campaign
+                                                </button>
+                                            </form>
+                                        </li>
+                                        <li th:if="${campaign.status != 'COMPLETED'}">
+                                            <form th:action="@{/admin/marketing/campaigns/{id}/status(id=${campaign.id})}" 
+                                                  method="post" class="m-0">
+                                                <input type="hidden" name="status" value="COMPLETED">
+                                                <button type="submit" class="dropdown-item">
+                                                    <i class="fas fa-check me-2"></i>Complete Campaign
+                                                </button>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <p><strong>Type:</strong> 
+                                           <span class="badge bg-secondary" th:text="${campaign.type}">Type</span>
+                                        </p>
+                                        <p><strong>Target Audience:</strong> 
+                                           <span class="badge bg-info" th:text="${campaign.targetAudience}">Audience</span>
+                                        </p>
+                                        <p><strong>Status:</strong> 
+                                           <span class="badge" 
+                                                 th:classappend="${campaign.status == 'ACTIVE' ? 'bg-success' : (campaign.status == 'PAUSED' ? 'bg-warning text-dark' : (campaign.status == 'COMPLETED' ? 'bg-primary' : 'bg-secondary'))}"
+                                                 th:text="${campaign.status}">Status</span>
+                                        </p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p><strong>Start Date:</strong> 
+                                           <span th:text="${campaign.startDate != null ? #temporals.format(campaign.startDate, 'MMM dd, yyyy') : 'Not set'}">Date</span>
+                                        </p>
+                                        <p><strong>End Date:</strong> 
+                                           <span th:text="${campaign.endDate != null ? #temporals.format(campaign.endDate, 'MMM dd, yyyy') : 'Not set'}">Date</span>
+                                        </p>
+                                        <p><strong>Created:</strong> 
+                                           <span th:text="${#temporals.format(campaign.createdAt, 'MMM dd, yyyy HH:mm')}">Date</span>
+                                        </p>
+                                    </div>
+                                </div>
+                                
+                                <div th:if="${campaign.description}" class="mb-3">
+                                    <strong>Description:</strong>
+                                    <p th:text="${campaign.description}" class="mt-1">Campaign description</p>
+                                </div>
+
+                                <div th:if="${campaign.adCopy}">
+                                    <strong>Ad Copy:</strong>
+                                    <div class="border p-3 mt-2 bg-light rounded">
+                                        <p th:text="${campaign.adCopy}" class="mb-0">Ad copy content</p>
+                                    </div>
+                                </div>
+
+                                <div th:if="${campaign.keywords}" class="mt-3">
+                                    <strong>Keywords:</strong>
+                                    <p th:text="${campaign.keywords}" class="mt-1">Keywords</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Performance Metrics -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">Performance Metrics</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="text-center">
+                                            <h4 class="text-primary" th:text="${campaign.impressions != null ? campaign.impressions : 0}">0</h4>
+                                            <p class="text-muted mb-0">Impressions</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="text-center">
+                                            <h4 class="text-info" th:text="${campaign.clicks != null ? campaign.clicks : 0}">0</h4>
+                                            <p class="text-muted mb-0">Clicks</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="text-center">
+                                            <h4 class="text-success" th:text="${campaign.leads != null ? campaign.leads : 0}">0</h4>
+                                            <p class="text-muted mb-0">Leads</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="text-center">
+                                            <h4 class="text-warning">
+                                                <span th:text="${campaign.clickThroughRate != null ? #numbers.formatDecimal(campaign.clickThroughRate, 0, 2) + '%' : 'N/A'}">0%</span>
+                                            </h4>
+                                            <p class="text-muted mb-0">CTR</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <hr>
+                                
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <p><strong>Conversion Rate:</strong> 
+                                           <span th:text="${campaign.conversionRate != null ? #numbers.formatDecimal(campaign.conversionRate, 0, 2) + '%' : 'N/A'}">N/A</span>
+                                        </p>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <p><strong>Cost Per Lead:</strong> 
+                                           $<span th:text="${campaign.costPerLead != null ? #numbers.formatDecimal(campaign.costPerLead, 0, 2) : '0.00'}">0.00</span>
+                                        </p>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <p><strong>ROAS:</strong> 
+                                           <span th:text="${campaign.roas != null ? #numbers.formatDecimal(campaign.roas, 0, 2) : 'N/A'}">N/A</span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Campaign Leads -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Campaign Leads</h5>
+                            </div>
+                            <div class="card-body">
+                                <div th:if="${#lists.isEmpty(campaignLeads)}" class="text-center py-4">
+                                    <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                                    <h6 class="text-muted">No leads generated yet</h6>
+                                    <p class="text-muted">Leads from this campaign will appear here</p>
+                                </div>
+
+                                <div th:unless="${#lists.isEmpty(campaignLeads)}" class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Date</th>
+                                                <th>Lead Type</th>
+                                                <th>Contact</th>
+                                                <th>Source</th>
+                                                <th>UTM Data</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr th:each="lead : ${campaignLeads}">
+                                                <td th:text="${#temporals.format(lead.createdAt, 'MMM dd, yyyy HH:mm')}">Date</td>
+                                                <td>
+                                                    <span th:if="${lead.buyer}" class="badge bg-info">Buyer</span>
+                                                    <span th:if="${lead.seller}" class="badge bg-success">Seller</span>
+                                                </td>
+                                                <td>
+                                                    <div th:if="${lead.buyer}">
+                                                        <strong th:text="${lead.buyer.name}">Name</strong><br>
+                                                        <small th:text="${lead.buyer.email}" class="text-muted">Email</small>
+                                                    </div>
+                                                    <div th:if="${lead.seller}">
+                                                        <strong th:text="${lead.seller.name}">Name</strong><br>
+                                                        <small th:text="${lead.seller.email}" class="text-muted">Email</small>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-secondary" th:text="${lead.source}">Source</span>
+                                                </td>
+                                                <td class="small">
+                                                    <div th:if="${lead.utmSource}">Source: <span th:text="${lead.utmSource}">utm_source</span></div>
+                                                    <div th:if="${lead.utmMedium}">Medium: <span th:text="${lead.utmMedium}">utm_medium</span></div>
+                                                    <div th:if="${lead.utmCampaign}">Campaign: <span th:text="${lead.utmCampaign}">utm_campaign</span></div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Campaign Stats & Budget -->
+                    <div class="col-md-4">
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h6 class="mb-0">Budget & Spend</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span>Budget:</span>
+                                        <strong>$<span th:text="${#numbers.formatDecimal(campaign.budget, 0, 2)}">0.00</span></strong>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span>Spent:</span>
+                                        <span>$<span th:text="${campaign.cost != null ? #numbers.formatDecimal(campaign.cost, 0, 2) : '0.00'}">0.00</span></span>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <span>Remaining:</span>
+                                        <span th:with="remaining=${campaign.budget != null and campaign.cost != null ? campaign.budget.subtract(campaign.cost) : campaign.budget}">
+                                            $<span th:text="${remaining != null ? #numbers.formatDecimal(remaining, 0, 2) : '0.00'}">0.00</span>
+                                        </span>
+                                    </div>
+                                    
+                                    <!-- Budget Progress Bar -->
+                                    <div class="progress mt-2" style="height: 10px;">
+                                        <div class="progress-bar" 
+                                             th:style="${campaign.budget != null and campaign.cost != null and campaign.budget.compareTo(java.math.BigDecimal.ZERO) > 0 ? 
+                                                        'width: ' + T(java.lang.Math).min(100, (campaign.cost.divide(campaign.budget, 4, T(java.math.RoundingMode).HALF_UP).multiply(T(java.math.BigDecimal).valueOf(100))).doubleValue()) + '%' : 
+                                                        'width: 0%'}"
+                                             th:classappend="${campaign.budget != null and campaign.cost != null and campaign.cost.compareTo(campaign.budget) > 0 ? 'bg-danger' : 'bg-primary'}">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Stats -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="mb-0">Quick Stats</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <small class="text-muted">Duration</small>
+                                    <div th:if="${campaign.startDate != null and campaign.endDate != null}">
+                                        <span th:text="${T(java.time.temporal.ChronoUnit).DAYS.between(campaign.startDate, campaign.endDate)} + ' days'">Duration</span>
+                                    </div>
+                                    <div th:unless="${campaign.startDate != null and campaign.endDate != null}">
+                                        Not specified
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <small class="text-muted">Daily Budget</small>
+                                    <div th:if="${campaign.budget != null and campaign.startDate != null and campaign.endDate != null}">
+                                        $<span th:text="${#numbers.formatDecimal(campaign.budget.divide(T(java.math.BigDecimal).valueOf(T(java.time.temporal.ChronoUnit).DAYS.between(campaign.startDate, campaign.endDate) + 1), 2, T(java.math.RoundingMode).HALF_UP), 0, 2)}">0.00</span>
+                                    </div>
+                                    <div th:unless="${campaign.budget != null and campaign.startDate != null and campaign.endDate != null}">
+                                        Not calculated
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <small class="text-muted">Avg. Cost Per Click</small>
+                                    <div th:if="${campaign.cost != null and campaign.clicks != null and campaign.clicks > 0}">
+                                        $<span th:text="${#numbers.formatDecimal(campaign.cost.divide(T(java.math.BigDecimal).valueOf(campaign.clicks), 2, T(java.math.RoundingMode).HALF_UP), 0, 2)}">0.00</span>
+                                    </div>
+                                    <div th:unless="${campaign.cost != null and campaign.clicks != null and campaign.clicks > 0}">
+                                        N/A
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

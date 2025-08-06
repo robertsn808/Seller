@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Template Form - Marketing Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/admin">Admin Portal</a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/admin">Dashboard</a>
+                <a class="nav-link active" href="/admin/marketing/dashboard">Marketing</a>
+                <a class="nav-link" href="/logout">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-2">
+                <div class="list-group">
+                    <a href="/admin/marketing/dashboard" class="list-group-item list-group-item-action">
+                        <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                    </a>
+                    <a href="/admin/marketing/campaigns" class="list-group-item list-group-item-action">
+                        <i class="fas fa-bullhorn me-2"></i>Campaigns
+                    </a>
+                    <a href="/admin/marketing/templates" class="list-group-item list-group-item-action active">
+                        <i class="fas fa-file-alt me-2"></i>Templates
+                    </a>
+                    <a href="/admin/marketing/content-generator" class="list-group-item list-group-item-action">
+                        <i class="fas fa-magic me-2"></i>Content Generator
+                    </a>
+                    <a href="/admin/marketing/analytics" class="list-group-item list-group-item-action">
+                        <i class="fas fa-chart-bar me-2"></i>Analytics
+                    </a>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-10">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h1 th:text="${template.id != null ? 'Edit Template' : 'Create New Template'}">Template Form</h1>
+                    <a href="/admin/marketing/templates" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Templates
+                    </a>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="card">
+                            <div class="card-body">
+                                <form th:action="@{/admin/marketing/templates}" th:object="${template}" method="post">
+                                    <input type="hidden" th:field="*{id}">
+                                    
+                                    <!-- Basic Information -->
+                                    <h5 class="mb-3">Template Information</h5>
+                                    
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="name" class="form-label">Template Name *</label>
+                                            <input type="text" class="form-control" th:field="*{name}" 
+                                                   th:classappend="${#fields.hasErrors('name')} ? 'is-invalid' : ''"
+                                                   placeholder="Enter template name">
+                                            <div th:if="${#fields.hasErrors('name')}" 
+                                                 class="invalid-feedback" th:errors="*{name}">Name error</div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="type" class="form-label">Template Type *</label>
+                                            <select class="form-select" th:field="*{type}" id="templateType"
+                                                    th:classappend="${#fields.hasErrors('type')} ? 'is-invalid' : ''">
+                                                <option value="">Select Type</option>
+                                                <option value="FACEBOOK_POST">Facebook Post</option>
+                                                <option value="GOOGLE_AD">Google Ad</option>
+                                                <option value="CRAIGSLIST_AD">Craigslist Ad</option>
+                                                <option value="EMAIL">Email</option>
+                                                <option value="BUSINESS_CARD">Business Card</option>
+                                                <option value="YARD_SIGN">Yard Sign</option>
+                                            </select>
+                                            <div th:if="${#fields.hasErrors('type')}" 
+                                                 class="invalid-feedback" th:errors="*{type}">Type error</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="targetAudience" class="form-label">Target Audience *</label>
+                                            <select class="form-select" th:field="*{targetAudience}"
+                                                    th:classappend="${#fields.hasErrors('targetAudience')} ? 'is-invalid' : ''">
+                                                <option value="">Select Audience</option>
+                                                <option value="SELLERS">Sellers Only</option>
+                                                <option value="BUYERS">Buyers Only</option>
+                                                <option value="BOTH">Both Sellers & Buyers</option>
+                                            </select>
+                                            <div th:if="${#fields.hasErrors('targetAudience')}" 
+                                                 class="invalid-feedback" th:errors="*{targetAudience}">Target audience error</div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="category" class="form-label">Category</label>
+                                            <select class="form-select" th:field="*{category}">
+                                                <option value="">Select Category</option>
+                                                <option value="GENERAL">General</option>
+                                                <option value="DISTRESSED">Distressed Properties</option>
+                                                <option value="INVESTORS">Investors</option>
+                                                <option value="INHERITED">Inherited Properties</option>
+                                                <option value="FORECLOSURE">Foreclosure</option>
+                                                <option value="CASH_BUYERS">Cash Buyers</option>
+                                                <option value="FIRST_TIME">First Time</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" th:field="*{isActive}" id="isActive">
+                                            <label class="form-check-label" for="isActive">
+                                                Template is active and ready to use
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <!-- Content Fields -->
+                                    <h5 class="mb-3 mt-4">Content</h5>
+                                    
+                                    <div class="mb-3" id="headlineField">
+                                        <label for="headline" class="form-label">
+                                            <span id="headlineLabel">Headline</span>
+                                            <span class="text-muted small" id="headlineHelp"></span>
+                                        </label>
+                                        <input type="text" class="form-control" th:field="*{headline}" 
+                                               placeholder="Enter headline or subject line">
+                                        <div class="form-text" id="headlineCounter">
+                                            <span id="headlineCount">0</span> characters
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="content" class="form-label">
+                                            <span id="contentLabel">Content</span> *
+                                            <span class="text-muted small" id="contentHelp"></span>
+                                        </label>
+                                        <textarea class="form-control" th:field="*{content}" rows="8" id="contentArea"
+                                                  th:classappend="${#fields.hasErrors('content')} ? 'is-invalid' : ''"
+                                                  placeholder="Enter your content here..."></textarea>
+                                        <div class="form-text" id="contentCounter">
+                                            <span id="contentCount">0</span> characters
+                                        </div>
+                                        <div th:if="${#fields.hasErrors('content')}" 
+                                             class="invalid-feedback" th:errors="*{content}">Content error</div>
+                                    </div>
+
+                                    <div class="mb-3" id="ctaField">
+                                        <label for="callToAction" class="form-label">
+                                            <span id="ctaLabel">Call to Action</span>
+                                            <span class="text-muted small" id="ctaHelp"></span>
+                                        </label>
+                                        <input type="text" class="form-control" th:field="*{callToAction}" 
+                                               placeholder="Enter call to action">
+                                        <div class="form-text" id="ctaCounter">
+                                            <span id="ctaCount">0</span> characters
+                                        </div>
+                                    </div>
+
+                                    <!-- Submit Buttons -->
+                                    <div class="d-flex justify-content-end mt-4">
+                                        <a href="/admin/marketing/templates" class="btn btn-secondary me-2">Cancel</a>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-save me-2"></i>
+                                            <span th:text="${template.id != null ? 'Update Template' : 'Create Template'}">Save</span>
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Preview Panel -->
+                    <div class="col-md-4">
+                        <div class="card sticky-top" style="top: 20px;">
+                            <div class="card-header">
+                                <h6 class="mb-0"><i class="fas fa-eye me-2"></i>Live Preview</h6>
+                            </div>
+                            <div class="card-body" id="previewArea">
+                                <div id="facebookPreview" class="preview-template d-none">
+                                    <div class="border p-3 bg-light rounded">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <div class="bg-primary rounded-circle me-2" style="width: 32px; height: 32px;"></div>
+                                            <strong>Your Business</strong>
+                                        </div>
+                                        <div id="fbContent" class="mb-3">Content will appear here...</div>
+                                        <button class="btn btn-primary btn-sm" id="fbCta" disabled>Learn More</button>
+                                    </div>
+                                </div>
+
+                                <div id="googlePreview" class="preview-template d-none">
+                                    <div class="border p-3 rounded">
+                                        <div class="text-success small">Ad</div>
+                                        <h6 class="text-primary mb-1" id="googleHeadline">Headline</h6>
+                                        <p class="small mb-1" id="googleContent">Description text</p>
+                                        <div class="text-success small" id="googleUrl">www.example.com</div>
+                                    </div>
+                                </div>
+
+                                <div id="craigslistPreview" class="preview-template d-none">
+                                    <div class="border p-3 bg-white rounded">
+                                        <h6 class="fw-bold" id="clHeadline">Title</h6>
+                                        <div class="small text-muted mb-2">Real Estate - by owner</div>
+                                        <pre class="small" id="clContent">Content</pre>
+                                        <div class="small text-muted" id="clContact">Contact info</div>
+                                    </div>
+                                </div>
+
+                                <div id="emailPreview" class="preview-template d-none">
+                                    <div class="border rounded">
+                                        <div class="bg-light p-2 border-bottom">
+                                            <small class="text-muted">Subject: </small>
+                                            <span id="emailSubject">Subject line</span>
+                                        </div>
+                                        <div class="p-3">
+                                            <div id="emailContent">Email content</div>
+                                            <button class="btn btn-primary btn-sm mt-2" id="emailCta" disabled>CTA</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div id="defaultPreview" class="text-center text-muted py-4">
+                                    <i class="fas fa-eye-slash fa-2x mb-2"></i>
+                                    <p>Select a template type to see preview</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Template Tips -->
+                        <div class="card mt-3">
+                            <div class="card-header">
+                                <h6 class="mb-0"><i class="fas fa-lightbulb me-2"></i>Template Tips</h6>
+                            </div>
+                            <div class="card-body" id="tipArea">
+                                <div id="facebookTips" class="template-tips d-none">
+                                    <h6>Facebook Post Tips:</h6>
+                                    <ul class="small">
+                                        <li>Keep posts under 125 characters for better engagement</li>
+                                        <li>Use emojis to increase visual appeal</li>
+                                        <li>Include a clear call-to-action</li>
+                                        <li>Ask questions to encourage comments</li>
+                                    </ul>
+                                </div>
+
+                                <div id="googleTips" class="template-tips d-none">
+                                    <h6>Google Ads Tips:</h6>
+                                    <ul class="small">
+                                        <li>Headlines: 30 characters max</li>
+                                        <li>Descriptions: 90 characters max</li>
+                                        <li>Include keywords in headline</li>
+                                        <li>Highlight unique value propositions</li>
+                                    </ul>
+                                </div>
+
+                                <div id="craigslistTips" class="template-tips d-none">
+                                    <h6>Craigslist Tips:</h6>
+                                    <ul class="small">
+                                        <li>Use descriptive titles</li>
+                                        <li>Be honest and transparent</li>
+                                        <li>Include contact information</li>
+                                        <li>Follow local posting guidelines</li>
+                                    </ul>
+                                </div>
+
+                                <div id="emailTips" class="template-tips d-none">
+                                    <h6>Email Tips:</h6>
+                                    <ul class="small">
+                                        <li>Subject lines: 30-50 characters</li>
+                                        <li>Keep content scannable</li>
+                                        <li>Use personalization when possible</li>
+                                        <li>Include clear next steps</li>
+                                    </ul>
+                                </div>
+
+                                <div id="defaultTips" class="text-muted small">
+                                    Select a template type to see specific tips and recommendations.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const typeSelect = document.getElementById('templateType');
+            const headlineField = document.getElementById('headline');
+            const contentField = document.getElementById('contentArea');
+            const ctaField = document.getElementById('callToAction');
+
+            // Character counters
+            function updateCounter(field, counterId) {
+                const counter = document.getElementById(counterId);
+                if (counter) {
+                    counter.textContent = field.value.length;
+                }
+            }
+
+            headlineField.addEventListener('input', () => updateCounter(headlineField, 'headlineCount'));
+            contentField.addEventListener('input', () => updateCounter(contentField, 'contentCount'));
+            ctaField.addEventListener('input', () => updateCounter(ctaField, 'ctaCount'));
+
+            // Update preview and tips based on template type
+            function updatePreviewAndTips() {
+                const selectedType = typeSelect.value;
+                
+                // Hide all previews and tips
+                document.querySelectorAll('.preview-template, .template-tips').forEach(el => {
+                    el.classList.add('d-none');
+                });
+
+                // Update field labels and help text
+                updateFieldLabels(selectedType);
+
+                // Show appropriate preview and tips
+                switch(selectedType) {
+                    case 'FACEBOOK_POST':
+                        document.getElementById('facebookPreview').classList.remove('d-none');
+                        document.getElementById('facebookTips').classList.remove('d-none');
+                        document.getElementById('defaultPreview').classList.add('d-none');
+                        document.getElementById('defaultTips').classList.add('d-none');
+                        break;
+                    case 'GOOGLE_AD':
+                        document.getElementById('googlePreview').classList.remove('d-none');
+                        document.getElementById('googleTips').classList.remove('d-none');
+                        document.getElementById('defaultPreview').classList.add('d-none');
+                        document.getElementById('defaultTips').classList.add('d-none');
+                        break;
+                    case 'CRAIGSLIST_AD':
+                        document.getElementById('craigslistPreview').classList.remove('d-none');
+                        document.getElementById('craigslistTips').classList.remove('d-none');
+                        document.getElementById('defaultPreview').classList.add('d-none');
+                        document.getElementById('defaultTips').classList.add('d-none');
+                        break;
+                    case 'EMAIL':
+                        document.getElementById('emailPreview').classList.remove('d-none');
+                        document.getElementById('emailTips').classList.remove('d-none');
+                        document.getElementById('defaultPreview').classList.add('d-none');
+                        document.getElementById('defaultTips').classList.add('d-none');
+                        break;
+                    default:
+                        document.getElementById('defaultPreview').classList.remove('d-none');
+                        document.getElementById('defaultTips').classList.remove('d-none');
+                }
+                
+                updatePreviewContent();
+            }
+
+            function updateFieldLabels(type) {
+                const headlineLabel = document.getElementById('headlineLabel');
+                const contentLabel = document.getElementById('contentLabel');
+                const ctaLabel = document.getElementById('ctaLabel');
+                
+                switch(type) {
+                    case 'FACEBOOK_POST':
+                        headlineLabel.textContent = 'Post Title';
+                        contentLabel.textContent = 'Post Content';
+                        ctaLabel.textContent = 'Call to Action';
+                        break;
+                    case 'GOOGLE_AD':
+                        headlineLabel.textContent = 'Ad Headline';
+                        contentLabel.textContent = 'Ad Description';
+                        ctaLabel.textContent = 'Display URL';
+                        break;
+                    case 'CRAIGSLIST_AD':
+                        headlineLabel.textContent = 'Ad Title';
+                        contentLabel.textContent = 'Ad Content';
+                        ctaLabel.textContent = 'Contact Information';
+                        break;
+                    case 'EMAIL':
+                        headlineLabel.textContent = 'Subject Line';
+                        contentLabel.textContent = 'Email Body';
+                        ctaLabel.textContent = 'CTA Button Text';
+                        break;
+                    default:
+                        headlineLabel.textContent = 'Headline';
+                        contentLabel.textContent = 'Content';
+                        ctaLabel.textContent = 'Call to Action';
+                }
+            }
+
+            function updatePreviewContent() {
+                const headline = headlineField.value || 'Sample headline';
+                const content = contentField.value || 'Sample content';
+                const cta = ctaField.value || 'Click here';
+
+                // Update Facebook preview
+                const fbContent = document.getElementById('fbContent');
+                const fbCta = document.getElementById('fbCta');
+                if (fbContent) fbContent.textContent = content;
+                if (fbCta) fbCta.textContent = cta;
+
+                // Update Google preview
+                const googleHeadline = document.getElementById('googleHeadline');
+                const googleContent = document.getElementById('googleContent');
+                const googleUrl = document.getElementById('googleUrl');
+                if (googleHeadline) googleHeadline.textContent = headline;
+                if (googleContent) googleContent.textContent = content;
+                if (googleUrl) googleUrl.textContent = cta;
+
+                // Update Craigslist preview
+                const clHeadline = document.getElementById('clHeadline');
+                const clContent = document.getElementById('clContent');
+                const clContact = document.getElementById('clContact');
+                if (clHeadline) clHeadline.textContent = headline;
+                if (clContent) clContent.textContent = content;
+                if (clContact) clContact.textContent = cta;
+
+                // Update Email preview
+                const emailSubject = document.getElementById('emailSubject');
+                const emailContent = document.getElementById('emailContent');
+                const emailCta = document.getElementById('emailCta');
+                if (emailSubject) emailSubject.textContent = headline;
+                if (emailContent) emailContent.textContent = content;
+                if (emailCta) emailCta.textContent = cta;
+            }
+
+            // Event listeners
+            typeSelect.addEventListener('change', updatePreviewAndTips);
+            headlineField.addEventListener('input', updatePreviewContent);
+            contentField.addEventListener('input', updatePreviewContent);
+            ctaField.addEventListener('input', updatePreviewContent);
+
+            // Initial setup
+            updateCounter(headlineField, 'headlineCount');
+            updateCounter(contentField, 'contentCount');
+            updateCounter(ctaField, 'ctaCount');
+            updatePreviewAndTips();
+        });
+    </script>
+</body>
+</html>

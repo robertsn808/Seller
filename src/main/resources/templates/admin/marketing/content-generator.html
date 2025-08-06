@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Content Generator - Marketing Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/admin">Admin Portal</a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/admin">Dashboard</a>
+                <a class="nav-link active" href="/admin/marketing/dashboard">Marketing</a>
+                <a class="nav-link" href="/logout">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-2">
+                <div class="list-group">
+                    <a href="/admin/marketing/dashboard" class="list-group-item list-group-item-action">
+                        <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                    </a>
+                    <a href="/admin/marketing/campaigns" class="list-group-item list-group-item-action">
+                        <i class="fas fa-bullhorn me-2"></i>Campaigns
+                    </a>
+                    <a href="/admin/marketing/templates" class="list-group-item list-group-item-action">
+                        <i class="fas fa-file-alt me-2"></i>Templates
+                    </a>
+                    <a href="/admin/marketing/content-generator" class="list-group-item list-group-item-action active">
+                        <i class="fas fa-magic me-2"></i>Content Generator
+                    </a>
+                    <a href="/admin/marketing/analytics" class="list-group-item list-group-item-action">
+                        <i class="fas fa-chart-bar me-2"></i>Analytics
+                    </a>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-10">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h1>Content Generator</h1>
+                    <a href="/admin/marketing/templates/new" class="btn btn-outline-primary">
+                        <i class="fas fa-plus me-2"></i>Create Custom Template
+                    </a>
+                </div>
+
+                <div class="row">
+                    <!-- Seller Templates -->
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100">
+                            <div class="card-header bg-success text-white">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-home me-2"></i>Seller Templates
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <p class="card-text">Ready-to-use templates targeting property sellers</p>
+                                
+                                <div th:if="${#lists.isEmpty(sellerTemplates)}" class="text-center py-3">
+                                    <i class="fas fa-file-alt fa-2x text-muted mb-2"></i>
+                                    <p class="text-muted small">No seller templates available</p>
+                                    <a href="/admin/marketing/templates/new" class="btn btn-success btn-sm">Create First Template</a>
+                                </div>
+                                
+                                <div th:unless="${#lists.isEmpty(sellerTemplates)}" class="template-list">
+                                    <div class="template-item mb-3 p-3 border rounded" th:each="template : ${sellerTemplates}">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <h6 class="mb-1" th:text="${template.name}">Template Name</h6>
+                                            <span class="badge bg-secondary small" th:text="${template.type}">Type</span>
+                                        </div>
+                                        <p class="small text-muted mb-2" th:text="${#strings.abbreviate(template.content, 80)}">Content preview</p>
+                                        <div class="d-flex gap-2">
+                                            <button class="btn btn-success btn-sm copy-template" 
+                                                    th:data-content="${template.content}"
+                                                    th:data-headline="${template.headline}"
+                                                    th:data-cta="${template.callToAction}">
+                                                <i class="fas fa-copy me-1"></i>Copy
+                                            </button>
+                                            <button class="btn btn-outline-success btn-sm preview-template"
+                                                    th:data-name="${template.name}"
+                                                    th:data-type="${template.type}"
+                                                    th:data-content="${template.content}"
+                                                    th:data-headline="${template.headline}"
+                                                    th:data-cta="${template.callToAction}">
+                                                <i class="fas fa-eye me-1"></i>Preview
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Buyer Templates -->
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-search me-2"></i>Buyer Templates
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <p class="card-text">Ready-to-use templates targeting property buyers</p>
+                                
+                                <div th:if="${#lists.isEmpty(buyerTemplates)}" class="text-center py-3">
+                                    <i class="fas fa-file-alt fa-2x text-muted mb-2"></i>
+                                    <p class="text-muted small">No buyer templates available</p>
+                                    <a href="/admin/marketing/templates/new" class="btn btn-primary btn-sm">Create First Template</a>
+                                </div>
+                                
+                                <div th:unless="${#lists.isEmpty(buyerTemplates)}" class="template-list">
+                                    <div class="template-item mb-3 p-3 border rounded" th:each="template : ${buyerTemplates}">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <h6 class="mb-1" th:text="${template.name}">Template Name</h6>
+                                            <span class="badge bg-secondary small" th:text="${template.type}">Type</span>
+                                        </div>
+                                        <p class="small text-muted mb-2" th:text="${#strings.abbreviate(template.content, 80)}">Content preview</p>
+                                        <div class="d-flex gap-2">
+                                            <button class="btn btn-primary btn-sm copy-template" 
+                                                    th:data-content="${template.content}"
+                                                    th:data-headline="${template.headline}"
+                                                    th:data-cta="${template.callToAction}">
+                                                <i class="fas fa-copy me-1"></i>Copy
+                                            </button>
+                                            <button class="btn btn-outline-primary btn-sm preview-template"
+                                                    th:data-name="${template.name}"
+                                                    th:data-type="${template.type}"
+                                                    th:data-content="${template.content}"
+                                                    th:data-headline="${template.headline}"
+                                                    th:data-cta="${template.callToAction}">
+                                                <i class="fas fa-eye me-1"></i>Preview
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- General Templates -->
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100">
+                            <div class="card-header bg-info text-white">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-users me-2"></i>General Templates
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <p class="card-text">Templates suitable for both buyers and sellers</p>
+                                
+                                <div th:if="${#lists.isEmpty(generalTemplates)}" class="text-center py-3">
+                                    <i class="fas fa-file-alt fa-2x text-muted mb-2"></i>
+                                    <p class="text-muted small">No general templates available</p>
+                                    <a href="/admin/marketing/templates/new" class="btn btn-info btn-sm">Create First Template</a>
+                                </div>
+                                
+                                <div th:unless="${#lists.isEmpty(generalTemplates)}" class="template-list">
+                                    <div class="template-item mb-3 p-3 border rounded" th:each="template : ${generalTemplates}">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <h6 class="mb-1" th:text="${template.name}">Template Name</h6>
+                                            <span class="badge bg-secondary small" th:text="${template.type}">Type</span>
+                                        </div>
+                                        <p class="small text-muted mb-2" th:text="${#strings.abbreviate(template.content, 80)}">Content preview</p>
+                                        <div class="d-flex gap-2">
+                                            <button class="btn btn-info btn-sm copy-template" 
+                                                    th:data-content="${template.content}"
+                                                    th:data-headline="${template.headline}"
+                                                    th:data-cta="${template.callToAction}">
+                                                <i class="fas fa-copy me-1"></i>Copy
+                                            </button>
+                                            <button class="btn btn-outline-info btn-sm preview-template"
+                                                    th:data-name="${template.name}"
+                                                    th:data-type="${template.type}"
+                                                    th:data-content="${template.content}"
+                                                    th:data-headline="${template.headline}"
+                                                    th:data-cta="${template.callToAction}">
+                                                <i class="fas fa-eye me-1"></i>Preview
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Content Ideas -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-lightbulb me-2"></i>Quick Content Ideas
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h6 class="text-success">For Sellers:</h6>
+                                        <ul class="list-unstyled">
+                                            <li class="mb-2">
+                                                <button class="btn btn-outline-success btn-sm me-2 copy-idea" 
+                                                        data-content="Need to sell your house fast? We buy houses in any condition - no repairs needed! Cash offer in 24 hours. Call now!">
+                                                    <i class="fas fa-copy"></i>
+                                                </button>
+                                                <small>Fast cash buyers - no repairs needed</small>
+                                            </li>
+                                            <li class="mb-2">
+                                                <button class="btn btn-outline-success btn-sm me-2 copy-idea" 
+                                                        data-content="Inherited a property you don't want? We specialize in helping families sell inherited homes quickly and hassle-free.">
+                                                    <i class="fas fa-copy"></i>
+                                                </button>
+                                                <small>Inherited property solutions</small>
+                                            </li>
+                                            <li class="mb-2">
+                                                <button class="btn btn-outline-success btn-sm me-2 copy-idea" 
+                                                        data-content="Behind on mortgage payments? We can help! We buy houses before foreclosure and help you move forward with dignity.">
+                                                    <i class="fas fa-copy"></i>
+                                                </button>
+                                                <small>Pre-foreclosure assistance</small>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h6 class="text-primary">For Buyers:</h6>
+                                        <ul class="list-unstyled">
+                                            <li class="mb-2">
+                                                <button class="btn btn-outline-primary btn-sm me-2 copy-idea" 
+                                                        data-content="Looking for your next investment property? We have off-market deals with great potential returns. Join our buyers list!">
+                                                    <i class="fas fa-copy"></i>
+                                                </button>
+                                                <small>Investment property opportunities</small>
+                                            </li>
+                                            <li class="mb-2">
+                                                <button class="btn btn-outline-primary btn-sm me-2 copy-idea" 
+                                                        data-content="First-time buyer? We'll guide you through the process and help you find the perfect home within your budget.">
+                                                    <i class="fas fa-copy"></i>
+                                                </button>
+                                                <small>First-time buyer guidance</small>
+                                            </li>
+                                            <li class="mb-2">
+                                                <button class="btn btn-outline-primary btn-sm me-2 copy-idea" 
+                                                        data-content="Cash buyers wanted! Get access to exclusive properties before they hit the market. No financing contingencies needed.">
+                                                    <i class="fas fa-copy"></i>
+                                                </button>
+                                                <small>Cash buyer opportunities</small>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Preview Modal -->
+    <div class="modal fade" id="previewModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="previewModalTitle">Template Preview</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="modalPreviewContent">
+                        <!-- Preview content will be inserted here -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="modalCopyButton">
+                        <i class="fas fa-copy me-2"></i>Copy Content
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Toast -->
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+        <div id="copyToast" class="toast" role="alert">
+            <div class="toast-header">
+                <i class="fas fa-check-circle text-success me-2"></i>
+                <strong class="me-auto">Success</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body">
+                Content copied to clipboard!
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const copyToast = new bootstrap.Toast(document.getElementById('copyToast'));
+            const previewModal = new bootstrap.Modal(document.getElementById('previewModal'));
+            let currentTemplateData = {};
+
+            // Copy template content
+            document.querySelectorAll('.copy-template, .copy-idea').forEach(button => {
+                button.addEventListener('click', function() {
+                    const content = this.dataset.content;
+                    copyToClipboard(content);
+                });
+            });
+
+            // Preview template
+            document.querySelectorAll('.preview-template').forEach(button => {
+                button.addEventListener('click', function() {
+                    currentTemplateData = {
+                        name: this.dataset.name,
+                        type: this.dataset.type,
+                        content: this.dataset.content,
+                        headline: this.dataset.headline,
+                        cta: this.dataset.cta
+                    };
+                    
+                    showPreview(currentTemplateData);
+                });
+            });
+
+            // Modal copy button
+            document.getElementById('modalCopyButton').addEventListener('click', function() {
+                if (currentTemplateData.content) {
+                    copyToClipboard(currentTemplateData.content);
+                    previewModal.hide();
+                }
+            });
+
+            function copyToClipboard(text) {
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(text).then(function() {
+                        copyToast.show();
+                    });
+                } else {
+                    // Fallback for older browsers
+                    const textArea = document.createElement('textarea');
+                    textArea.value = text;
+                    document.body.appendChild(textArea);
+                    textArea.focus();
+                    textArea.select();
+                    try {
+                        document.execCommand('copy');
+                        copyToast.show();
+                    } catch (err) {
+                        console.error('Failed to copy text: ', err);
+                    }
+                    document.body.removeChild(textArea);
+                }
+            }
+
+            function showPreview(templateData) {
+                const modalTitle = document.getElementById('previewModalTitle');
+                const modalContent = document.getElementById('modalPreviewContent');
+                
+                modalTitle.textContent = `${templateData.name} - ${templateData.type}`;
+                
+                let previewHtml = '';
+                
+                switch(templateData.type) {
+                    case 'FACEBOOK_POST':
+                        previewHtml = `
+                            <div class="border p-3 bg-light rounded">
+                                <div class="d-flex align-items-center mb-2">
+                                    <div class="bg-primary rounded-circle me-2" style="width: 32px; height: 32px;"></div>
+                                    <strong>Your Business</strong>
+                                </div>
+                                <div class="mb-3">${templateData.content}</div>
+                                ${templateData.cta ? `<button class="btn btn-primary btn-sm" disabled>${templateData.cta}</button>` : ''}
+                            </div>`;
+                        break;
+                    case 'GOOGLE_AD':
+                        previewHtml = `
+                            <div class="border p-3 rounded">
+                                <div class="text-success small">Ad</div>
+                                <h6 class="text-primary mb-1">${templateData.headline || 'Headline'}</h6>
+                                <p class="small mb-1">${templateData.content}</p>
+                                <div class="text-success small">${templateData.cta || 'www.example.com'}</div>
+                            </div>`;
+                        break;
+                    case 'CRAIGSLIST_AD':
+                        previewHtml = `
+                            <div class="border p-3 bg-white rounded">
+                                <h6 class="fw-bold">${templateData.headline || 'Title'}</h6>
+                                <div class="small text-muted mb-2">Real Estate - by owner</div>
+                                <pre class="small">${templateData.content}</pre>
+                                ${templateData.cta ? `<div class="small text-muted">${templateData.cta}</div>` : ''}
+                            </div>`;
+                        break;
+                    case 'EMAIL':
+                        previewHtml = `
+                            <div class="border rounded">
+                                <div class="bg-light p-2 border-bottom">
+                                    <small class="text-muted">Subject: </small>
+                                    <span>${templateData.headline || 'Subject line'}</span>
+                                </div>
+                                <div class="p-3">
+                                    <div>${templateData.content}</div>
+                                    ${templateData.cta ? `<button class="btn btn-primary btn-sm mt-2" disabled>${templateData.cta}</button>` : ''}
+                                </div>
+                            </div>`;
+                        break;
+                    default:
+                        previewHtml = `
+                            <div class="border p-3 rounded">
+                                ${templateData.headline ? `<h6>${templateData.headline}</h6>` : ''}
+                                <p>${templateData.content}</p>
+                                ${templateData.cta ? `<p class="text-primary"><strong>${templateData.cta}</strong></p>` : ''}
+                            </div>`;
+                }
+                
+                modalContent.innerHTML = previewHtml;
+                previewModal.show();
+            }
+        });
+    </script>
+</body>
+</html>

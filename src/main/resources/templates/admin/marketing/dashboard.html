@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marketing Dashboard - Admin Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/admin">Admin Portal</a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/admin">Dashboard</a>
+                <a class="nav-link active" href="/admin/marketing/dashboard">Marketing</a>
+                <a class="nav-link" href="/logout">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-2">
+                <div class="list-group">
+                    <a href="/admin/marketing/dashboard" class="list-group-item list-group-item-action active">
+                        <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                    </a>
+                    <a href="/admin/marketing/campaigns" class="list-group-item list-group-item-action">
+                        <i class="fas fa-bullhorn me-2"></i>Campaigns
+                    </a>
+                    <a href="/admin/marketing/templates" class="list-group-item list-group-item-action">
+                        <i class="fas fa-file-alt me-2"></i>Templates
+                    </a>
+                    <a href="/admin/marketing/content-generator" class="list-group-item list-group-item-action">
+                        <i class="fas fa-magic me-2"></i>Content Generator
+                    </a>
+                    <a href="/admin/marketing/analytics" class="list-group-item list-group-item-action">
+                        <i class="fas fa-chart-bar me-2"></i>Analytics
+                    </a>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-10">
+                <h1 class="mb-4">Marketing Dashboard</h1>
+
+                <!-- Alert Messages -->
+                <div th:if="${message}" class="alert alert-success alert-dismissible fade show" role="alert">
+                    <span th:text="${message}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+
+                <!-- Key Metrics -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="card bg-primary text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="card-title mb-1">Total Campaigns</h6>
+                                        <h3 class="mb-0" th:text="${totalCampaigns}">0</h3>
+                                    </div>
+                                    <i class="fas fa-bullhorn fa-2x opacity-50"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-success text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="card-title mb-1">Active Campaigns</h6>
+                                        <h3 class="mb-0" th:text="${activeCampaigns}">0</h3>
+                                    </div>
+                                    <i class="fas fa-play-circle fa-2x opacity-50"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-info text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="card-title mb-1">Total Leads</h6>
+                                        <h3 class="mb-0" th:text="${totalLeads}">0</h3>
+                                    </div>
+                                    <i class="fas fa-users fa-2x opacity-50"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-warning text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="card-title mb-1">Monthly Spend</h6>
+                                        <h3 class="mb-0">$<span th:text="${#numbers.formatDecimal(monthlySpend, 0, 2)}">0.00</span></h3>
+                                    </div>
+                                    <i class="fas fa-dollar-sign fa-2x opacity-50"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Performance Metrics -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Monthly Performance</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <p class="mb-1 text-muted">Monthly Leads</p>
+                                        <h4 th:text="${monthlyLeads}">0</h4>
+                                    </div>
+                                    <div class="col-6">
+                                        <p class="mb-1 text-muted">Cost Per Lead</p>
+                                        <h4>$<span th:text="${#numbers.formatDecimal(costPerLead, 0, 2)}">0.00</span></h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Lead Sources</h5>
+                            </div>
+                            <div class="card-body">
+                                <div th:if="${#lists.isEmpty(leadSources)}" class="text-muted text-center">
+                                    No lead sources data available
+                                </div>
+                                <div th:unless="${#lists.isEmpty(leadSources)}">
+                                    <div th:each="source : ${leadSources}" class="d-flex justify-content-between align-items-center mb-2">
+                                        <span th:text="${source[0]}">Source</span>
+                                        <span class="badge bg-primary" th:text="${source[1]}">0</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Campaigns -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">Recent Campaigns</h5>
+                                <a href="/admin/marketing/campaigns/new" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-plus me-1"></i>New Campaign
+                                </a>
+                            </div>
+                            <div class="card-body">
+                                <div th:if="${#lists.isEmpty(recentCampaigns)}" class="text-center text-muted">
+                                    No campaigns found. <a href="/admin/marketing/campaigns/new">Create your first campaign</a>
+                                </div>
+                                <div th:unless="${#lists.isEmpty(recentCampaigns)}" class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Campaign Name</th>
+                                                <th>Type</th>
+                                                <th>Status</th>
+                                                <th>Budget</th>
+                                                <th>Leads</th>
+                                                <th>CTR</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr th:each="campaign : ${recentCampaigns}">
+                                                <td>
+                                                    <a th:href="@{/admin/marketing/campaigns/{id}(id=${campaign.id})}" 
+                                                       th:text="${campaign.name}" class="text-decoration-none">Campaign Name</a>
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-secondary" th:text="${campaign.type}">Type</span>
+                                                </td>
+                                                <td>
+                                                    <span class="badge" 
+                                                          th:classappend="${campaign.status == 'ACTIVE' ? 'bg-success' : (campaign.status == 'PAUSED' ? 'bg-warning' : 'bg-secondary')}"
+                                                          th:text="${campaign.status}">Status</span>
+                                                </td>
+                                                <td>$<span th:text="${#numbers.formatDecimal(campaign.budget, 0, 2)}">0.00</span></td>
+                                                <td th:text="${campaign.leads != null ? campaign.leads : 0}">0</td>
+                                                <td th:text="${campaign.clickThroughRate != null ? #numbers.formatDecimal(campaign.clickThroughRate, 0, 2) + '%' : 'N/A'}">N/A</td>
+                                                <td>
+                                                    <a th:href="@{/admin/marketing/campaigns/{id}(id=${campaign.id})}" 
+                                                       class="btn btn-sm btn-outline-primary me-1" title="View">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <a th:href="@{/admin/marketing/campaigns/{id}/edit(id=${campaign.id})}" 
+                                                       class="btn btn-sm btn-outline-secondary" title="Edit">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Quick Actions</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-3 mb-3">
+                                        <a href="/admin/marketing/campaigns/new" class="btn btn-outline-primary w-100">
+                                            <i class="fas fa-bullhorn mb-2 d-block"></i>
+                                            Create Campaign
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <a href="/admin/marketing/templates/new" class="btn btn-outline-success w-100">
+                                            <i class="fas fa-file-alt mb-2 d-block"></i>
+                                            New Template
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <a href="/admin/marketing/content-generator" class="btn btn-outline-info w-100">
+                                            <i class="fas fa-magic mb-2 d-block"></i>
+                                            Generate Content
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <a href="/admin/marketing/analytics" class="btn btn-outline-warning w-100">
+                                            <i class="fas fa-chart-bar mb-2 d-block"></i>
+                                            View Analytics
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
