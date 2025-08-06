@@ -46,6 +46,8 @@ public class Campaign {
     
     private String targetKeywords; // For Google Ads
     
+    private String keywords; // Alternative field name for form binding
+    
     private String demographicTargeting; // Age, location, interests
     
     private Integer impressions;
@@ -121,6 +123,9 @@ public class Campaign {
     
     public String getTargetKeywords() { return targetKeywords; }
     public void setTargetKeywords(String targetKeywords) { this.targetKeywords = targetKeywords; }
+    
+    public String getKeywords() { return keywords; }
+    public void setKeywords(String keywords) { this.keywords = keywords; }
     
     public String getDemographicTargeting() { return demographicTargeting; }
     public void setDemographicTargeting(String demographicTargeting) { this.demographicTargeting = demographicTargeting; }

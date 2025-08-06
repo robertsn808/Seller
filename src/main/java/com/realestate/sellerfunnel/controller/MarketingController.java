@@ -7,6 +7,7 @@ import com.realestate.sellerfunnel.repository.CampaignLeadRepository;
 import com.realestate.sellerfunnel.repository.ContentTemplateRepository;
 import com.realestate.sellerfunnel.repository.BuyerRepository;
 import com.realestate.sellerfunnel.repository.SellerRepository;
+import com.realestate.sellerfunnel.service.CampaignPublishingService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -36,6 +37,9 @@ public class MarketingController {
 
     @Autowired
     private SellerRepository sellerRepository;
+    
+    @Autowired
+    private CampaignPublishingService campaignPublishingService;
 
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
@@ -110,8 +114,19 @@ public class MarketingController {
             return "admin/marketing/campaign-form";
         }
         
-        campaignRepository.save(campaign);
-        redirectAttributes.addFlashAttribute("message", "Campaign saved successfully!");
+        Campaign savedCampaign = campaignRepository.save(campaign);
+        
+        // Attempt to publish campaign if it's active
+        if ("ACTIVE".equals(campaign.getStatus())) {
+            boolean published = campaignPublishingService.publishCampaign(savedCampaign);
+            if (published) {
+                redirectAttributes.addFlashAttribute("message", "Campaign created and published successfully!");
+            } else {
+                redirectAttributes.addFlashAttribute("message", "Campaign saved. Publishing failed - check API configuration.");
+            }
+        } else {
+            redirectAttributes.addFlashAttribute("message", "Campaign saved successfully!");
+        }
         
         return "redirect:/admin/marketing/campaigns";
     }
@@ -129,6 +144,27 @@ public class MarketingController {
         redirectAttributes.addFlashAttribute("message", "Campaign status updated to " + status);
         
         return "redirect:/admin/marketing/campaigns/" + id;
+    }
+    
+    @PostMapping("/campaigns/{id}/publish")
+    public String publishCampaign(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        Campaign campaign = campaignRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Campaign not found"));
+        
+        boolean published = campaignPublishingService.publishCampaign(campaign);
+        
+        if (published) {
+            redirectAttributes.addFlashAttribute("message", "Campaign published successfully!");
+        } else {
+            redirectAttributes.addFlashAttribute("message", "Failed to publish campaign. Check API configuration.");
+        }
+        
+        return "redirect:/admin/marketing/campaigns/" + id;
+    }
+    
+    @GetMapping("/api-config")
+    public String apiConfig() {
+        return "admin/marketing/api-config";
     }
 
     @GetMapping("/templates")
