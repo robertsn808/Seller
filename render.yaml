@@ -3,7 +3,7 @@ services:
     name: seller-funnel
     runtime: java
     buildCommand: mvn clean package -DskipTests
-    startCommand: java -Dserver.port=$PORT -jar target/seller-funnel-1.0-SNAPSHOT.jar --spring.profiles.active=postgres
+    startCommand: java -Dserver.port=$PORT -jar target/seller-funnel-1.0-SNAPSHOT.jar --spring.profiles.active=render
     plan: free
     env: java17
     envVars:
@@ -11,18 +11,8 @@ services:
         fromDatabase:
           name: seller-funnel-db
           property: connectionString
-      - key: SPRING_DATASOURCE_URL
-        fromDatabase:
-          name: seller-funnel-db
-          property: connectionString
-      - key: SPRING_DATASOURCE_USERNAME
-        fromDatabase:
-          name: seller-funnel-db
-          property: user
-      - key: SPRING_DATASOURCE_PASSWORD
-        fromDatabase:
-          name: seller-funnel-db
-          property: password
+      - key: SPRING_PROFILES_ACTIVE
+        value: render
       - key: SPRING_JPA_HIBERNATE_DDL_AUTO
         value: update
       - key: SPRING_JPA_DATABASE_PLATFORM
