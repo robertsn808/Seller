@@ -50,10 +50,27 @@ public class PropertyManagementController {
     public String propertyLogin() {
         return "property/login";
     }
+    
+    @PostMapping("/login")
+    public String processLogin(@RequestParam String username, 
+                              @RequestParam String password,
+                              RedirectAttributes redirectAttributes) {
+        // Simple authentication for property management
+        // In a real application, you would validate against a database
+        if ("admin".equals(username) && "admin123".equals(password)) {
+            return "redirect:/property/dashboard";
+        } else {
+            redirectAttributes.addFlashAttribute("error", "Invalid username or password");
+            return "redirect:/property/login?error";
+        }
+    }
 
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
         try {
+            // Initialize sample data if database is empty
+            initializeSampleDataIfNeeded();
+            
             // Get statistics with safe fallbacks
             Long totalRooms = roomRepository.count();
             Long vacantRooms = roomRepository.countVacantRooms();
@@ -652,6 +669,85 @@ public class PropertyManagementController {
             response.put("success", false);
             response.put("error", e.getMessage());
             return response;
+        }
+    }
+    
+    /**
+     * Initialize sample data if the database is empty
+     */
+    private void initializeSampleDataIfNeeded() {
+        try {
+            // Check if we have any rooms
+            if (roomRepository.count() == 0) {
+                System.out.println("=== INITIALIZING SAMPLE PROPERTY DATA ===");
+                
+                // Create sample rooms
+                Room room1 = new Room("101", "Ocean View", "Single", new BigDecimal("150.00"));
+                room1.setCurrentCode("1234");
+                room1.setResetCode("0000");
+                roomRepository.save(room1);
+                
+                Room room2 = new Room("102", "Garden Suite", "Double", new BigDecimal("200.00"));
+                room2.setCurrentCode("5678");
+                room2.setResetCode("0000");
+                roomRepository.save(room2);
+                
+                Room room3 = new Room("103", "Mountain View", "Single", new BigDecimal("140.00"));
+                room3.setCurrentCode("9012");
+                room3.setResetCode("0000");
+                roomRepository.save(room3);
+                
+                Room room4 = new Room("104", "Premium Suite", "Suite", new BigDecimal("300.00"));
+                room4.setCurrentCode("3456");
+                room4.setResetCode("0000");
+                roomRepository.save(room4);
+                
+                Room room5 = new Room("105", "Standard Room", "Single", new BigDecimal("120.00"));
+                room5.setCurrentCode("7890");
+                room5.setResetCode("0000");
+                roomRepository.save(room5);
+                
+                Room room6 = new Room("106", "Family Room", "Double", new BigDecimal("180.00"));
+                room6.setCurrentCode("2345");
+                room6.setResetCode("0000");
+                roomRepository.save(room6);
+                
+                Room room7 = new Room("107", "Deluxe Room", "Single", new BigDecimal("160.00"));
+                room7.setCurrentCode("6789");
+                room7.setResetCode("0000");
+                roomRepository.save(room7);
+                
+                Room room8 = new Room("108", "Executive Suite", "Suite", new BigDecimal("350.00"));
+                room8.setCurrentCode("0123");
+                room8.setResetCode("0000");
+                roomRepository.save(room8);
+                
+                System.out.println("=== SAMPLE ROOMS CREATED ===");
+            }
+            
+            // Check if we have any guests
+            if (guestRepository.count() == 0) {
+                // Create sample guests
+                Guest guest1 = new Guest();
+                guest1.setFirstName("John");
+                guest1.setLastName("Doe");
+                guest1.setEmail("john.doe@example.com");
+                guest1.setPhoneNumber("555-0101");
+                guestRepository.save(guest1);
+                
+                Guest guest2 = new Guest();
+                guest2.setFirstName("Jane");
+                guest2.setLastName("Smith");
+                guest2.setEmail("jane.smith@example.com");
+                guest2.setPhoneNumber("555-0102");
+                guestRepository.save(guest2);
+                
+                System.out.println("=== SAMPLE GUESTS CREATED ===");
+            }
+            
+        } catch (Exception e) {
+            System.err.println("Error initializing sample data: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }
