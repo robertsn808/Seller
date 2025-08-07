@@ -112,6 +112,13 @@
             <artifactId>owasp-java-html-sanitizer</artifactId>
             <version>20211018.2</version>
         </dependency>
+        
+        <!-- Twilio for SMS functionality -->
+        <dependency>
+            <groupId>com.twilio.sdk</groupId>
+            <artifactId>twilio</artifactId>
+            <version>9.14.1</version>
+        </dependency>
     </dependencies>
 
     <build>

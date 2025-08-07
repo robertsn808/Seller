@@ -282,4 +282,76 @@ public class AIContentGenerationService {
         
         return variations;
     }
+    
+    /**
+     * Generate email subject line using AI
+     */
+    public String generateEmailSubject(String messageText) {
+        if (getOpenAiService() == null) {
+            return "Important Update from Real Estate Connect";
+        }
+        
+        List<ChatMessage> messages = Arrays.asList(
+            new ChatMessage("system", 
+                "You are an expert email copywriter. Create a compelling, professional email subject line " +
+                "based on the email content. The subject line should be:\n" +
+                "- Under 50 characters\n" +
+                "- Engaging but not clickbait\n" +
+                "- Clear and descriptive\n" +
+                "- Professional and trustworthy\n" +
+                "Return ONLY the subject line, nothing else."),
+            new ChatMessage("user", "Generate a subject line for this email content: " + messageText)
+        );
+        
+        ChatCompletionRequest request = ChatCompletionRequest.builder()
+            .model(openaiModel)
+            .messages(messages)
+            .maxTokens(50)
+            .temperature(0.7)
+            .build();
+        
+        try {
+            String response = getOpenAiService().createChatCompletion(request)
+                .getChoices().get(0).getMessage().getContent();
+            return response.trim();
+        } catch (Exception e) {
+            return "Important Update from Real Estate Connect";
+        }
+    }
+    
+    /**
+     * Generate email content using AI
+     */
+    public String generateEmailContent(String messageText) {
+        if (getOpenAiService() == null) {
+            return messageText;
+        }
+        
+        List<ChatMessage> messages = Arrays.asList(
+            new ChatMessage("system", 
+                "You are an expert email copywriter for a real estate company. Enhance the given email content to be:\n" +
+                "- Professional yet warm and engaging\n" +
+                "- Well-structured with clear paragraphs\n" +
+                "- Persuasive without being pushy\n" +
+                "- Focused on value and benefits\n" +
+                "- Including a clear call-to-action\n" +
+                "Maintain the core message and key information while improving the writing quality."),
+            new ChatMessage("user", "Enhance this email content while keeping its core message: " + messageText)
+        );
+        
+        ChatCompletionRequest request = ChatCompletionRequest.builder()
+            .model(openaiModel)
+            .messages(messages)
+            .maxTokens(1000)
+            .temperature(0.7)
+            .build();
+        
+        try {
+            String response = getOpenAiService().createChatCompletion(request)
+                .getChoices().get(0).getMessage().getContent();
+            return response.trim();
+        } catch (Exception e) {
+            return messageText;
+        }
+    }
 } 
