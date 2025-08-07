@@ -60,7 +60,7 @@ public class ClientImportService {
         return result;
     }
     
-    private Map<String, Integer> createColumnMap(Row headerRow) {
+    public Map<String, Integer> createColumnMap(Row headerRow) {
         Map<String, Integer> columnMap = new HashMap<>();
         
         for (int i = 0; i < headerRow.getLastCellNum(); i++) {
@@ -74,7 +74,7 @@ public class ClientImportService {
         return columnMap;
     }
     
-    private Client createClientFromRow(Row row, Map<String, Integer> columnMap) {
+    public Client createClientFromRow(Row row, Map<String, Integer> columnMap) {
         Client client = new Client();
         
         // Required fields

@@ -62,6 +62,12 @@ public class Client {
     @Column(name = "email_opted_in")
     private Boolean emailOptedIn;
     
+    @Column(name = "sms_opted_in")
+    private Boolean smsOptedIn;
+    
+    @Column(name = "sms_contact_count")
+    private Integer smsContactCount;
+    
     @Column(name = "last_contact_date")
     private LocalDateTime lastContactDate;
     
@@ -90,8 +96,14 @@ public class Client {
         if (emailOptedIn == null) {
             emailOptedIn = true;
         }
+        if (smsOptedIn == null) {
+            smsOptedIn = true;
+        }
         if (emailContactCount == null) {
             emailContactCount = 0;
+        }
+        if (smsContactCount == null) {
+            smsContactCount = 0;
         }
         if (phoneContactCount == null) {
             phoneContactCount = 0;
@@ -170,6 +182,12 @@ public class Client {
     public Boolean getEmailOptedIn() { return emailOptedIn; }
     public void setEmailOptedIn(Boolean emailOptedIn) { this.emailOptedIn = emailOptedIn; }
     
+    public Boolean getSmsOptedIn() { return smsOptedIn; }
+    public void setSmsOptedIn(Boolean smsOptedIn) { this.smsOptedIn = smsOptedIn; }
+    
+    public Integer getSmsContactCount() { return smsContactCount; }
+    public void setSmsContactCount(Integer smsContactCount) { this.smsContactCount = smsContactCount; }
+    
     public LocalDateTime getLastContactDate() { return lastContactDate; }
     public void setLastContactDate(LocalDateTime lastContactDate) { this.lastContactDate = lastContactDate; }
     
@@ -226,11 +244,19 @@ public class Client {
         this.lastContactDate = LocalDateTime.now();
     }
     
+    public void incrementSmsContact() {
+        this.smsContactCount = (this.smsContactCount != null ? this.smsContactCount : 0) + 1;
+        this.totalContactCount = (this.totalContactCount != null ? this.totalContactCount : 0) + 1;
+        this.lastContactDate = LocalDateTime.now();
+    }
+    
     public void incrementContact(String contactType) {
         if ("EMAIL".equalsIgnoreCase(contactType)) {
             incrementEmailContact();
         } else if ("PHONE".equalsIgnoreCase(contactType)) {
             incrementPhoneContact();
+        } else if ("SMS".equalsIgnoreCase(contactType)) {
+            incrementSmsContact();
         }
     }
 } 
