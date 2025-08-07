@@ -6,6 +6,163 @@
     <title>DKIM Email Setup - Admin Portal</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .setup-progress {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .progress-step {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .progress-step.completed {
+            opacity: 0.7;
+        }
+        
+        .progress-step.current {
+            font-weight: bold;
+        }
+        
+        .step-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.2rem;
+        }
+        
+        .step-icon.completed {
+            background: #28a745;
+        }
+        
+        .step-icon.current {
+            background: #007bff;
+            animation: pulse 2s infinite;
+        }
+        
+        .step-icon.pending {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .card {
+            border: none;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            border-radius: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+            transform: translateY(-2px);
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-bottom: 1px solid #dee2e6;
+            border-radius: 15px 15px 0 0 !important;
+            font-weight: 600;
+        }
+        
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        
+        .validation-icon {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.2rem;
+        }
+        
+        .form-group {
+            position: relative;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0.5rem 1rem rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+        }
+        
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #007bff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .feature-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid #667eea;
+        }
+        
+        .test-email-section {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .accordion-button:not(.collapsed) {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .accordion-button:focus {
+            box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
+        }
+    </style>
 </head>
 <body>
     <!-- Navigation -->
@@ -42,15 +199,55 @@
 
             <!-- Main Content -->
             <div class="col-md-10">
-                <h1 class="mb-4">DKIM Email Configuration</h1>
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h1><i class="fas fa-envelope-open-text me-3"></i>DKIM Email Configuration</h1>
+                    <div class="status-badge" th:classappend="${configurationComplete} ? 'bg-success' : 'bg-warning'">
+                        <i class="fas fa-circle me-2"></i>
+                        <span th:text="${configurationStatus}">Configuration Status</span>
+                    </div>
+                </div>
+
+                <!-- Setup Progress -->
+                <div class="setup-progress">
+                    <h4 class="mb-4"><i class="fas fa-chart-line me-2"></i>Setup Progress</h4>
+                    <div class="progress-step" th:classappend="${senderEmail != 'Not configured'} ? 'completed' : 'current'">
+                        <div class="step-icon" th:classappend="${senderEmail != 'Not configured'} ? 'completed' : 'current'">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-1">Email Configuration</h6>
+                            <small th:text="${senderEmail != 'Not configured'} ? 'Completed' : 'In Progress'">In Progress</small>
+                        </div>
+                    </div>
+                    <div class="progress-step" th:classappend="${dkimEnabled} ? 'completed' : 'current'">
+                        <div class="step-icon" th:classappend="${dkimEnabled} ? 'completed' : 'current'">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-1">DKIM Authentication</h6>
+                            <small th:text="${dkimEnabled} ? 'Enabled' : 'Not Enabled'">Not Enabled</small>
+                        </div>
+                    </div>
+                    <div class="progress-step" th:classappend="${configurationComplete} ? 'completed' : 'pending'">
+                        <div class="step-icon" th:classappend="${configurationComplete} ? 'completed' : 'pending'">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-1">Ready to Send</h6>
+                            <small th:text="${configurationComplete} ? 'All Set!' : 'Complete Setup'">Complete Setup</small>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- Alert Messages -->
                 <div th:if="${message}" class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>
                     <span th:text="${message}"></span>
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
 
                 <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
                     <span th:text="${error}"></span>
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
@@ -58,54 +255,53 @@
                 <!-- Current Configuration Status -->
                 <div class="card mb-4">
                     <div class="card-header">
-                        <h5 class="mb-0">Current Email Configuration</h5>
+                        <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Current Email Configuration</h5>
                     </div>
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-6">
-                                <h6>Basic Settings</h6>
-                                <ul class="list-unstyled">
-                                    <li><strong>SMTP Host:</strong> <span th:text="${smtpHost}">Not configured</span></li>
-                                    <li><strong>SMTP Port:</strong> <span th:text="${smtpPort}">Not configured</span></li>
-                                    <li><strong>Sender Email:</strong> <span th:text="${senderEmail}">Not configured</span></li>
-                                    <li><strong>From Domain:</strong> <span th:text="${fromDomain ?: 'Not configured'}">Not configured</span></li>
-                                </ul>
+                                <h6><i class="fas fa-cog me-2"></i>Basic Settings</h6>
+                                <div class="feature-card">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <strong>SMTP Host:</strong>
+                                        <span class="badge" th:classappend="${smtpHost != 'Not configured'} ? 'bg-success' : 'bg-secondary'"
+                                              th:text="${smtpHost}">Not configured</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <strong>SMTP Port:</strong>
+                                        <span class="badge bg-info" th:text="${smtpPort}">Not configured</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <strong>Sender Email:</strong>
+                                        <span class="badge" th:classappend="${senderEmail != 'Not configured'} ? 'bg-success' : 'bg-secondary'"
+                                              th:text="${senderEmail}">Not configured</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <strong>From Domain:</strong>
+                                        <span class="badge" th:classappend="${fromDomain != null and fromDomain != ''} ? 'bg-success' : 'bg-secondary'"
+                                              th:text="${fromDomain ?: 'Not configured'}">Not configured</span>
+                                    </div>
+                                </div>
                             </div>
                             <div class="col-md-6">
-                                <h6>DKIM Configuration</h6>
-                                <ul class="list-unstyled">
-                                    <li><strong>DKIM Enabled:</strong> 
-                                        <span th:class="${dkimEnabled} ? 'text-success' : 'text-warning'"
+                                <h6><i class="fas fa-shield-alt me-2"></i>DKIM Configuration</h6>
+                                <div class="feature-card">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <strong>DKIM Enabled:</strong> 
+                                        <span class="badge" th:classappend="${dkimEnabled} ? 'bg-success' : 'bg-warning'"
                                               th:text="${dkimEnabled} ? 'Yes' : 'No'">No</span>
-                                    </li>
-                                    <li><strong>DKIM Domain:</strong> <span th:text="${dkimDomain ?: 'Not configured'}">Not configured</span></li>
-                                    <li><strong>DKIM Selector:</strong> <span th:text="${dkimSelector ?: 'default'}">default</span></li>
-                                </ul>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <strong>DKIM Domain:</strong>
+                                        <span class="badge" th:classappend="${dkimDomain != null and dkimDomain != ''} ? 'bg-success' : 'bg-secondary'"
+                                              th:text="${dkimDomain ?: 'Not configured'}">Not configured</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <strong>DKIM Selector:</strong>
+                                        <span class="badge bg-info" th:text="${dkimSelector ?: 'default'}">default</span>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                        <div class="mt-3">
-                            <span class="badge" th:classappend="${configurationComplete} ? 'bg-success' : 'bg-warning'">
-                                <span th:text="${configurationStatus}">Configuration Status</span>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Your DKIM DNS Record -->
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h5 class="mb-0">Your DKIM DNS Record</h5>
-                    </div>
-                    <div class="card-body">
-                        <p>We detected you have the following DKIM DNS record configured:</p>
-                        <div class="bg-light p-3 rounded font-monospace small">
-                            <strong>Record Name:</strong> default._domainkey<br>
-                            <strong>Record Type:</strong> TXT<br>
-                            <strong>Record Value:</strong> v=DKIM1;k=rsa;p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvgn5VVvCnMnAHOk7TBQ1Fq3auIa+CaZeHMz3gHOwkiIA5IZPXmho3BHuxCXzo7I3PnLsiZA18TOQQqVvhVbNU7aRAdaKDsz5q4KmPuHAQkHqPj6aSRmGUtYzeRUxzuc8ys8w9Eff2QpCICF1ArRlVdPIJPgJIftk8ByrKao+qwB+Cjemb5K7cya4i/ssVf9Hm2VH7cGOlmRluBY1VTvUeNA5Gr9d7alGrlYBZkmYCX2g/gZ9FEpPNamlS4n/t/SiKtHACZW3i9QaGnglo616+KakVn9kGeWaQ8m3Wxxo43IdPd5CZMBVP8Ji9mbXRNbRhY3E/ptnMD1eE9maCisNoQIDAQAB
-                        </div>
-                        <div class="alert alert-info mt-3">
-                            <i class="fas fa-info-circle me-2"></i>
-                            This DKIM record will authenticate emails sent from your domain, improving deliverability and reducing spam classification.
                         </div>
                     </div>
                 </div>
@@ -113,63 +309,79 @@
                 <!-- Configuration Form -->
                 <div class="card mb-4">
                     <div class="card-header">
-                        <h5 class="mb-0">Configure Email Settings</h5>
+                        <h5 class="mb-0"><i class="fas fa-edit me-2"></i>Configure Email Settings</h5>
                     </div>
                     <div class="card-body">
-                        <form method="post" action="/admin/marketing/email-setup">
+                        <form method="post" action="/admin/marketing/email-setup" id="emailConfigForm">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                             <div class="row">
                                 <div class="col-md-6">
-                                    <h6 class="mb-3">Basic Email Settings</h6>
-                                    <div class="mb-3">
+                                    <h6 class="mb-3"><i class="fas fa-envelope me-2"></i>Basic Email Settings</h6>
+                                    <div class="mb-3 form-group">
                                         <label for="senderEmail" class="form-label">Sender Email Address</label>
                                         <input type="email" class="form-control" id="senderEmail" name="senderEmail" 
-                                               th:value="${senderEmail}" placeholder="noreply@yourdomain.com" required>
+                                               th:value="${senderEmail}" placeholder="noreply@yourdomain.com" required
+                                               onblur="validateEmail(this)">
+                                        <div class="validation-icon" id="senderEmailIcon"></div>
                                         <div class="form-text">The email address that will appear as the sender</div>
+                                        <div class="invalid-feedback" id="senderEmailError"></div>
                                     </div>
-                                    <div class="mb-3">
+                                    <div class="mb-3 form-group">
                                         <label for="senderName" class="form-label">Sender Name</label>
                                         <input type="text" class="form-control" id="senderName" name="senderName" 
-                                               th:value="${senderName}" placeholder="Real Estate Team" required>
+                                               th:value="${senderName}" placeholder="Real Estate Team" required
+                                               onblur="validateName(this)">
+                                        <div class="validation-icon" id="senderNameIcon"></div>
                                         <div class="form-text">The name that will appear as the sender</div>
+                                        <div class="invalid-feedback" id="senderNameError"></div>
                                     </div>
-                                    <div class="mb-3">
+                                    <div class="mb-3 form-group">
                                         <label for="replyToEmail" class="form-label">Reply-To Email (Optional)</label>
                                         <input type="email" class="form-control" id="replyToEmail" name="replyToEmail" 
-                                               th:value="${replyToEmail}" placeholder="support@yourdomain.com">
+                                               th:value="${replyToEmail}" placeholder="support@yourdomain.com"
+                                               onblur="validateOptionalEmail(this)">
+                                        <div class="validation-icon" id="replyToEmailIcon"></div>
                                         <div class="form-text">Where replies should be sent (if different from sender)</div>
+                                        <div class="invalid-feedback" id="replyToEmailError"></div>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <h6 class="mb-3">DKIM Authentication</h6>
+                                    <h6 class="mb-3"><i class="fas fa-shield-alt me-2"></i>DKIM Authentication</h6>
                                     <div class="mb-3">
                                         <div class="form-check">
                                             <input class="form-check-input" type="checkbox" id="dkimEnabled" name="dkimEnabled" 
-                                                   th:checked="${dkimEnabled}">
+                                                   th:checked="${dkimEnabled}" onchange="toggleDkimFields()">
                                             <label class="form-check-label" for="dkimEnabled">
                                                 Enable DKIM Authentication
                                             </label>
                                         </div>
                                         <div class="form-text">Improves email deliverability and reduces spam classification</div>
                                     </div>
-                                    <div class="mb-3">
+                                    <div class="mb-3 form-group" id="dkimDomainGroup">
                                         <label for="dkimDomain" class="form-label">DKIM Domain</label>
                                         <input type="text" class="form-control" id="dkimDomain" name="dkimDomain" 
-                                               th:value="${dkimDomain}" placeholder="yourdomain.com">
+                                               th:value="${dkimDomain}" placeholder="yourdomain.com"
+                                               onblur="validateDomain(this)">
+                                        <div class="validation-icon" id="dkimDomainIcon"></div>
                                         <div class="form-text">The domain where your DKIM record is configured</div>
+                                        <div class="invalid-feedback" id="dkimDomainError"></div>
                                     </div>
-                                    <div class="mb-3">
+                                    <div class="mb-3 form-group" id="dkimSelectorGroup">
                                         <label for="dkimSelector" class="form-label">DKIM Selector</label>
                                         <input type="text" class="form-control" id="dkimSelector" name="dkimSelector" 
-                                               th:value="${dkimSelector}" placeholder="default">
+                                               th:value="${dkimSelector}" placeholder="default"
+                                               onblur="validateSelector(this)">
+                                        <div class="validation-icon" id="dkimSelectorIcon"></div>
                                         <div class="form-text">The selector used in your DKIM DNS record</div>
+                                        <div class="invalid-feedback" id="dkimSelectorError"></div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="d-flex justify-content-between">
-                                <button type="submit" class="btn btn-primary">
+                            <div class="d-flex justify-content-between mt-4">
+                                <button type="submit" class="btn btn-primary" id="saveBtn">
                                     <i class="fas fa-save me-2"></i>Save Configuration
                                 </button>
-                                <button type="button" class="btn btn-outline-success" onclick="testEmail()">
+                                <button type="button" class="btn btn-outline-success" onclick="sendTestEmail()" id="testBtn">
                                     <i class="fas fa-paper-plane me-2"></i>Send Test Email
                                 </button>
                             </div>
@@ -177,10 +389,33 @@
                     </div>
                 </div>
 
+                <!-- Your DKIM DNS Record -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-database me-2"></i>Your DKIM DNS Record</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Great news!</strong> We detected you have the following DKIM DNS record configured:
+                        </div>
+                        <div class="bg-dark text-light p-4 rounded font-monospace small">
+                            <div class="mb-2"><strong>Record Name:</strong> <span class="text-info">default._domainkey</span></div>
+                            <div class="mb-2"><strong>Record Type:</strong> <span class="text-warning">TXT</span></div>
+                            <div><strong>Record Value:</strong></div>
+                            <div class="text-break mt-1">v=DKIM1;k=rsa;p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvgn5VVvCnMnAHOk7TBQ1Fq3auIa+CaZeHMz3gHOwkiIA5IZPXmho3BHuxCXzo7I3PnLsiZA18TOQQqVvhVbNU7aRAdaKDsz5q4KmPuHAQkHqPj6aSRmGUtYzeRUxzuc8ys8w9Eff2QpCICF1ArRlVdPIJPgJIftk8ByrKao+qwB+Cjemb5K7cya4i/ssVf9Hm2VH7cGOlmRluBY1VTvUeNA5Gr9d7alGrlYBZkmYCX2g/gZ9FEpPNamlS4n/t/SiKtHACZW3i9QaGnglo616+KakVn9kGeWaQ8m3Wxxo43IdPd5CZMBVP8Ji9mbXRNbRhY3E/ptnMD1eE9maCisNoQIDAQAB</div>
+                        </div>
+                        <div class="alert alert-success mt-3">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <strong>Your DKIM is Ready!</strong> This DNS record will authenticate emails sent from your domain, improving deliverability and reducing spam classification.
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Setup Instructions -->
                 <div class="card mb-4">
                     <div class="card-header">
-                        <h5 class="mb-0">Setup Instructions</h5>
+                        <h5 class="mb-0"><i class="fas fa-graduation-cap me-2"></i>Setup Instructions</h5>
                     </div>
                     <div class="card-body">
                         <div class="alert alert-primary">
@@ -268,27 +503,23 @@ DKIM_SELECTOR=default</code></pre>
                 </div>
 
                 <!-- Test Email Section -->
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="mb-0">Test Your Configuration</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-8">
-                                <div class="mb-3">
-                                    <label for="testEmailAddress" class="form-label">Test Email Address</label>
-                                    <input type="email" class="form-control" id="testEmailAddress" 
-                                           placeholder="your-email@example.com" required>
-                                </div>
-                            </div>
-                            <div class="col-md-4 d-flex align-items-end">
-                                <button type="button" class="btn btn-success w-100" onclick="sendTestEmail()">
-                                    <i class="fas fa-paper-plane me-2"></i>Send Test Email
-                                </button>
+                <div class="test-email-section">
+                    <h5 class="mb-4"><i class="fas fa-paper-plane me-2"></i>Test Your Configuration</h5>
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <label for="testEmailAddress" class="form-label">Test Email Address</label>
+                                <input type="email" class="form-control" id="testEmailAddress" 
+                                       placeholder="your-email@example.com" required>
                             </div>
                         </div>
-                        <div id="testResult" class="mt-3" style="display: none;"></div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <button type="button" class="btn btn-success w-100" onclick="sendTestEmail()" id="sendTestBtn">
+                                <i class="fas fa-paper-plane me-2"></i>Send Test Email
+                            </button>
+                        </div>
                     </div>
+                    <div id="testResult" class="mt-3" style="display: none;"></div>
                 </div>
             </div>
         </div>
@@ -296,6 +527,154 @@ DKIM_SELECTOR=default</code></pre>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Validation functions
+        function validateEmail(input) {
+            const email = input.value.trim();
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            const icon = document.getElementById(input.id + 'Icon');
+            const error = document.getElementById(input.id + 'Error');
+            
+            if (email === '') {
+                showValidationError(input, icon, error, 'Email is required');
+                return false;
+            } else if (!emailRegex.test(email)) {
+                showValidationError(input, icon, error, 'Please enter a valid email address');
+                return false;
+            } else {
+                showValidationSuccess(input, icon, error);
+                return true;
+            }
+        }
+        
+        function validateOptionalEmail(input) {
+            const email = input.value.trim();
+            const icon = document.getElementById(input.id + 'Icon');
+            const error = document.getElementById(input.id + 'Error');
+            
+            if (email === '') {
+                showValidationSuccess(input, icon, error); // Optional field
+                return true;
+            } else {
+                return validateEmail(input);
+            }
+        }
+        
+        function validateName(input) {
+            const name = input.value.trim();
+            const icon = document.getElementById(input.id + 'Icon');
+            const error = document.getElementById(input.id + 'Error');
+            
+            if (name === '') {
+                showValidationError(input, icon, error, 'Name is required');
+                return false;
+            } else if (name.length < 2) {
+                showValidationError(input, icon, error, 'Name must be at least 2 characters');
+                return false;
+            } else if (name.length > 100) {
+                showValidationError(input, icon, error, 'Name must be less than 100 characters');
+                return false;
+            } else {
+                showValidationSuccess(input, icon, error);
+                return true;
+            }
+        }
+        
+        function validateDomain(input) {
+            const domain = input.value.trim();
+            const icon = document.getElementById(input.id + 'Icon');
+            const error = document.getElementById(input.id + 'Error');
+            const domainRegex = /^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+            
+            if (domain === '') {
+                showValidationError(input, icon, error, 'Domain is required when DKIM is enabled');
+                return false;
+            } else if (!domainRegex.test(domain)) {
+                showValidationError(input, icon, error, 'Please enter a valid domain');
+                return false;
+            } else {
+                showValidationSuccess(input, icon, error);
+                return true;
+            }
+        }
+        
+        function validateSelector(input) {
+            const selector = input.value.trim();
+            const icon = document.getElementById(input.id + 'Icon');
+            const error = document.getElementById(input.id + 'Error');
+            
+            if (selector === '') {
+                showValidationError(input, icon, error, 'Selector is required when DKIM is enabled');
+                return false;
+            } else if (selector.length > 63) {
+                showValidationError(input, icon, error, 'Selector must be less than 63 characters');
+                return false;
+            } else {
+                showValidationSuccess(input, icon, error);
+                return true;
+            }
+        }
+        
+        function showValidationError(input, icon, errorElement, message) {
+            input.classList.add('is-invalid');
+            input.classList.remove('is-valid');
+            icon.innerHTML = '<i class="fas fa-times text-danger"></i>';
+            errorElement.textContent = message;
+        }
+        
+        function showValidationSuccess(input, icon, errorElement) {
+            input.classList.remove('is-invalid');
+            input.classList.add('is-valid');
+            icon.innerHTML = '<i class="fas fa-check text-success"></i>';
+            errorElement.textContent = '';
+        }
+        
+        function toggleDkimFields() {
+            const dkimEnabled = document.getElementById('dkimEnabled').checked;
+            const dkimDomainGroup = document.getElementById('dkimDomainGroup');
+            const dkimSelectorGroup = document.getElementById('dkimSelectorGroup');
+            
+            if (dkimEnabled) {
+                dkimDomainGroup.style.display = 'block';
+                dkimSelectorGroup.style.display = 'block';
+            } else {
+                dkimDomainGroup.style.display = 'none';
+                dkimSelectorGroup.style.display = 'none';
+            }
+        }
+        
+        // Form submission with validation
+        document.getElementById('emailConfigForm').addEventListener('submit', function(e) {
+            const senderEmail = document.getElementById('senderEmail');
+            const senderName = document.getElementById('senderName');
+            const replyToEmail = document.getElementById('replyToEmail');
+            const dkimEnabled = document.getElementById('dkimEnabled');
+            const dkimDomain = document.getElementById('dkimDomain');
+            const dkimSelector = document.getElementById('dkimSelector');
+            
+            let isValid = true;
+            
+            // Validate required fields
+            if (!validateEmail(senderEmail)) isValid = false;
+            if (!validateName(senderName)) isValid = false;
+            if (!validateOptionalEmail(replyToEmail)) isValid = false;
+            
+            // Validate DKIM fields if enabled
+            if (dkimEnabled.checked) {
+                if (!validateDomain(dkimDomain)) isValid = false;
+                if (!validateSelector(dkimSelector)) isValid = false;
+            }
+            
+            if (!isValid) {
+                e.preventDefault();
+                alert('Please fix the validation errors before submitting.');
+            } else {
+                // Show loading state
+                const saveBtn = document.getElementById('saveBtn');
+                saveBtn.innerHTML = '<div class="loading-spinner me-2"></div>Saving...';
+                saveBtn.disabled = true;
+            }
+        });
+        
         function sendTestEmail() {
             const email = document.getElementById('testEmailAddress').value;
             if (!email) {
@@ -304,8 +683,12 @@ DKIM_SELECTOR=default</code></pre>
             }
 
             const resultDiv = document.getElementById('testResult');
+            const sendTestBtn = document.getElementById('sendTestBtn');
+            
             resultDiv.style.display = 'block';
-            resultDiv.innerHTML = '<div class="alert alert-info"><i class="fas fa-spinner fa-spin me-2"></i>Sending test email...</div>';
+            resultDiv.innerHTML = '<div class="alert alert-info"><div class="loading-spinner me-2"></div>Sending test email...</div>';
+            sendTestBtn.disabled = true;
+            sendTestBtn.innerHTML = '<div class="loading-spinner me-2"></div>Sending...';
 
             fetch('/admin/marketing/email-setup/test', {
                 method: 'POST',
@@ -324,8 +707,17 @@ DKIM_SELECTOR=default</code></pre>
             })
             .catch(error => {
                 resultDiv.innerHTML = '<div class="alert alert-danger"><i class="fas fa-times me-2"></i>Error sending test email: ' + error.message + '</div>';
+            })
+            .finally(() => {
+                sendTestBtn.disabled = false;
+                sendTestBtn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Send Test Email';
             });
         }
+        
+        // Initialize DKIM fields visibility
+        document.addEventListener('DOMContentLoaded', function() {
+            toggleDkimFields();
+        });
     </script>
 </body>
 </html>

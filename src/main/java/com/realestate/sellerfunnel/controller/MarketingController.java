@@ -5,8 +5,6 @@ import com.realestate.sellerfunnel.model.ContentTemplate;
 import com.realestate.sellerfunnel.repository.CampaignRepository;
 import com.realestate.sellerfunnel.repository.CampaignLeadRepository;
 import com.realestate.sellerfunnel.repository.ContentTemplateRepository;
-import com.realestate.sellerfunnel.repository.BuyerRepository;
-import com.realestate.sellerfunnel.repository.SellerRepository;
 import com.realestate.sellerfunnel.service.CampaignPublishingService;
 import com.realestate.sellerfunnel.service.AIContentGenerationService;
 import com.realestate.sellerfunnel.service.ContentMemoryService;
@@ -26,11 +24,12 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.stream.Collectors;
+
+// Rest of the code remains unchanged
 
 @Controller
 @RequestMapping("/admin/marketing")
@@ -45,12 +44,6 @@ public class MarketingController {
     @Autowired
     private ContentTemplateRepository templateRepository;
 
-    @Autowired
-    private BuyerRepository buyerRepository;
-
-    @Autowired
-    private SellerRepository sellerRepository;
-    
     @Autowired
     private CampaignPublishingService campaignPublishingService;
     
@@ -236,6 +229,53 @@ public class MarketingController {
             redirectAttributes.addFlashAttribute("message", "Campaign published successfully!");
         } else {
             redirectAttributes.addFlashAttribute("message", "Failed to publish campaign. Check API configuration.");
+        }
+        
+        return "redirect:/admin/marketing/campaigns/" + id;
+    }
+    
+    @PostMapping("/campaigns/{id}/activate")
+    public String activateCampaign(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        Campaign campaign = campaignRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Campaign not found"));
+        
+        boolean activated = campaignPublishingService.activateCampaign(campaign);
+        
+        if (activated) {
+            redirectAttributes.addFlashAttribute("message", "Campaign activated successfully!");
+        } else {
+            redirectAttributes.addFlashAttribute("message", "Failed to activate campaign. Check API configuration.");
+        }
+        
+        return "redirect:/admin/marketing/campaigns/" + id;
+    }
+    
+    @PostMapping("/campaigns/{id}/pause")
+    public String pauseCampaign(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        Campaign campaign = campaignRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Campaign not found"));
+        
+        boolean paused = campaignPublishingService.pauseCampaign(campaign);
+        
+        if (paused) {
+            redirectAttributes.addFlashAttribute("message", "Campaign paused successfully!");
+        } else {
+            redirectAttributes.addFlashAttribute("message", "Failed to pause campaign. Check API configuration.");
+        }
+        
+        return "redirect:/admin/marketing/campaigns/" + id;
+    }
+    
+    @PostMapping("/campaigns/{id}/sync-stats")
+    public String syncCampaignStats(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        Campaign campaign = campaignRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Campaign not found"));
+        
+        try {
+            campaignPublishingService.syncCampaignStats(campaign);
+            redirectAttributes.addFlashAttribute("message", "Campaign statistics synced successfully!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Failed to sync campaign statistics: " + e.getMessage());
         }
         
         return "redirect:/admin/marketing/campaigns/" + id;

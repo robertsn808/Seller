@@ -2,7 +2,6 @@ package com.realestate.sellerfunnel.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Table(name = "ai_generated_content")

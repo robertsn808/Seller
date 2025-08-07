@@ -4,6 +4,7 @@ import com.realestate.sellerfunnel.model.Campaign;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -73,7 +74,7 @@ public class GoogleAdsService {
             
             HttpEntity<Map<String, Object>> httpRequest = new HttpEntity<>(request, headers);
             
-            ResponseEntity<Map> response = restTemplate.postForEntity(url, httpRequest, Map.class);
+            ResponseEntity<Map<String, Object>> response = restTemplate.exchange(url, HttpMethod.POST, httpRequest, new ParameterizedTypeReference<Map<String, Object>>() {});
             
             if (response.getStatusCode() == HttpStatus.OK) {
                 logger.info("Google Ads campaign created successfully for: {}", campaign.getName());
@@ -116,7 +117,7 @@ public class GoogleAdsService {
             
             HttpEntity<Map<String, Object>> httpRequest = new HttpEntity<>(request, headers);
             
-            ResponseEntity<Map> response = restTemplate.postForEntity(url, httpRequest, Map.class);
+            ResponseEntity<Map<String, Object>> response = restTemplate.exchange(url, HttpMethod.POST, httpRequest, new ParameterizedTypeReference<Map<String, Object>>() {});
             
             return response.getStatusCode() == HttpStatus.OK;
             
@@ -218,7 +219,7 @@ public class GoogleAdsService {
             
             HttpEntity<Map<String, Object>> httpRequest = new HttpEntity<>(request, headers);
             
-            ResponseEntity<Map> response = restTemplate.postForEntity(url, httpRequest, Map.class);
+            ResponseEntity<Map<String, Object>> response = restTemplate.exchange(url, HttpMethod.POST, httpRequest, new ParameterizedTypeReference<Map<String, Object>>() {});
             
             return response.getStatusCode() == HttpStatus.OK;
             
@@ -243,7 +244,7 @@ public class GoogleAdsService {
             
             HttpEntity<Map<String, Object>> request = new HttpEntity<>(tokenData, headers);
             
-            ResponseEntity<Map> response = restTemplate.postForEntity(url, request, Map.class);
+            ResponseEntity<Map<String, Object>> response = restTemplate.exchange(url, HttpMethod.POST, request, new ParameterizedTypeReference<Map<String, Object>>() {});
             
             if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
                 this.accessToken = (String) response.getBody().get("access_token");
@@ -277,7 +278,7 @@ public class GoogleAdsService {
             
             HttpEntity<Map<String, Object>> request = new HttpEntity<>(query, headers);
             
-            ResponseEntity<Map> response = restTemplate.postForEntity(url, request, Map.class);
+            ResponseEntity<Map<String, Object>> response = restTemplate.exchange(url, HttpMethod.POST, request, new ParameterizedTypeReference<Map<String, Object>>() {});
             
             if (response.getStatusCode() == HttpStatus.OK) {
                 return response.getBody();

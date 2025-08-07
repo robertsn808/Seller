@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -91,7 +92,7 @@ public class FacebookPostService {
             
             HttpEntity<String> request = new HttpEntity<>(formData.toString(), headers);
             
-            ResponseEntity<Map> response = restTemplate.postForEntity(url, request, Map.class);
+            ResponseEntity<Map<String, Object>> response = restTemplate.exchange(url, HttpMethod.POST, request, new ParameterizedTypeReference<Map<String, Object>>() {});
             
             if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
                 String postId = (String) response.getBody().get("id");
@@ -151,7 +152,7 @@ public class FacebookPostService {
             
             HttpEntity<String> request = new HttpEntity<>(formData.toString(), headers);
             
-            ResponseEntity<Map> response = restTemplate.postForEntity(url, request, Map.class);
+            ResponseEntity<Map<String, Object>> response = restTemplate.exchange(url, HttpMethod.POST, request, new ParameterizedTypeReference<Map<String, Object>>() {});
             
             if (response.getStatusCode() == HttpStatus.OK) {
                 logger.info("Facebook post scheduled successfully for campaign: {}", campaign.getName());
@@ -177,7 +178,7 @@ public class FacebookPostService {
             String url = "https://graph.facebook.com/v18.0/" + postId + 
                         "?fields=likes.summary(true),comments.summary(true),shares&access_token=" + accessToken;
             
-            ResponseEntity<Map> response = restTemplate.getForEntity(url, Map.class);
+            ResponseEntity<Map<String, Object>> response = restTemplate.exchange(url, HttpMethod.GET, null, new ParameterizedTypeReference<Map<String, Object>>() {});
             
             if (response.getStatusCode() == HttpStatus.OK) {
                 return response.getBody();
