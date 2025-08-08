@@ -168,14 +168,18 @@ public class PropertyManagementController {
     }
 
     @GetMapping("/rooms/new")
-    public String newRoom(Model model) {
+    public String newRoom(Model model, HttpSession session) {
+        String authCheck = redirectToLoginIfNotAuthenticated(session);
+        if (authCheck != null) return authCheck;
         model.addAttribute("room", new Room());
         addRoomFormData(model);
         return "property/rooms/form";
     }
 
     @GetMapping("/rooms/{id}")
-    public String viewRoom(@PathVariable Long id, Model model) {
+    public String viewRoom(@PathVariable Long id, Model model, HttpSession session) {
+        String authCheck = redirectToLoginIfNotAuthenticated(session);
+        if (authCheck != null) return authCheck;
         Room room = roomRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Room not found"));
         
@@ -192,7 +196,9 @@ public class PropertyManagementController {
     }
 
     @GetMapping("/rooms/{id}/edit")
-    public String editRoom(@PathVariable Long id, Model model) {
+    public String editRoom(@PathVariable Long id, Model model, HttpSession session) {
+        String authCheck = redirectToLoginIfNotAuthenticated(session);
+        if (authCheck != null) return authCheck;
         Room room = roomRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Room not found"));
         
@@ -205,7 +211,10 @@ public class PropertyManagementController {
     public String saveRoom(@Valid @ModelAttribute Room room, 
                           BindingResult result, 
                           Model model,
+                          HttpSession session,
                           RedirectAttributes redirectAttributes) {
+        String authCheck = redirectToLoginIfNotAuthenticated(session);
+        if (authCheck != null) return authCheck;
         
         if (result.hasErrors()) {
             addRoomFormData(model);
@@ -237,7 +246,9 @@ public class PropertyManagementController {
     }
 
     @PostMapping("/rooms/{id}/delete")
-    public String deleteRoom(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+    public String deleteRoom(@PathVariable Long id, HttpSession session, RedirectAttributes redirectAttributes) {
+        String authCheck = redirectToLoginIfNotAuthenticated(session);
+        if (authCheck != null) return authCheck;
         Room room = roomRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Room not found"));
         
@@ -273,14 +284,18 @@ public class PropertyManagementController {
     }
 
     @GetMapping("/guests/new")
-    public String newGuest(Model model) {
+    public String newGuest(Model model, HttpSession session) {
+        String authCheck = redirectToLoginIfNotAuthenticated(session);
+        if (authCheck != null) return authCheck;
         model.addAttribute("guest", new Guest());
         addGuestFormData(model);
         return "property/guests/form";
     }
 
     @GetMapping("/guests/{id}")
-    public String viewGuest(@PathVariable Long id, Model model) {
+    public String viewGuest(@PathVariable Long id, Model model, HttpSession session) {
+        String authCheck = redirectToLoginIfNotAuthenticated(session);
+        if (authCheck != null) return authCheck;
         Guest guest = guestRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Guest not found"));
         
@@ -297,7 +312,9 @@ public class PropertyManagementController {
     }
 
     @GetMapping("/guests/{id}/edit")
-    public String editGuest(@PathVariable Long id, Model model) {
+    public String editGuest(@PathVariable Long id, Model model, HttpSession session) {
+        String authCheck = redirectToLoginIfNotAuthenticated(session);
+        if (authCheck != null) return authCheck;
         Guest guest = guestRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Guest not found"));
         
@@ -310,7 +327,10 @@ public class PropertyManagementController {
     public String saveGuest(@Valid @ModelAttribute Guest guest, 
                            BindingResult result, 
                            Model model,
+                           HttpSession session,
                            RedirectAttributes redirectAttributes) {
+        String authCheck = redirectToLoginIfNotAuthenticated(session);
+        if (authCheck != null) return authCheck;
         
         if (result.hasErrors()) {
             addGuestFormData(model);
@@ -342,7 +362,9 @@ public class PropertyManagementController {
     }
 
     @PostMapping("/guests/{id}/delete")
-    public String deleteGuest(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+    public String deleteGuest(@PathVariable Long id, HttpSession session, RedirectAttributes redirectAttributes) {
+        String authCheck = redirectToLoginIfNotAuthenticated(session);
+        if (authCheck != null) return authCheck;
         Guest guest = guestRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Guest not found"));
         
@@ -384,14 +406,18 @@ public class PropertyManagementController {
     }
 
     @GetMapping("/bookings/new")
-    public String newBooking(Model model) {
+    public String newBooking(Model model, HttpSession session) {
+        String authCheck = redirectToLoginIfNotAuthenticated(session);
+        if (authCheck != null) return authCheck;
         model.addAttribute("booking", new Booking());
         addBookingFormData(model);
         return "property/bookings/form";
     }
 
     @GetMapping("/bookings/{id}")
-    public String viewBooking(@PathVariable Long id, Model model) {
+    public String viewBooking(@PathVariable Long id, Model model, HttpSession session) {
+        String authCheck = redirectToLoginIfNotAuthenticated(session);
+        if (authCheck != null) return authCheck;
         Booking booking = bookingRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Booking not found"));
         
@@ -400,7 +426,9 @@ public class PropertyManagementController {
     }
 
     @GetMapping("/bookings/{id}/edit")
-    public String editBooking(@PathVariable Long id, Model model) {
+    public String editBooking(@PathVariable Long id, Model model, HttpSession session) {
+        String authCheck = redirectToLoginIfNotAuthenticated(session);
+        if (authCheck != null) return authCheck;
         Booking booking = bookingRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Booking not found"));
         
@@ -413,7 +441,10 @@ public class PropertyManagementController {
     public String saveBooking(@Valid @ModelAttribute Booking booking, 
                              BindingResult result, 
                              Model model,
+                             HttpSession session,
                              RedirectAttributes redirectAttributes) {
+        String authCheck = redirectToLoginIfNotAuthenticated(session);
+        if (authCheck != null) return authCheck;
         
         if (result.hasErrors()) {
             addBookingFormData(model);
@@ -452,7 +483,9 @@ public class PropertyManagementController {
     }
 
     @PostMapping("/bookings/{id}/checkout")
-    public String checkoutBooking(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+    public String checkoutBooking(@PathVariable Long id, HttpSession session, RedirectAttributes redirectAttributes) {
+        String authCheck = redirectToLoginIfNotAuthenticated(session);
+        if (authCheck != null) return authCheck;
         Booking booking = bookingRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Booking not found"));
         
@@ -473,7 +506,10 @@ public class PropertyManagementController {
     @PostMapping("/bookings/{id}/add-payment")
     public String addPayment(@PathVariable Long id, 
                             @RequestParam BigDecimal amount,
+                            HttpSession session,
                             RedirectAttributes redirectAttributes) {
+        String authCheck = redirectToLoginIfNotAuthenticated(session);
+        if (authCheck != null) return authCheck;
         Booking booking = bookingRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Booking not found"));
         
@@ -488,7 +524,10 @@ public class PropertyManagementController {
     public String addCharge(@PathVariable Long id, 
                            @RequestParam BigDecimal amount,
                            @RequestParam(required = false) String description,
+                           HttpSession session,
                            RedirectAttributes redirectAttributes) {
+        String authCheck = redirectToLoginIfNotAuthenticated(session);
+        if (authCheck != null) return authCheck;
         Booking booking = bookingRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Booking not found"));
         
@@ -594,7 +633,9 @@ public class PropertyManagementController {
     }
 
     @GetMapping("/payments/{id}")
-    public String viewPayment(@PathVariable Long id, Model model) {
+    public String viewPayment(@PathVariable Long id, Model model, HttpSession session) {
+        String authCheck = redirectToLoginIfNotAuthenticated(session);
+        if (authCheck != null) return authCheck;
         Payment payment = paymentRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Payment not found"));
         
@@ -603,7 +644,9 @@ public class PropertyManagementController {
     }
 
     @GetMapping("/bookings/{bookingId}/payments/new")
-    public String newPayment(@PathVariable Long bookingId, Model model) {
+    public String newPayment(@PathVariable Long bookingId, Model model, HttpSession session) {
+        String authCheck = redirectToLoginIfNotAuthenticated(session);
+        if (authCheck != null) return authCheck;
         Booking booking = bookingRepository.findById(bookingId)
             .orElseThrow(() -> new RuntimeException("Booking not found"));
         
@@ -632,7 +675,10 @@ public class PropertyManagementController {
                                 @RequestParam(required = false) String deviceType,
                                 @RequestParam(required = false) String deviceId,
                                 @RequestParam(required = false) String customerEmail,
+                                HttpSession session,
                                 RedirectAttributes redirectAttributes) {
+        String authCheck = redirectToLoginIfNotAuthenticated(session);
+        if (authCheck != null) return authCheck;
         try {
             PaymentService.PaymentResult result = paymentService.processPayment(
                 bookingId, amount, paymentMethod, deviceType, deviceId, customerEmail
@@ -654,7 +700,10 @@ public class PropertyManagementController {
     @PostMapping("/payments/{id}/refund")
     public String refundPayment(@PathVariable Long id,
                                @RequestParam BigDecimal refundAmount,
+                               HttpSession session,
                                RedirectAttributes redirectAttributes) {
+        String authCheck = redirectToLoginIfNotAuthenticated(session);
+        if (authCheck != null) return authCheck;
         try {
             PaymentService.PaymentResult result = paymentService.refundPayment(id, refundAmount);
             
