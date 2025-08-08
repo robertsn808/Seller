@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Controller
@@ -20,6 +21,7 @@ public class EmailCampaignController {
 
     @GetMapping
     public String showEmailCampaignForm(Model model) {
+        addFormData(model);
         return "admin/email/campaign";
     }
 
@@ -85,5 +87,12 @@ public class EmailCampaignController {
         }
 
         return ResponseEntity.ok(response);
+    }
+
+    private void addFormData(Model model) {
+        model.addAttribute("clientTypes", List.of("SELLER", "BUYER", "INVESTOR", "AGENT", "VENDOR"));
+        model.addAttribute("clientStatuses", List.of("SUSPECT", "PROSPECT", "LEAD", "CONTRACT", "DEAL"));
+        model.addAttribute("leadSources", List.of("WEBSITE", "REFERRAL", "SOCIAL_MEDIA", "COLD_CALL", "OPEN_HOUSE", "SIGN", "OTHER"));
+        model.addAttribute("states", List.of("AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD", "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"));
     }
 }
