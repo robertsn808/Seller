@@ -17,6 +17,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import jakarta.servlet.http.HttpSession;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -45,6 +46,19 @@ public class PropertyManagementController {
     @Autowired
     private PaymentService paymentService;
 
+    // Helper method to check authentication
+    private boolean isPropertyAuthenticated(HttpSession session) {
+        Boolean authenticated = (Boolean) session.getAttribute("propertyAuthenticated");
+        return authenticated != null && authenticated;
+    }
+    
+    private String redirectToLoginIfNotAuthenticated(HttpSession session) {
+        if (!isPropertyAuthenticated(session)) {
+            return "redirect:/property/login";
+        }
+        return null;
+    }
+
     // Property Management Login
     @GetMapping("/login")
     public String propertyLogin() {
@@ -54,19 +68,29 @@ public class PropertyManagementController {
     @PostMapping("/login")
     public String processLogin(@RequestParam String username, 
                               @RequestParam String password,
+                              HttpSession session,
                               RedirectAttributes redirectAttributes) {
         // Simple authentication for property management
         // In a real application, you would validate against a database
         if ("admin".equals(username) && "admin123".equals(password)) {
+            session.setAttribute("propertyAuthenticated", true);
             return "redirect:/property/dashboard";
         } else {
             redirectAttributes.addFlashAttribute("error", "Invalid username or password");
             return "redirect:/property/login?error";
         }
     }
+    
+    @GetMapping("/logout")
+    public String logout(HttpSession session) {
+        session.removeAttribute("propertyAuthenticated");
+        return "redirect:/property/login";
+    }
 
     @GetMapping("/dashboard")
-    public String dashboard(Model model) {
+    public String dashboard(Model model, HttpSession session) {
+        String authCheck = redirectToLoginIfNotAuthenticated(session);
+        if (authCheck != null) return authCheck;
         try {
             // Initialize sample data if database is empty
             initializeSampleDataIfNeeded();
@@ -128,7 +152,9 @@ public class PropertyManagementController {
 
     // Room Management
     @GetMapping("/rooms")
-    public String listRooms(Model model, @RequestParam(required = false) String search) {
+    public String listRooms(Model model, HttpSession session, @RequestParam(required = false) String search) {
+        String authCheck = redirectToLoginIfNotAuthenticated(session);
+        if (authCheck != null) return authCheck;
         List<Room> rooms;
         if (search != null && !search.trim().isEmpty()) {
             rooms = roomRepository.findBySearchTerm(search.trim());
@@ -231,7 +257,9 @@ public class PropertyManagementController {
 
     // Guest Management
     @GetMapping("/guests")
-    public String listGuests(Model model, @RequestParam(required = false) String search) {
+    public String listGuests(Model model, HttpSession session, @RequestParam(required = false) String search) {
+        String authCheck = redirectToLoginIfNotAuthenticated(session);
+        if (authCheck != null) return authCheck;
         List<Guest> guests;
         if (search != null && !search.trim().isEmpty()) {
             guests = guestRepository.findBySearchTerm(search.trim());
@@ -334,9 +362,11 @@ public class PropertyManagementController {
 
     // Booking Management
     @GetMapping("/bookings")
-    public String listBookings(Model model, 
+    public String listBookings(Model model, HttpSession session,
                               @RequestParam(required = false) String search,
                               @RequestParam(required = false) String status) {
+        String authCheck = redirectToLoginIfNotAuthenticated(session);
+        if (authCheck != null) return authCheck;
         List<Booking> bookings;
         
         if (search != null && !search.trim().isEmpty()) {
@@ -532,10 +562,12 @@ public class PropertyManagementController {
 
     // Payment Processing Endpoints
     @GetMapping("/payments")
-    public String listPayments(Model model, 
+    public String listPayments(Model model, HttpSession session,
                               @RequestParam(required = false) String search,
                               @RequestParam(required = false) String status,
                               @RequestParam(required = false) String method) {
+        String authCheck = redirectToLoginIfNotAuthenticated(session);
+        if (authCheck != null) return authCheck;
         List<Payment> payments;
         
         if (search != null && !search.trim().isEmpty()) {
