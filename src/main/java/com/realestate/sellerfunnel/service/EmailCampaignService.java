@@ -37,12 +37,25 @@ public class EmailCampaignService {
     
     @Autowired
     private AIContentGenerationService aiContentService;
+
+    @Autowired
+    private SettingsService settingsService;
     
-    @Value("${app.email.sender-name}")
-    private String senderName;
+    @Value("${app.email.sender-name:}")
+    private String defaultSenderName;
     
-    @Value("${app.email.sender-email}")
-    private String senderEmail;
+    @Value("${app.email.sender-email:}")
+    private String defaultSenderEmail;
+
+    private String getSenderName() {
+        var s = settingsService.getSettingsOrDefault();
+        return (s.getEmailSenderName() != null && !s.getEmailSenderName().isEmpty()) ? s.getEmailSenderName() : (defaultSenderName != null && !defaultSenderName.isEmpty() ? defaultSenderName : "Real Estate Team");
+    }
+
+    private String getSenderEmail() {
+        var s = settingsService.getSettingsOrDefault();
+        return (s.getEmailSenderEmail() != null && !s.getEmailSenderEmail().isEmpty()) ? s.getEmailSenderEmail() : defaultSenderEmail;
+    }
     
     private final Map<String, CampaignProgress> campaignProgress = new ConcurrentHashMap<>();
     
@@ -203,7 +216,7 @@ public class EmailCampaignService {
                 MimeMessage message = emailSender.createMimeMessage();
                 MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
                 
-                helper.setFrom(senderEmail, senderName);
+                helper.setFrom(getSenderEmail(), getSenderName());
                 helper.setTo(client.getEmail());
                 helper.setSubject(subject);
                 

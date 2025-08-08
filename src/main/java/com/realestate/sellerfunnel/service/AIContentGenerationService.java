@@ -22,21 +22,37 @@ public class AIContentGenerationService {
     private ContentMemoryService contentMemoryService;
     
     @Value("${openai.api.key:}")
-    private String openaiApiKey;
+    private String defaultOpenaiApiKey;
     
     @Value("${openai.model:gpt-3.5-turbo}")
-    private String openaiModel;
+    String defaultOpenaiModel;
     
     private OpenAiService openAiService;
+
+    @Autowired
+    private SettingsService settingsService;
     
     /**
      * Initialize OpenAI service
      */
     private OpenAiService getOpenAiService() {
-        if (openAiService == null && openaiApiKey != null && !openaiApiKey.isEmpty()) {
-            openAiService = new OpenAiService(openaiApiKey);
+        if (openAiService == null) {
+            String apiKey = getEffectiveApiKey();
+            if (apiKey != null && !apiKey.isEmpty()) {
+                openAiService = new OpenAiService(apiKey);
+            }
         }
         return openAiService;
+    }
+
+    private String getEffectiveApiKey() {
+        var s = settingsService.getSettingsOrDefault();
+        return (s.getOpenaiApiKey() != null && !s.getOpenaiApiKey().isEmpty()) ? s.getOpenaiApiKey() : defaultOpenaiApiKey;
+    }
+
+    private String getEffectiveModel() {
+        var s = settingsService.getSettingsOrDefault();
+        return (s.getOpenaiModel() != null && !s.getOpenaiModel().isEmpty()) ? s.getOpenaiModel() : defaultOpenaiModel;
     }
     
     /**
@@ -173,7 +189,7 @@ public class AIContentGenerationService {
         );
         
         ChatCompletionRequest request = ChatCompletionRequest.builder()
-            .model(openaiModel)
+            .model(getEffectiveModel())
             .messages(messages)
             .maxTokens(500)
             .temperature(0.8)
@@ -304,7 +320,7 @@ public class AIContentGenerationService {
         );
         
         ChatCompletionRequest request = ChatCompletionRequest.builder()
-            .model(openaiModel)
+            .model(getEffectiveModel())
             .messages(messages)
             .maxTokens(50)
             .temperature(0.7)
@@ -340,7 +356,7 @@ public class AIContentGenerationService {
         );
         
         ChatCompletionRequest request = ChatCompletionRequest.builder()
-            .model(openaiModel)
+            .model(getEffectiveModel())
             .messages(messages)
             .maxTokens(1000)
             .temperature(0.7)
