@@ -127,7 +127,15 @@ public class SMSCampaignService {
                 String finalMessage = messageText;
                 if (useAI) {
                     try {
-                        finalMessage = aiContentService.generateSMSContent(messageText);
+                        // Reuse general content generator for SMS-style brevity
+                        finalMessage = aiContentService.generateContent(
+                            messageText,
+                            "SMS",
+                            "CLIENTS",
+                            null,
+                            "Keep under 160 characters; clear CTA; no links unless necessary.",
+                            1
+                        ).getContent();
                     } catch (Exception e) {
                         logger.warn("Failed to generate AI content, using original message: {}", e.getMessage());
                     }
