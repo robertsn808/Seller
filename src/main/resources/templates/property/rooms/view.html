@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Room Details - Property Management</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: #f5f7fa; 
+            color: #333; 
+        }
+        .header { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            color: white; 
+            padding: 20px 0; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+        }
+        .header-content { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 0 20px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+        }
+        .header h1 { 
+            font-size: 2rem; 
+            font-weight: 300; 
+        }
+        .nav-links a { 
+            color: white; 
+            text-decoration: none; 
+            margin-left: 20px; 
+            padding: 8px 15px; 
+            border-radius: 5px; 
+            transition: background 0.3s; 
+        }
+        .nav-links a:hover { 
+            background: rgba(255,255,255,0.2); 
+        }
+        .container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 20px; 
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 8px 15px;
+            background: #6c757d;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        .back-link:hover {
+            background: #5a6268;
+            text-decoration: none;
+            color: white;
+        }
+        .room-details {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .room-header {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .room-number {
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .room-status {
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            display: inline-block;
+            margin-top: 10px;
+        }
+        .status-vacant {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status-occupied {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .room-content {
+            padding: 30px;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        .info-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #495057;
+            border-bottom: 2px solid #dee2e6;
+            padding-bottom: 8px;
+        }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            padding: 8px 0;
+        }
+        .info-label {
+            font-weight: 600;
+            color: #555;
+        }
+        .info-value {
+            color: #333;
+        }
+        .booking-history {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        .booking-item {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+        }
+        .booking-item:last-child {
+            margin-bottom: 0;
+        }
+        .actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            padding: 20px 30px;
+            background: #f8f9fa;
+        }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s;
+            text-align: center;
+            min-width: 120px;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            text-decoration: none;
+        }
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+        }
+        .btn-warning {
+            background: #ffc107;
+            color: #333;
+        }
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        .current-booking {
+            background: #e7f3ff;
+            border: 1px solid #b8daff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .alert-danger {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h1>🏨 Property Management</h1>
+            <div class="nav-links">
+                <a href="/property/dashboard">Dashboard</a>
+                <a href="/property/rooms">Rooms</a>
+                <a href="/property/guests">Guests</a>
+                <a href="/property/bookings">Bookings</a>
+                <a href="/property/logout">Logout</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <a href="/property/rooms" class="back-link">← Back to Rooms</a>
+        
+        <!-- Alerts -->
+        <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+        <div class="room-details">
+            <div class="room-header">
+                <div class="room-number" th:text="${room.displayName}">Room 101</div>
+                <div class="room-info" th:text="${room.roomType}">Single Room</div>
+                <span th:class="${'room-status status-' + (room.isVacant ? 'vacant' : 'occupied')}" 
+                      th:text="${room.statusDisplay}">Vacant</span>
+            </div>
+
+            <div class="room-content">
+                <!-- Current Booking Alert -->
+                <div th:if="${currentBooking != null}" class="current-booking">
+                    <h4>🏃‍♂️ Currently Occupied</h4>
+                    <p><strong>Guest:</strong> <span th:text="${currentBooking.guest.fullName}">John Doe</span></p>
+                    <p><strong>Check-in:</strong> <span th:text="${#temporals.format(currentBooking.checkInDate, 'MMM dd, yyyy HH:mm')}">Jan 15, 2024 15:00</span></p>
+                    <p><strong>Nightly Rate:</strong> $<span th:text="${#numbers.formatDecimal(currentBooking.nightlyRate, 1, 2)}">150.00</span></p>
+                </div>
+
+                <div class="info-grid">
+                    <div class="info-section">
+                        <h3 class="section-title">Room Information</h3>
+                        <div class="info-row">
+                            <span class="info-label">Room Number:</span>
+                            <span class="info-value" th:text="${room.roomNumber}">101</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Room Name:</span>
+                            <span class="info-value" th:text="${room.roomName}">Ocean View</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Room Type:</span>
+                            <span class="info-value" th:text="${room.roomType}">Single</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Base Rate:</span>
+                            <span class="info-value">$<span th:text="${#numbers.formatDecimal(room.baseRate, 1, 2)}">150.00</span></span>
+                        </div>
+                    </div>
+
+                    <div class="info-section">
+                        <h3 class="section-title">Access Codes</h3>
+                        <div class="info-row">
+                            <span class="info-label">Current Code:</span>
+                            <span class="info-value" th:text="${room.currentCode != null ? room.currentCode : 'Not Set'}">1234</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Reset Code:</span>
+                            <span class="info-value" th:text="${room.resetCode != null ? room.resetCode : 'Not Set'}">0000</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Gate Key:</span>
+                            <span class="info-value" th:text="${room.gateKeyStatus}">Not Assigned</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Status:</span>
+                            <span class="info-value" th:text="${room.isActive ? 'Active' : 'Inactive'}">Active</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notes Section -->
+                <div th:if="${room.notes != null && !room.notes.trim().isEmpty()}" class="info-section">
+                    <h3 class="section-title">Notes</h3>
+                    <p th:text="${room.notes}">Room notes and maintenance information...</p>
+                </div>
+
+                <!-- Booking History -->
+                <div th:if="${!bookingHistory.empty}" class="booking-history">
+                    <h3 class="section-title">Recent Booking History</h3>
+                    <div th:each="booking : ${bookingHistory}" class="booking-item">
+                        <strong th:text="${booking.guest.fullName}">Guest Name</strong>
+                        <span th:if="${booking.checkOutDate != null}">
+                            - <span th:text="${#temporals.format(booking.checkInDate, 'MMM dd')}">Jan 15</span> to 
+                            <span th:text="${#temporals.format(booking.checkOutDate, 'MMM dd, yyyy')}">Jan 20, 2024</span>
+                        </span>
+                        <span th:if="${booking.checkOutDate == null}">
+                            - Current stay since <span th:text="${#temporals.format(booking.checkInDate, 'MMM dd, yyyy')}">Jan 15, 2024</span>
+                        </span>
+                        <br>
+                        <small>Rate: $<span th:text="${#numbers.formatDecimal(booking.nightlyRate, 1, 2)}">150.00</span>/night | 
+                        Status: <span th:text="${booking.bookingStatus}">ACTIVE</span></small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="actions">
+                <a th:href="@{/property/rooms/{id}/edit(id=${room.id})}" class="btn btn-warning">✏️ Edit Room</a>
+                <a href="/property/rooms" class="btn btn-primary">📋 Back to List</a>
+                <form th:action="@{/property/rooms/{id}/delete(id=${room.id})}" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-danger" 
+                            onclick="return confirm('Are you sure you want to deactivate this room?')">🗑️ Deactivate</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
