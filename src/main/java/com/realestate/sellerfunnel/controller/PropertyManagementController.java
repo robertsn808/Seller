@@ -214,7 +214,12 @@ public class PropertyManagementController {
 
     @GetMapping("/rooms/{id}/edit")
     public String editRoom(@PathVariable Long id, Model model, HttpSession session) {
-        logger.info("Editing room with ID: {}", id);
+        logger.info("=== EDIT ROOM GET REQUEST ===");
+        logger.info("Room ID to edit: {}", id);
+        logger.info("Session ID: {}", session.getId());
+        logger.info("Is authenticated: {}", isPropertyAuthenticated(session));
+        logger.info("=============================");
+        
         String authCheck = redirectToLoginIfNotAuthenticated(session);
         if (authCheck != null) {
             logger.warn("Authentication failed for room edit, redirecting to login");
@@ -243,37 +248,59 @@ public class PropertyManagementController {
                           Model model,
                           HttpSession session,
                           RedirectAttributes redirectAttributes) {
+        logger.info("=== SAVE ROOM DEBUG ===");
+        logger.info("Room ID: {}", room.getId());
+        logger.info("Room Number: {}", room.getRoomNumber());
+        logger.info("Room Name: {}", room.getRoomName());
+        logger.info("Room Type: {}", room.getRoomType());
+        logger.info("Is editing existing room: {}", room.getId() != null);
+        logger.info("========================");
+        
         String authCheck = redirectToLoginIfNotAuthenticated(session);
-        if (authCheck != null) return authCheck;
+        if (authCheck != null) {
+            logger.warn("Authentication failed during room save");
+            return authCheck;
+        }
         
         if (result.hasErrors()) {
+            logger.warn("Validation errors for room: {}", result.getAllErrors());
             addRoomFormData(model);
             return "property/rooms/form";
         }
         
-        // Check for duplicate room number
-        if (room.getId() == null) { // New room
-            if (roomRepository.existsByRoomNumber(room.getRoomNumber())) {
-                result.rejectValue("roomNumber", "error.roomNumber", "A room with this number already exists");
+        try {
+            // Check for duplicate room number
+            if (room.getId() == null) { // New room
+                if (roomRepository.existsByRoomNumber(room.getRoomNumber())) {
+                    result.rejectValue("roomNumber", "error.roomNumber", "A room with this number already exists");
+                }
+            } else { // Existing room
+                if (roomRepository.existsByRoomNumberAndIdNot(room.getRoomNumber(), room.getId())) {
+                    result.rejectValue("roomNumber", "error.roomNumber", "A room with this number already exists");
+                }
             }
-        } else { // Existing room
-            if (roomRepository.existsByRoomNumberAndIdNot(room.getRoomNumber(), room.getId())) {
-                result.rejectValue("roomNumber", "error.roomNumber", "A room with this number already exists");
+            
+            if (result.hasErrors()) {
+                logger.warn("Duplicate room number validation failed");
+                addRoomFormData(model);
+                return "property/rooms/form";
             }
-        }
-        
-        if (result.hasErrors()) {
+            
+            Room savedRoom = roomRepository.save(room);
+            logger.info("Successfully saved room with ID: {}", savedRoom.getId());
+            
+            String message = room.getId() == null ? "Room created successfully!" : "Room updated successfully!";
+            redirectAttributes.addFlashAttribute("message", message);
+            
+            return "redirect:/property/rooms";
+        } catch (Exception e) {
+            logger.error("Error saving room: {}", e.getMessage(), e);
+            model.addAttribute("error", "Error saving room: " + e.getMessage());
             addRoomFormData(model);
             return "property/rooms/form";
         }
-        
-        roomRepository.save(room);
-        
-        String message = room.getId() == null ? "Room created successfully!" : "Room updated successfully!";
-        redirectAttributes.addFlashAttribute("message", message);
-        
-        return "redirect:/property/rooms";
     }
+    
 
     @PostMapping("/rooms/{id}/delete")
     public String deleteRoom(@PathVariable Long id, HttpSession session, RedirectAttributes redirectAttributes) {
@@ -805,6 +832,13 @@ public class PropertyManagementController {
         diagnostic.put("uppHealthy", paymentService.isUppServiceHealthy());
         
         return diagnostic;
+    }
+    
+    @GetMapping("/test")
+    @ResponseBody
+    public String test() {
+        logger.info("=== TEST ENDPOINT HIT ===");
+        return "PropertyManagementController is working! Current time: " + System.currentTimeMillis();
     }
     
     /**
