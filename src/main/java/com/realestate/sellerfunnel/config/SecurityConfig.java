@@ -28,6 +28,7 @@ public class SecurityConfig {
         http
             .authorizeHttpRequests(authz -> authz
                 .requestMatchers("/admin/**").authenticated()
+                .requestMatchers("/property/login").permitAll()
                 .requestMatchers("/property/**").authenticated()
                 .requestMatchers("/", "/buyer", "/buyer/**", "/seller", "/seller/**", 
                                "/photos/**", "/css/**", "/js/**", "/images/**").permitAll()
@@ -35,12 +36,12 @@ public class SecurityConfig {
             )
             .formLogin(form -> form
                 .loginPage("/login")
-                .defaultSuccessUrl("/admin", true)
+                .defaultSuccessUrl("/admin", false)
                 .permitAll()
             )
             .logout(logout -> logout
                 .logoutUrl("/logout")
-                .logoutSuccessUrl("/")
+                .logoutSuccessUrl("/logged-out")
                 .permitAll()
             );
 
