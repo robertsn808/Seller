@@ -18,6 +18,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import jakarta.servlet.http.HttpSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -30,6 +32,8 @@ import java.util.Map;
 @Controller
 @RequestMapping("/property")
 public class PropertyManagementController {
+    
+    private static final Logger logger = LoggerFactory.getLogger(PropertyManagementController.class);
 
     @Autowired
     private RoomRepository roomRepository;
@@ -178,33 +182,59 @@ public class PropertyManagementController {
 
     @GetMapping("/rooms/{id}")
     public String viewRoom(@PathVariable Long id, Model model, HttpSession session) {
+        logger.info("Viewing room with ID: {}", id);
         String authCheck = redirectToLoginIfNotAuthenticated(session);
-        if (authCheck != null) return authCheck;
-        Room room = roomRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Room not found"));
+        if (authCheck != null) {
+            logger.warn("Authentication failed for room view, redirecting to login");
+            return authCheck;
+        }
         
-        // Get current booking if room is occupied
-        Optional<Booking> currentBooking = bookingRepository.findActiveBookingByRoom(room);
-        
-        // Get booking history
-        List<Booking> bookingHistory = bookingRepository.findByRoomAndIsActiveTrueOrderByCreatedAtDesc(room);
-        
-        model.addAttribute("room", room);
-        model.addAttribute("currentBooking", currentBooking.orElse(null));
-        model.addAttribute("bookingHistory", bookingHistory);
-        return "property/rooms/view";
+        try {
+            Room room = roomRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Room not found with ID: " + id));
+            
+            logger.info("Found room: {} - {}", room.getRoomNumber(), room.getRoomName());
+            
+            // Get current booking if room is occupied
+            Optional<Booking> currentBooking = bookingRepository.findActiveBookingByRoom(room);
+            
+            // Get booking history
+            List<Booking> bookingHistory = bookingRepository.findByRoomAndIsActiveTrueOrderByCreatedAtDesc(room);
+            
+            model.addAttribute("room", room);
+            model.addAttribute("currentBooking", currentBooking.orElse(null));
+            model.addAttribute("bookingHistory", bookingHistory);
+            return "property/rooms/view";
+        } catch (Exception e) {
+            logger.error("Error viewing room {}: {}", id, e.getMessage(), e);
+            model.addAttribute("error", "Error loading room details: " + e.getMessage());
+            return "redirect:/property/rooms";
+        }
     }
 
     @GetMapping("/rooms/{id}/edit")
     public String editRoom(@PathVariable Long id, Model model, HttpSession session) {
+        logger.info("Editing room with ID: {}", id);
         String authCheck = redirectToLoginIfNotAuthenticated(session);
-        if (authCheck != null) return authCheck;
-        Room room = roomRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Room not found"));
+        if (authCheck != null) {
+            logger.warn("Authentication failed for room edit, redirecting to login");
+            return authCheck;
+        }
         
-        model.addAttribute("room", room);
-        addRoomFormData(model);
-        return "property/rooms/form";
+        try {
+            Room room = roomRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Room not found with ID: " + id));
+            
+            logger.info("Found room for edit: {} - {}", room.getRoomNumber(), room.getRoomName());
+            
+            model.addAttribute("room", room);
+            addRoomFormData(model);
+            return "property/rooms/form";
+        } catch (Exception e) {
+            logger.error("Error editing room {}: {}", id, e.getMessage(), e);
+            model.addAttribute("error", "Error loading room for edit: " + e.getMessage());
+            return "redirect:/property/rooms";
+        }
     }
 
     @PostMapping("/rooms")
@@ -751,6 +781,30 @@ public class PropertyManagementController {
             response.put("error", e.getMessage());
             return response;
         }
+    }
+    
+    @GetMapping("/diagnostic")
+    @ResponseBody
+    public Map<String, Object> diagnostic(HttpSession session) {
+        Map<String, Object> diagnostic = new HashMap<>();
+        
+        // Authentication status
+        diagnostic.put("authenticated", isPropertyAuthenticated(session));
+        diagnostic.put("sessionId", session.getId());
+        
+        // Database status
+        diagnostic.put("totalRooms", roomRepository.count());
+        diagnostic.put("totalGuests", guestRepository.count());
+        diagnostic.put("totalBookings", bookingRepository.count());
+        
+        // Sample room data
+        List<Room> rooms = roomRepository.findByIsActiveTrueOrderByRoomNumberAsc();
+        diagnostic.put("sampleRoom", rooms.isEmpty() ? null : rooms.get(0));
+        
+        // UPP service status
+        diagnostic.put("uppHealthy", paymentService.isUppServiceHealthy());
+        
+        return diagnostic;
     }
     
     /**

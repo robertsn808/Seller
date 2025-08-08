@@ -32,7 +32,8 @@ public class UniversalPaymentProtocolService {
     private String defaultDeviceType;
     
     private final RestTemplate restTemplate;
-    private final ObjectMapper objectMapper;
+    @SuppressWarnings("unused")
+    private final ObjectMapper objectMapper; // reserved for future JSON mappings
     
     public UniversalPaymentProtocolService() {
         this.restTemplate = new RestTemplate();
@@ -150,7 +151,9 @@ public class UniversalPaymentProtocolService {
             
             Map<String, Object> responseBody = response.getBody();
             if (responseBody != null && Boolean.TRUE.equals(responseBody.get("success"))) {
-                return (Map<String, Object>) responseBody.get("capabilities");
+                @SuppressWarnings("unchecked")
+                Map<String, Object> caps = (Map<String, Object>) responseBody.get("capabilities");
+                return caps;
             } else {
                 logger.warn("Failed to get device capabilities for: {}", deviceType);
                 return new HashMap<>();

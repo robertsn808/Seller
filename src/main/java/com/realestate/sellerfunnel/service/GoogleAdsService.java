@@ -166,7 +166,12 @@ public class GoogleAdsService {
             
             HttpEntity<Map<String, Object>> httpRequest = new HttpEntity<>(request, headers);
             
-            ResponseEntity<Map> response = restTemplate.postForEntity(url, httpRequest, Map.class);
+            ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
+                url,
+                HttpMethod.POST,
+                httpRequest,
+                new ParameterizedTypeReference<Map<String, Object>>() {}
+            );
             
             return response.getStatusCode() == HttpStatus.OK;
             

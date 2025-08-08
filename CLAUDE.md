@@ -315,3 +315,4 @@ The system supports:
 4. Scale your marketing with automated campaign management
 
 Your marketing dashboard is now a complete campaign management system that can grow with your business - start simple and add automation as needed!
+- do not include your signature to anything including commits and pull requests

@@ -106,25 +106,26 @@ public class ClientController {
         
         // Check for duplicate email
         if (client.getId() == null) { // New client
-            clientRepository.findByEmail(client.getEmail()).ifPresent(existingClient -> {
+            if (clientRepository.findByEmail(client.getEmail()).isPresent()) {
                 result.rejectValue("email", "error.email", "A client with this email already exists");
-            });
+                addFormData(model);
+                return "admin/clients/form";
+            }
         } else { // Existing client
             clientRepository.findByEmail(client.getEmail()).ifPresent(existingClient -> {
                 if (!existingClient.getId().equals(client.getId())) {
                     result.rejectValue("email", "error.email", "A client with this email already exists");
                 }
             });
-        }
-        
-        if (result.hasErrors()) {
-            addFormData(model);
-            return "admin/clients/form";
+            if (result.hasErrors()) {
+                addFormData(model);
+                return "admin/clients/form";
+            }
         }
         
         clientRepository.save(client);
         
-        String message = client.getId() == null ? "Client created successfully!" : "Client updated successfully!";
+        String message = (client.getId() == null || client.getId() == 0) ? "Client created successfully!" : "Client updated successfully!";
         redirectAttributes.addFlashAttribute("message", message);
         
         return "redirect:/admin/clients";

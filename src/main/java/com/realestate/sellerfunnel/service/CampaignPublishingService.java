@@ -208,6 +208,7 @@ public class CampaignPublishingService {
                 
                 // Count leads from actions
                 if (stats.get("actions") != null) {
+                    @SuppressWarnings("unchecked")
                     List<Map<String, Object>> actions = (List<Map<String, Object>>) stats.get("actions");
                     int leadCount = 0;
                     for (Map<String, Object> action : actions) {

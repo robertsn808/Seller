@@ -294,11 +294,13 @@
                 </div>
                 
                 <div class="room-actions">
-                    <a th:href="@{/property/rooms/{id}(id=${room.id})}" class="action-btn btn-view">View</a>
-                    <a th:href="@{/property/rooms/{id}/edit(id=${room.id})}" class="action-btn btn-edit">Edit</a>
-                    <form th:action="@{/property/rooms/{id}/delete(id=${room.id})}" method="post" style="flex: 1;">
+                    <a th:href="@{'/property/rooms/' + ${room.id}}" class="action-btn btn-view" 
+                       onclick="console.log('Navigating to room view:', this.href); return true;">View</a>
+                    <a th:href="@{'/property/rooms/' + ${room.id} + '/edit'}" class="action-btn btn-edit"
+                       onclick="console.log('Navigating to room edit:', this.href); return true;">Edit</a>
+                    <form th:action="@{'/property/rooms/' + ${room.id} + '/delete'}" method="post" style="flex: 1;">
                         <button type="submit" class="action-btn btn-delete" 
-                                onclick="return confirm('Are you sure you want to deactivate this room?')">Delete</button>
+                                onclick="console.log('Deleting room ID:', [[${room.id}]]); return confirm('Are you sure you want to deactivate this room?')">Delete</button>
                     </form>
                 </div>
             </div>

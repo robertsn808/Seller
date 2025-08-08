@@ -167,11 +167,7 @@
                         <label for="clientType">Client Type</label>
                         <select id="clientType" name="clientType">
                             <option value="">All Types</option>
-                            <option value="SELLER">Seller</option>
-                            <option value="BUYER">Buyer</option>
-                            <option value="INVESTOR">Investor</option>
-                            <option value="AGENT">Agent</option>
-                            <option value="VENDOR">Vendor</option>
+                            <option th:each="type : ${clientTypes}" th:value="${type}" th:text="${type}">Type</option>
                         </select>
                     </div>
                     
@@ -179,11 +175,7 @@
                         <label for="clientStatus">Client Status</label>
                         <select id="clientStatus" name="clientStatus">
                             <option value="">All Statuses</option>
-                            <option value="SUSPECT">Suspect</option>
-                            <option value="PROSPECT">Prospect</option>
-                            <option value="LEAD">Lead</option>
-                            <option value="CONTRACT">Contract</option>
-                            <option value="DEAL">Deal</option>
+                            <option th:each="status : ${clientStatuses}" th:value="${status}" th:text="${status}">Status</option>
                         </select>
                     </div>
                     
@@ -191,13 +183,7 @@
                         <label for="leadSource">Lead Source</label>
                         <select id="leadSource" name="leadSource">
                             <option value="">All Sources</option>
-                            <option value="WEBSITE">Website</option>
-                            <option value="REFERRAL">Referral</option>
-                            <option value="SOCIAL_MEDIA">Social Media</option>
-                            <option value="COLD_CALL">Cold Call</option>
-                            <option value="OPEN_HOUSE">Open House</option>
-                            <option value="SIGN">Sign</option>
-                            <option value="OTHER">Other</option>
+                            <option th:each="source : ${leadSources}" th:value="${source}" th:text="${source}">Source</option>
                         </select>
                     </div>
                     
@@ -210,8 +196,7 @@
                         <label for="state">State</label>
                         <select id="state" name="state">
                             <option value="">All States</option>
-                            <option th:each="state : ${T(java.util.Arrays).asList('AL','AK','AZ','AR','CA','CO','CT','DE','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY')}"
-                                    th:value="${state}" th:text="${state}">State</option>
+                            <option th:each="state : ${states}" th:value="${state}" th:text="${state}">State</option>
                         </select>
                     </div>
                 </div>

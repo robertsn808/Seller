@@ -53,7 +53,7 @@ public class AutomatedEmailController {
             LocalDateTime scheduledDateTime = LocalDateTime.parse(dateTimeString, formatter);
             
             // Schedule the email
-            EmailCampaign campaign = automatedEmailService.scheduleAutomatedEmail(
+            automatedEmailService.scheduleAutomatedEmail(
                 campaignName, targetAudience, clientTypeFilter, leadSourceFilter,
                 scheduledDateTime, aiPrompt, contentType, category, "scheduled_campaign"
             );
@@ -139,7 +139,7 @@ public class AutomatedEmailController {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
             LocalDateTime scheduledDateTime = LocalDateTime.parse(dateTimeString, formatter);
             
-            EmailCampaign campaign = automatedEmailService.scheduleReEngagementCampaign(
+            automatedEmailService.scheduleReEngagementCampaign(
                 targetAudience, clientTypeFilter, leadSourceFilter, scheduledDateTime, aiPrompt, category
             );
             
@@ -169,7 +169,7 @@ public class AutomatedEmailController {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
             LocalDateTime scheduledDateTime = LocalDateTime.parse(dateTimeString, formatter);
             
-            EmailCampaign campaign = automatedEmailService.scheduleSeasonalCampaign(
+            automatedEmailService.scheduleSeasonalCampaign(
                 season, targetAudience, clientTypeFilter, leadSourceFilter, scheduledDateTime, aiPrompt, category
             );
             

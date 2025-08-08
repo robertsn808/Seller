@@ -127,6 +127,7 @@ public class MarketingController {
     @GetMapping("/campaigns/new")
     public String newCampaign(Model model) {
         model.addAttribute("campaign", new Campaign());
+        addCampaignFormData(model);
         return "admin/marketing/campaign-form";
     }
 
@@ -647,5 +648,9 @@ public class MarketingController {
         }
         
         return response;
+    }
+
+    private void addCampaignFormData(Model model) {
+        // Add any necessary data for the campaign form dropdowns, etc.
     }
 }

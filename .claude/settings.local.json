@@ -20,7 +20,8 @@
       "Bash(java:*)",
       "Bash(echo $JAVA_HOME)",
       "Bash(update-alternatives:*)",
-      "Bash(export:*)"
+      "Bash(export:*)",
+      "Bash(grep:*)"
     ],
     "deny": []
   }
