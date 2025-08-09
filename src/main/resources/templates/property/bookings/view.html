@@ -22,11 +22,8 @@
 <div><strong>Special Instructions:</strong> <pre th:text="${booking.specialInstructions}"></pre></div>
 <div><strong>Notes:</strong> <pre th:text="${booking.notes}"></pre></div>
 <p>
-    <a th:href="@{/property/bookings/{id}/edit(id=${booking.id})}">Edit</a> |
-    <form th:action="@{/property/bookings/{id}/checkout(id=${booking.id})}" method="post" style="display:inline" onsubmit="return confirm('Checkout booking?');">
-        <button type="submit">Checkout</button>
-    </form> |
-    <a href="/property/bookings">Back</a>
+    <a th:href="@{/property/bookings/{id}/edit(id=${booking.id})}">Edit Booking</a> |
+    <a href="/property/bookings">Back to Bookings</a>
 </p>
 <h2>Payments</h2>
 <p>

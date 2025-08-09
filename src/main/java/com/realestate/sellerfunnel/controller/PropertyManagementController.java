@@ -462,56 +462,54 @@ public class PropertyManagementController {
                            Model model,
                            HttpSession session,
                            RedirectAttributes redirectAttributes) {
+        return processGuestSave(guest, result, model, session, redirectAttributes, null);
+    }
+
+    @PostMapping("/guests/{id}")
+    public String updateGuest(@PathVariable Long id,
+                              @Valid @ModelAttribute Guest guest,
+                              BindingResult result,
+                              Model model,
+                              HttpSession session,
+                              RedirectAttributes redirectAttributes) {
+        logger.info("=== UPDATE GUEST POST REQUEST === Path ID:{} Form ID:{} Email:{}", id, guest.getId(), guest.getEmail());
+        if (guest.getId() == null || !guest.getId().equals(id)) {
+            guest.setId(id);
+        }
+        return processGuestSave(guest, result, model, session, redirectAttributes, id);
+    }
+
+    private String processGuestSave(Guest guest,
+                                    BindingResult result,
+                                    Model model,
+                                    HttpSession session,
+                                    RedirectAttributes redirectAttributes,
+                                    Long pathId) {
         String authCheck = redirectToLoginIfNotAuthenticated(session);
         if (authCheck != null) return authCheck;
-        
+        boolean isNew = (guest.getId() == null);
+        logger.info("=== SAVE GUEST DEBUG === (Path ID:{}) ID:{} Email:{} isNew:{}", pathId, guest.getId(), guest.getEmail(), isNew);
+
         if (result.hasErrors()) {
             addGuestFormData(model);
             return "property/guests/form";
         }
-        
-        // Check for duplicate email
-        if (guest.getId() == null) { // New guest
+        // Duplicate email checks
+        if (isNew) {
             if (guestRepository.existsByEmail(guest.getEmail())) {
                 result.rejectValue("email", "error.email", "A guest with this email already exists");
             }
-        } else { // Existing guest
+        } else {
             if (guestRepository.existsByEmailAndIdNot(guest.getEmail(), guest.getId())) {
                 result.rejectValue("email", "error.email", "A guest with this email already exists");
             }
         }
-        
         if (result.hasErrors()) {
             addGuestFormData(model);
             return "property/guests/form";
         }
-        
         guestRepository.save(guest);
-        
-        String message = guest.getId() == null ? "Guest created successfully!" : "Guest updated successfully!";
-        redirectAttributes.addFlashAttribute("message", message);
-        
-        return "redirect:/property/guests";
-    }
-
-    @PostMapping("/guests/{id}/delete")
-    public String deleteGuest(@PathVariable Long id, HttpSession session, RedirectAttributes redirectAttributes) {
-        String authCheck = redirectToLoginIfNotAuthenticated(session);
-        if (authCheck != null) return authCheck;
-        Guest guest = guestRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Guest not found"));
-        
-        // Check if guest has active bookings
-        List<Booking> activeBookings = bookingRepository.findActiveBookingsByGuest(guest);
-        if (!activeBookings.isEmpty()) {
-            redirectAttributes.addFlashAttribute("error", "Cannot delete guest with active bookings");
-            return "redirect:/property/guests/" + id;
-        }
-        
-        guest.setIsActive(false);
-        guestRepository.save(guest);
-        
-        redirectAttributes.addFlashAttribute("message", "Guest deactivated successfully!");
+        redirectAttributes.addFlashAttribute("message", isNew ? "Guest created successfully!" : "Guest updated successfully!");
         return "redirect:/property/guests";
     }
 
@@ -576,42 +574,59 @@ public class PropertyManagementController {
                              Model model,
                              HttpSession session,
                              RedirectAttributes redirectAttributes) {
+        return processBookingSave(booking, result, model, session, redirectAttributes, null);
+    }
+
+    @PostMapping("/bookings/{id}")
+    public String updateBooking(@PathVariable Long id,
+                                @Valid @ModelAttribute Booking booking,
+                                BindingResult result,
+                                Model model,
+                                HttpSession session,
+                                RedirectAttributes redirectAttributes) {
+        logger.info("=== UPDATE BOOKING POST REQUEST === Path ID:{} Form ID:{} Status:{}", id, booking.getId(), booking.getBookingStatus());
+        if (booking.getId() == null || !booking.getId().equals(id)) {
+            booking.setId(id);
+        }
+        return processBookingSave(booking, result, model, session, redirectAttributes, id);
+    }
+
+    private String processBookingSave(Booking booking,
+                                      BindingResult result,
+                                      Model model,
+                                      HttpSession session,
+                                      RedirectAttributes redirectAttributes,
+                                      Long pathId) {
         String authCheck = redirectToLoginIfNotAuthenticated(session);
         if (authCheck != null) return authCheck;
-        
+        boolean isNew = (booking.getId() == null);
+        logger.info("=== SAVE BOOKING DEBUG === (Path ID:{}) ID:{} Room:{} Guest:{} isNew:{} Status:{}", pathId, booking.getId(), booking.getRoom()!=null?booking.getRoom().getId():null, booking.getGuest()!=null?booking.getGuest().getId():null, isNew, booking.getBookingStatus());
+
         if (result.hasErrors()) {
             addBookingFormData(model);
             return "property/bookings/form";
         }
-        
-        // Validate room availability for new bookings
-        if (booking.getId() == null) {
+        if (isNew) {
             Optional<Booking> existingBooking = bookingRepository.findActiveBookingByRoom(booking.getRoom());
             if (existingBooking.isPresent()) {
                 result.rejectValue("room", "error.room", "This room is already occupied");
             }
         }
-        
         if (result.hasErrors()) {
             addBookingFormData(model);
             return "property/bookings/form";
         }
-        
-        // Set initial charges based on nightly rate
         if (booking.getTotalCharges() == null || booking.getTotalCharges().compareTo(BigDecimal.ZERO) == 0) {
             booking.setTotalCharges(booking.getNightlyRate());
         }
-        
-        // Update room vacancy status
-        Room room = booking.getRoom();
-        room.setIsVacant(false);
-        roomRepository.save(room);
-        
+        // Update room vacancy only when new booking created
+        if (isNew && booking.getRoom() != null) {
+            Room room = booking.getRoom();
+            room.setIsVacant(false);
+            roomRepository.save(room);
+        }
         bookingRepository.save(booking);
-        
-        String message = booking.getId() == null ? "Booking created successfully!" : "Booking updated successfully!";
-        redirectAttributes.addFlashAttribute("message", message);
-        
+        redirectAttributes.addFlashAttribute("message", isNew ? "Booking created successfully!" : "Booking updated successfully!");
         return "redirect:/property/bookings";
     }
 

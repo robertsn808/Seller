@@ -2,31 +2,22 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title th:text="${guest.id} != null ? 'Edit Guest' : 'Add Guest'">Guest Form</title>
+    <title th:text="${guest.id == null} ? 'New Guest' : 'Edit Guest'">Guest Form</title>
+    <link rel="stylesheet" th:href="@{/css/property.css}" />
 </head>
 <body>
-<h1 th:text="${guest.id} != null ? 'Edit Guest' : 'Add Guest'">Guest Form</h1>
-<div th:if="${#fields.hasErrors('*')}">
-    <p style="color:red;">Please correct the following:</p>
-    <ul>
-        <li th:each="err : ${#fields.allErrors()}" th:text="${err}">Error</li>
-    </ul>
+<h1 th:text="${guest.id == null} ? 'New Guest' : 'Edit Guest'"></h1>
+<div th:if="${#fields.hasErrors()}">
+    <p style="color:red" th:each="err : ${#fields.errors('*')}" th:text="${err}"></p>
 </div>
-<form th:action="@{/property/guests}" th:object="${guest}" method="post">
-    <input type="hidden" th:field="*{id}">
-    <label>First Name* <input type="text" th:field="*{firstName}" required></label><br>
-    <label>Last Name* <input type="text" th:field="*{lastName}" required></label><br>
-    <label>Email* <input type="email" th:field="*{email}" required></label><br>
-    <label>Phone <input type="text" th:field="*{phoneNumber}"></label><br>
-    <label>ID Type <select th:field="*{idType}"><option value="">--</option><option th:each="t : ${idTypes}" th:value="${t.key}" th:text="${t.value}"></option></select></label><br>
-    <label>ID Number <input type="text" th:field="*{idNumber}"></label><br>
-    <label>Vehicle Make/Model <input type="text" th:field="*{vehicleMakeModel}"></label><br>
-    <label>License Plate <input type="text" th:field="*{vehicleLicensePlate}"></label><br>
-    <label>Emergency Contact Name <input type="text" th:field="*{emergencyContactName}"></label><br>
-    <label>Emergency Contact Phone <input type="text" th:field="*{emergencyContactPhone}"></label><br>
-    <label>Emergency Relationship <select th:field="*{emergencyContactRelationship}"><option value="">--</option><option th:each="r : ${relationships}" th:value="${r.key}" th:text="${r.value}"></option></select></label><br>
-    <label>Special Requests <textarea th:field="*{specialRequests}"></textarea></label><br>
-    <button type="submit" th:text="${guest.id} != null ? 'Update Guest' : 'Create Guest'">Save</button>
+<form th:action="${guest.id} == null ? @{/property/guests} : @{/property/guests/{id}(id=${guest.id})}" method="post" th:object="${guest}">
+    <input type="hidden" th:field="*{id}" />
+    <label>First Name: <input th:field="*{firstName}" required></label><br>
+    <label>Last Name: <input th:field="*{lastName}" required></label><br>
+    <label>Email: <input th:field="*{email}" type="email" required></label><br>
+    <label>Phone: <input th:field="*{phoneNumber}" required></label><br>
+    <label>Active: <input type="checkbox" th:field="*{isActive}"></label><br>
+    <button type="submit" th:text="${guest.id == null} ? 'Create' : 'Update'"></button>
     <a href="/property/guests">Cancel</a>
 </form>
 </body>

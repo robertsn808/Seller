@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title th:text="${booking.id} != null ? 'Edit Booking' : 'New Booking'">Booking Form</title>
+    <link rel="stylesheet" th:href="@{/css/property.css}" />
 </head>
 <body>
 <h1 th:text="${booking.id} != null ? 'Edit Booking' : 'New Booking'">Booking Form</h1>
@@ -12,7 +13,7 @@
         <li th:each="err : ${#fields.allErrors()}" th:text="${err}">Error</li>
     </ul>
 </div>
-<form th:action="@{/property/bookings}" th:object="${booking}" method="post">
+<form th:action="${booking.id} == null ? @{/property/bookings} : @{/property/bookings/{id}(id=${booking.id})}" method="post" th:object="${booking}">
     <input type="hidden" th:field="*{id}">
     <label>Room* <select th:field="*{room}" required>
         <option value="">--Select--</option>

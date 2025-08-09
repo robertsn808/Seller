@@ -26,8 +26,10 @@
         <th>ID</th>
         <th>Room</th>
         <th>Guest</th>
+        <th>Check In</th>
+        <th>Check Out</th>
         <th>Status</th>
-        <th>Balance</th>
+        <th>Charges</th>
         <th>Actions</th>
     </tr>
     </thead>
@@ -36,14 +38,16 @@
         <td th:text="${b.id}">1</td>
         <td th:text="${b.room != null ? b.room.roomNumber : 'N/A'}">101</td>
         <td th:text="${b.guest != null ? b.guest.firstName + ' ' + b.guest.lastName : 'N/A'}">Guest</td>
-        <td th:text="${b.bookingStatus}">ACTIVE</td>
-        <td th:text="${b.currentBalance}">$0.00</td>
+        <td th:text="${b.checkInDate}">2024-01-01</td>
+        <td th:text="${b.checkOutDate}">2024-01-02</td>
+        <td th:text="${b.bookingStatus}">BOOKED</td>
+        <td th:text="${b.totalCharges}">$0.00</td>
         <td>
             <a th:href="@{/property/bookings/{id}(id=${b.id})}">View</a> |
             <a th:href="@{/property/bookings/{id}/edit(id=${b.id})}">Edit</a>
         </td>
     </tr>
-    <tr th:if="${bookings == null or #lists.isEmpty(bookings)}"><td colspan="6">No bookings found.</td></tr>
+    <tr th:if="${bookings == null or #lists.isEmpty(bookings)}"><td colspan="8">No bookings found.</td></tr>
     </tbody>
 </table>
 </body>
