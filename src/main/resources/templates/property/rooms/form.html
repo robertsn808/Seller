@@ -228,7 +228,9 @@
 
             <form th:action="@{/property/rooms}" th:object="${room}" method="post">
                 <input type="hidden" th:field="*{id}">
-                <input type="hidden" th:field="*{isActive}" th:value="true">
+                <input type="hidden" th:field="*{isActive}">
+                <input type="hidden" th:field="*{createdAt}">
+                <input type="hidden" th:field="*{updatedAt}">
                 
                 <div class="form-section">
                     <h3 class="section-title">Basic Information</h3>
@@ -282,12 +284,27 @@
                             <div class="input-help">Code used to reset the door lock</div>
                         </div>
 
+                        <div class="form-group">
+                            <label for="gateKeyNumber">Gate Key Number</label>
+                            <input type="text" id="gateKeyNumber" th:field="*{gateKeyNumber}" maxlength="10">
+                            <div th:if="${#fields.hasErrors('gateKeyNumber')}" class="error" th:errors="*{gateKeyNumber}">Error</div>
+                            <div class="input-help">Gate key number if assigned</div>
+                        </div>
+
                         <div class="form-group full-width">
                             <div class="checkbox-group">
                                 <input type="checkbox" id="isVacant" th:field="*{isVacant}">
                                 <label for="isVacant">Room is currently vacant</label>
                             </div>
                             <div class="input-help">Check this box if the room is available for new bookings</div>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="gateKeyAssigned" th:field="*{gateKeyAssigned}">
+                                <label for="gateKeyAssigned">Gate key is assigned</label>
+                            </div>
+                            <div class="input-help">Check if a gate key has been assigned to this room</div>
                         </div>
                     </div>
                 </div>

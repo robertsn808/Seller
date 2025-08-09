@@ -173,11 +173,35 @@ public class PropertyManagementController {
 
     @GetMapping("/rooms/new")
     public String newRoom(Model model, HttpSession session) {
+        logger.info("=== NEW ROOM GET REQUEST ===");
         String authCheck = redirectToLoginIfNotAuthenticated(session);
-        if (authCheck != null) return authCheck;
-        model.addAttribute("room", new Room());
-        addRoomFormData(model);
-        return "property/rooms/form";
+        if (authCheck != null) {
+            logger.warn("Authentication failed for new room, redirecting to login");
+            return authCheck;
+        }
+        
+        try {
+            Room room = new Room();
+            // Initialize default values to prevent form binding issues
+            room.setIsActive(true);
+            room.setIsVacant(true);
+            room.setGateKeyAssigned(false);
+            logger.info("Created new room object with defaults");
+            
+            model.addAttribute("room", room);
+            logger.info("Added room object to model");
+            
+            addRoomFormData(model);
+            logger.info("Added room form data to model");
+            
+            logger.info("Returning property/rooms/form template");
+            return "property/rooms/form";
+        } catch (Exception e) {
+            logger.error("Error creating new room form: {}", e.getMessage(), e);
+            logger.error("Full stack trace:", e);
+            model.addAttribute("error", "Error loading new room form: " + e.getMessage());
+            return "redirect:/property/rooms";
+        }
     }
 
     @GetMapping("/rooms/{id}")
@@ -213,7 +237,7 @@ public class PropertyManagementController {
     }
 
     @GetMapping("/rooms/{id}/edit")
-    public String editRoom(@PathVariable Long id, Model model, HttpSession session) {
+    public String editRoom(@PathVariable Long id, Model model, HttpSession session, RedirectAttributes redirectAttributes) {
         logger.info("=== EDIT ROOM GET REQUEST ===");
         logger.info("Room ID to edit: {}", id);
         logger.info("Session ID: {}", session.getId());
@@ -227,8 +251,21 @@ public class PropertyManagementController {
         }
         
         try {
-            Room room = roomRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Room not found with ID: " + id));
+            logger.info("Attempting to find room with ID: {}", id);
+            
+            // Check if room exists first
+            if (!roomRepository.existsById(id)) {
+                logger.warn("Room with ID {} does not exist", id);
+                redirectAttributes.addFlashAttribute("error", "Room not found with ID: " + id);
+                return "redirect:/property/rooms";
+            }
+            
+            Room room = roomRepository.findById(id).orElse(null);
+            if (room == null) {
+                logger.warn("Room with ID {} returned null from findById", id);
+                redirectAttributes.addFlashAttribute("error", "Room not found");
+                return "redirect:/property/rooms";
+            }
             
             logger.info("Found room for edit: {} - {}", room.getRoomNumber(), room.getRoomName());
             
@@ -237,7 +274,7 @@ public class PropertyManagementController {
             return "property/rooms/form";
         } catch (Exception e) {
             logger.error("Error editing room {}: {}", id, e.getMessage(), e);
-            model.addAttribute("error", "Error loading room for edit: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("error", "Error loading room for edit: " + e.getMessage());
             return "redirect:/property/rooms";
         }
     }
@@ -264,27 +301,55 @@ public class PropertyManagementController {
         
         if (result.hasErrors()) {
             logger.warn("Validation errors for room: {}", result.getAllErrors());
-            addRoomFormData(model);
-            return "property/rooms/form";
+            try {
+                addRoomFormData(model);
+                return "property/rooms/form";
+            } catch (Exception e) {
+                logger.error("Error adding form data after validation failure: {}", e.getMessage(), e);
+                redirectAttributes.addFlashAttribute("error", "Validation failed: " + result.getAllErrors().toString());
+                return "redirect:/property/rooms";
+            }
         }
         
         try {
+            // Ensure proper Boolean initialization
+            if (room.getIsVacant() == null) {
+                room.setIsVacant(true);
+            }
+            if (room.getGateKeyAssigned() == null) {
+                room.setGateKeyAssigned(false);
+            }
+            if (room.getIsActive() == null) {
+                room.setIsActive(true);
+            }
+            
             // Check for duplicate room number
             if (room.getId() == null) { // New room
+                logger.info("Checking for duplicate room number for new room: {}", room.getRoomNumber());
                 if (roomRepository.existsByRoomNumber(room.getRoomNumber())) {
                     result.rejectValue("roomNumber", "error.roomNumber", "A room with this number already exists");
                 }
             } else { // Existing room
+                logger.info("Checking for duplicate room number for existing room: {} with ID: {}", room.getRoomNumber(), room.getId());
                 if (roomRepository.existsByRoomNumberAndIdNot(room.getRoomNumber(), room.getId())) {
                     result.rejectValue("roomNumber", "error.roomNumber", "A room with this number already exists");
                 }
             }
             
             if (result.hasErrors()) {
-                logger.warn("Duplicate room number validation failed");
-                addRoomFormData(model);
-                return "property/rooms/form";
+                logger.warn("Validation failed with errors: {}", result.getAllErrors());
+                try {
+                    addRoomFormData(model);
+                    return "property/rooms/form";
+                } catch (Exception e) {
+                    logger.error("Error adding form data after duplicate check failure: {}", e.getMessage(), e);
+                    redirectAttributes.addFlashAttribute("error", "Duplicate room number: " + room.getRoomNumber());
+                    return "redirect:/property/rooms";
+                }
             }
+            
+            logger.info("Attempting to save room: ID={}, Number={}, Type={}, Rate={}", 
+                room.getId(), room.getRoomNumber(), room.getRoomType(), room.getBaseRate());
             
             Room savedRoom = roomRepository.save(room);
             logger.info("Successfully saved room with ID: {}", savedRoom.getId());
@@ -295,9 +360,10 @@ public class PropertyManagementController {
             return "redirect:/property/rooms";
         } catch (Exception e) {
             logger.error("Error saving room: {}", e.getMessage(), e);
-            model.addAttribute("error", "Error saving room: " + e.getMessage());
-            addRoomFormData(model);
-            return "property/rooms/form";
+            logger.error("Room data at error: ID={}, Number={}, Type={}, Rate={}", 
+                room.getId(), room.getRoomNumber(), room.getRoomType(), room.getBaseRate());
+            redirectAttributes.addFlashAttribute("error", "Error saving room: " + e.getMessage());
+            return "redirect:/property/rooms";
         }
     }
     
@@ -839,6 +905,61 @@ public class PropertyManagementController {
     public String test() {
         logger.info("=== TEST ENDPOINT HIT ===");
         return "PropertyManagementController is working! Current time: " + System.currentTimeMillis();
+    }
+    
+    @GetMapping("/test-form")
+    public String testForm(Model model, HttpSession session) {
+        logger.info("=== TEST FORM ENDPOINT ===");
+        String authCheck = redirectToLoginIfNotAuthenticated(session);
+        if (authCheck != null) return authCheck;
+        
+        Room room = new Room();
+        room.setIsActive(true);
+        room.setIsVacant(true);
+        room.setGateKeyAssigned(false);
+        
+        model.addAttribute("room", room);
+        addRoomFormData(model);
+        
+        logger.info("Attempting to return property/rooms/form template");
+        return "property/rooms/form";
+    }
+    
+    @GetMapping("/rooms-debug")
+    @ResponseBody
+    public Map<String, Object> roomsDebug() {
+        Map<String, Object> debug = new HashMap<>();
+        
+        try {
+            long totalRooms = roomRepository.count();
+            debug.put("totalRooms", totalRooms);
+            
+            List<Room> allRooms = roomRepository.findAll();
+            debug.put("allRoomIds", allRooms.stream().map(Room::getId).toList());
+            debug.put("allRooms", allRooms.stream().map(r -> 
+                Map.of("id", r.getId(), "number", r.getRoomNumber(), "name", r.getRoomName() != null ? r.getRoomName() : "null")
+            ).toList());
+            
+            // Check if room ID 1 exists
+            boolean exists1 = roomRepository.existsById(1L);
+            debug.put("room1Exists", exists1);
+            
+            if (exists1) {
+                Room room1 = roomRepository.findById(1L).orElse(null);
+                debug.put("room1Details", room1 != null ? Map.of(
+                    "id", room1.getId(),
+                    "roomNumber", room1.getRoomNumber(),
+                    "roomName", room1.getRoomName(),
+                    "isActive", room1.getIsActive()
+                ) : "null");
+            }
+            
+        } catch (Exception e) {
+            debug.put("error", e.getMessage());
+            debug.put("exception", e.getClass().getSimpleName());
+        }
+        
+        return debug;
     }
     
     /**
