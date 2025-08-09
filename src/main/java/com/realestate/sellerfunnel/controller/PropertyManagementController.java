@@ -987,6 +987,83 @@ public class PropertyManagementController {
         return debug;
     }
     
+    @GetMapping("/guests-debug")
+    @ResponseBody
+    public Map<String, Object> guestsDebug() {
+        Map<String, Object> debug = new HashMap<>();
+        try {
+            long totalGuests = guestRepository.count();
+            debug.put("totalGuests", totalGuests);
+            List<Guest> allGuests = guestRepository.findByIsActiveTrueOrderByLastNameAscFirstNameAsc();
+            debug.put("activeGuestIds", allGuests.stream().map(Guest::getId).toList());
+            debug.put("sampleGuest", allGuests.isEmpty() ? null : Map.of(
+                "id", allGuests.get(0).getId(),
+                "name", allGuests.get(0).getFirstName() + " " + allGuests.get(0).getLastName(),
+                "email", allGuests.get(0).getEmail()
+            ));
+            // Simple duplicate email detection
+            Map<String, Long> emailCounts = allGuests.stream()
+                .filter(g -> g.getEmail() != null)
+                .collect(java.util.stream.Collectors.groupingBy(Guest::getEmail, java.util.stream.Collectors.counting()));
+            List<String> duplicateEmails = emailCounts.entrySet().stream()
+                .filter(e -> e.getValue() > 1)
+                .map(Map.Entry::getKey)
+                .toList();
+            debug.put("duplicateEmails", duplicateEmails);
+        } catch (Exception e) {
+            debug.put("error", e.getMessage());
+        }
+        return debug;
+    }
+
+    @GetMapping("/bookings-debug")
+    @ResponseBody
+    public Map<String, Object> bookingsDebug() {
+        Map<String, Object> debug = new HashMap<>();
+        try {
+            long totalBookings = bookingRepository.count();
+            debug.put("totalBookings", totalBookings);
+            List<Booking> recent = bookingRepository.findByIsActiveTrueOrderByCreatedAtDesc();
+            debug.put("recentBookingIds", recent.stream().limit(10).map(Booking::getId).toList());
+            // Active room occupancy snapshot
+            List<Room> rooms = roomRepository.findByIsActiveTrueOrderByRoomNumberAsc();
+            long vacant = rooms.stream().filter(r -> Boolean.TRUE.equals(r.getIsVacant())).count();
+            long occupied = rooms.size() - vacant;
+            debug.put("roomVacant", vacant);
+            debug.put("roomOccupied", occupied);
+            // Active bookings by status
+            Map<String, Long> statusCounts = recent.stream()
+                .collect(java.util.stream.Collectors.groupingBy(Booking::getBookingStatus, java.util.stream.Collectors.counting()));
+            debug.put("statusCounts", statusCounts);
+        } catch (Exception e) {
+            debug.put("error", e.getMessage());
+        }
+        return debug;
+    }
+
+    @GetMapping("/payments-debug")
+    @ResponseBody
+    public Map<String, Object> paymentsDebug() {
+        Map<String, Object> debug = new HashMap<>();
+        try {
+            long totalPayments = paymentRepository.count();
+            debug.put("totalPayments", totalPayments);
+            List<Payment> recent = paymentRepository.findTop10ByIsActiveTrueOrderByCreatedAtDesc();
+            debug.put("recentPaymentIds", recent.stream().map(Payment::getId).toList());
+            BigDecimal totalUpp = paymentRepository.sumCompletedUppPayments();
+            debug.put("totalUppCompleted", totalUpp);
+            // Payment method summary
+            Map<String, Long> methodCounts = recent.stream()
+                .filter(p -> p.getPaymentMethod() != null)
+                .collect(java.util.stream.Collectors.groupingBy(Payment::getPaymentMethod, java.util.stream.Collectors.counting()));
+            debug.put("recentMethodCounts", methodCounts);
+            debug.put("uppHealthy", paymentService.isUppServiceHealthy());
+        } catch (Exception e) {
+            debug.put("error", e.getMessage());
+        }
+        return debug;
+    }
+
     /**
      * Initialize sample data if the database is empty
      */
