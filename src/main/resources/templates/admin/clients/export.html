@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Export Clients - Real Estate Connect</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; }
+        .header { background: linear-gradient(45deg, #667eea, #764ba2); color: white; padding: 20px; text-align: center; }
+        .header h1 { font-size: 2rem; margin-bottom: 10px; }
+        .nav { background: white; padding: 15px 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .nav a { color: #667eea; text-decoration: none; margin-right: 30px; font-weight: 600; }
+        .nav a:hover { text-decoration: underline; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 30px 20px; }
+        
+        .export-card { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .export-header { margin-bottom: 30px; text-align: center; }
+        .export-header h2 { color: #333; margin-bottom: 10px; }
+        .export-header p { color: #666; }
+        
+        .export-actions { text-align: center; margin-bottom: 30px; }
+        .btn { display: inline-block; padding: 12px 24px; background: #667eea; color: white; text-decoration: none; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; margin-right: 15px; }
+        .btn:hover { background: #5a6fd8; }
+        .btn-success { background: #28a745; }
+        .btn-success:hover { background: #218838; }
+        .btn-secondary { background: #6c757d; }
+        .btn-secondary:hover { background: #5a6268; }
+        
+        .export-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .export-table th, .export-table td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
+        .export-table th { background: #f8f9fa; font-weight: 600; color: #333; }
+        .export-table tr:hover { background: #f8f9fa; }
+        
+        .export-info { background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        .export-info h3 { margin-bottom: 15px; color: #333; }
+        .export-info ul { list-style: none; padding: 0; }
+        .export-info li { margin-bottom: 8px; color: #666; }
+        .export-info li:before { content: "✓ "; color: #28a745; font-weight: bold; }
+        
+        @media print {
+            .nav, .export-actions { display: none; }
+            .container { padding: 0; }
+            .export-card { box-shadow: none; border: 1px solid #ddd; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Export Clients</h1>
+        <p>Export your client database</p>
+    </div>
+    
+    <div class="nav">
+        <a href="/admin/clients">← Back to Client List</a>
+        <a href="/admin">← Back to Admin</a>
+    </div>
+    
+    <div class="container">
+        <div class="export-card">
+            <div class="export-header">
+                <h2>Client Database Export</h2>
+                <p>Export all active clients from your database</p>
+            </div>
+            
+            <div class="export-info">
+                <h3>Export Information</h3>
+                <ul>
+                    <li>Total clients to export: <strong th:text="${#lists.size(clients)}">0</strong></li>
+                    <li>Export includes: First Name, Last Name, Email, Phone, Company, Address, Client Type, Status, Lead Source, Contact History, Notes</li>
+                    <li>Format: CSV (Comma Separated Values)</li>
+                    <li>Date: <span th:text="${#temporals.format(#temporals.createNow(), 'MM/dd/yyyy HH:mm')}">01/15/2024 14:30</span></li>
+                </ul>
+            </div>
+            
+            <div class="export-actions">
+                <button onclick="exportToCSV()" class="btn btn-success">📥 Download CSV</button>
+                <button onclick="window.print()" class="btn">🖨️ Print Report</button>
+                <a href="/admin/clients" class="btn btn-secondary">Cancel</a>
+            </div>
+            
+            <table class="export-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Company</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Lead Source</th>
+                        <th>Contact Count</th>
+                        <th>Added</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="client : ${clients}">
+                        <td th:text="${client.fullName}">John Doe</td>
+                        <td th:text="${client.email}">email@example.com</td>
+                        <td th:text="${client.phoneNumber}">123-456-7890</td>
+                        <td th:text="${client.companyName}">Company</td>
+                        <td th:text="${client.clientType}">BUYER</td>
+                        <td th:text="${client.clientStatus}">LEAD</td>
+                        <td th:text="${client.leadSource}">WEBSITE</td>
+                        <td th:text="${client.totalContactCount != null ? client.totalContactCount : 0}">0</td>
+                        <td th:text="${#temporals.format(client.createdAt, 'MM/dd/yyyy')}">01/15/2024</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <script>
+        function exportToCSV() {
+            // Create CSV content
+            let csvContent = "data:text/csv;charset=utf-8,";
+            
+            // Add header row
+            csvContent += "First Name,Last Name,Email,Phone,Company,Job Title,Address,City,State,ZIP Code,Client Type,Status,Lead Source,Email Contact Count,Phone Contact Count,Total Contact Count,Last Contact Date,Notes,Created Date\n";
+            
+            // Add data rows
+            const clients = [
+                // This would be populated with actual client data from the server
+                // For now, we'll redirect to a server-side CSV generation endpoint
+            ];
+            
+            // Redirect to server-side CSV generation
+            window.location.href = '/admin/clients/export/csv';
+        }
+    </script>
+</body>
+</html>

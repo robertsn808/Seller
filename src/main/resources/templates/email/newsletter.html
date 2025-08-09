@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real Estate Connect Newsletter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .header {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            text-align: center;
+            padding: 30px;
+            border-radius: 5px 5px 0 0;
+        }
+        .logo {
+            max-width: 200px;
+            height: auto;
+            margin-bottom: 20px;
+        }
+        .content {
+            background: #fff;
+            padding: 30px;
+            border-radius: 0 0 5px 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .section {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        .section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            font-size: 12px;
+            color: #666;
+            background: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .social-links {
+            margin: 20px 0;
+        }
+        .social-links a {
+            color: #667eea;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+        .unsubscribe {
+            color: #999;
+            text-decoration: none;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .button:hover {
+            background: #5a6fd8;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="logo.png" alt="Real Estate Connect" class="logo">
+        <h1>Real Estate Connect Newsletter</h1>
+    </div>
+    
+    <div class="content">
+        <div class="section">
+            <p>Dear <span th:text="${client.firstName}">Client</span>,</p>
+            
+            <div th:utext="${message}">Newsletter content goes here.</div>
+        </div>
+        
+        <div class="section">
+            <h2>Featured Properties</h2>
+            <!-- Featured properties would be dynamically inserted here -->
+        </div>
+        
+        <div class="section">
+            <h2>Market Updates</h2>
+            <!-- Market updates would be dynamically inserted here -->
+        </div>
+        
+        <a href="#" class="button">View More Properties</a>
+    </div>
+    
+    <div class="footer">
+        <div class="social-links">
+            <a href="#">Facebook</a>
+            <a href="#">Twitter</a>
+            <a href="#">Instagram</a>
+            <a href="#">LinkedIn</a>
+        </div>
+        
+        <p>
+            This email was sent to <span th:text="${client.email}">email@example.com</span><br>
+            You received this newsletter because you're subscribed to our communications.
+        </p>
+        <p>
+            <a href="#" class="unsubscribe">Unsubscribe from newsletters</a>
+        </p>
+    </div>
+</body>
+</html>

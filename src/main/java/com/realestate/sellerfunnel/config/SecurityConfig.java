@@ -28,21 +28,22 @@ public class SecurityConfig {
         http
             .authorizeHttpRequests(authz -> authz
                 .requestMatchers("/admin/**").authenticated()
+                .requestMatchers("/property/**").permitAll()
                 .requestMatchers("/", "/buyer", "/buyer/**", "/seller", "/seller/**", 
                                "/photos/**", "/css/**", "/js/**", "/images/**").permitAll()
                 .anyRequest().permitAll()
             )
             .formLogin(form -> form
                 .loginPage("/login")
-                .defaultSuccessUrl("/admin", true)
+                .defaultSuccessUrl("/admin", false)
                 .permitAll()
             )
             .logout(logout -> logout
                 .logoutUrl("/logout")
-                .logoutSuccessUrl("/")
+                .logoutSuccessUrl("/logged-out")
                 .permitAll()
             )
-            .csrf(csrf -> csrf.disable()); // Disable CSRF for simplicity
+            .csrf(csrf -> csrf.disable());
 
         return http.build();
     }

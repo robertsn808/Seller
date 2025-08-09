@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Room Management - Property Management</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: #f5f7fa; 
+            color: #333; 
+        }
+        .header { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            color: white; 
+            padding: 20px 0; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+        }
+        .header-content { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 0 20px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+        }
+        .header h1 { 
+            font-size: 2rem; 
+            font-weight: 300; 
+        }
+        .nav-links a { 
+            color: white; 
+            text-decoration: none; 
+            margin-left: 20px; 
+            padding: 8px 15px; 
+            border-radius: 5px; 
+            transition: background 0.3s; 
+        }
+        .nav-links a:hover { 
+            background: rgba(255,255,255,0.2); 
+        }
+        .container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 20px; 
+        }
+        .page-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 20px; 
+        }
+        .search-form { 
+            display: flex; 
+            gap: 10px; 
+        }
+        .search-form input { 
+            padding: 10px; 
+            border: 1px solid #ddd; 
+            border-radius: 5px; 
+            width: 300px; 
+        }
+        .btn { 
+            padding: 10px 20px; 
+            background: linear-gradient(45deg, #667eea, #764ba2); 
+            color: white; 
+            border: none; 
+            border-radius: 5px; 
+            text-decoration: none; 
+            font-weight: 600; 
+            cursor: pointer; 
+            transition: transform 0.3s; 
+        }
+        .btn:hover { 
+            transform: translateY(-2px); 
+            text-decoration: none; 
+            color: white; 
+        }
+        .rooms-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); 
+            gap: 20px; 
+        }
+        .room-card { 
+            background: white; 
+            border-radius: 10px; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+            overflow: hidden; 
+            transition: transform 0.3s; 
+        }
+        .room-card:hover { 
+            transform: translateY(-5px); 
+        }
+        .room-header { 
+            padding: 20px; 
+            border-bottom: 1px solid #f1f3f4; 
+        }
+        .room-title { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 10px; 
+        }
+        .room-number { 
+            font-size: 1.5rem; 
+            font-weight: 600; 
+            color: #333; 
+        }
+        .room-status { 
+            padding: 5px 12px; 
+            border-radius: 20px; 
+            font-size: 0.8rem; 
+            font-weight: 600; 
+        }
+        .status-vacant { 
+            background: #d4edda; 
+            color: #155724; 
+        }
+        .status-occupied { 
+            background: #f8d7da; 
+            color: #721c24; 
+        }
+        .room-info { 
+            color: #666; 
+            font-size: 0.9rem; 
+        }
+        .room-content { 
+            padding: 20px; 
+        }
+        .info-row { 
+            display: flex; 
+            justify-content: space-between; 
+            margin-bottom: 10px; 
+            padding: 8px 0; 
+            border-bottom: 1px solid #f8f9fa; 
+        }
+        .info-row:last-child { 
+            border-bottom: none; 
+            margin-bottom: 0; 
+        }
+        .info-label { 
+            font-weight: 600; 
+            color: #555; 
+        }
+        .info-value { 
+            color: #333; 
+        }
+        .room-actions { 
+            padding: 20px; 
+            background: #f8f9fa; 
+            display: flex; 
+            gap: 10px; 
+        }
+        .action-btn { 
+            flex: 1; 
+            padding: 8px 12px; 
+            border: none; 
+            border-radius: 5px; 
+            text-decoration: none; 
+            text-align: center; 
+            font-size: 0.9rem; 
+            font-weight: 600; 
+            transition: all 0.3s; 
+        }
+        .btn-view { 
+            background: #17a2b8; 
+            color: white; 
+        }
+        .btn-edit { 
+            background: #ffc107; 
+            color: #333; 
+        }
+        .btn-delete { 
+            background: #dc3545; 
+            color: white; 
+        }
+        .action-btn:hover { 
+            transform: translateY(-2px); 
+            text-decoration: none; 
+        }
+        .empty-state { 
+            text-align: center; 
+            padding: 60px; 
+            color: #666; 
+        }
+        .empty-state div { 
+            font-size: 4rem; 
+            margin-bottom: 20px; 
+            opacity: 0.5; 
+        }
+        .alert { 
+            padding: 15px; 
+            border-radius: 8px; 
+            margin-bottom: 20px; 
+        }
+        .alert-success { 
+            background: #d4edda; 
+            color: #155724; 
+            border: 1px solid #c3e6cb; 
+        }
+        .alert-danger { 
+            background: #f8d7da; 
+            color: #721c24; 
+            border: 1px solid #f5c6cb; 
+        }
+        @media (max-width: 768px) { 
+            .rooms-grid { 
+                grid-template-columns: 1fr; 
+            }
+            .page-header { 
+                flex-direction: column; 
+                gap: 15px; 
+            }
+            .search-form { 
+                width: 100%; 
+            }
+            .search-form input { 
+                width: 100%; 
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h1>🏨 Property Management</h1>
+            <div class="nav-links">
+                <a href="/property/dashboard">Dashboard</a>
+                <a href="/property/rooms">Rooms</a>
+                <a href="/property/guests">Guests</a>
+                <a href="/property/bookings">Bookings</a>
+                <a href="/property/logout">Logout</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Alerts -->
+        <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+        <!-- Page Header -->
+        <div class="page-header">
+            <h2>Room Management</h2>
+            <div class="search-form">
+                <form th:action="@{/property/rooms}" method="get">
+                    <input type="text" name="search" th:value="${search}" placeholder="Search rooms...">
+                    <button type="submit" class="btn">Search</button>
+                </form>
+                <a href="/property/rooms/new" class="btn">➕ Add Room</a>
+            </div>
+        </div>
+
+        <!-- Rooms Grid -->
+        <div th:if="${rooms.empty}" class="empty-state">
+            <div>🏠</div>
+            <h3>No Rooms Found</h3>
+            <p>No rooms have been added yet. Click "Add Room" to get started.</p>
+        </div>
+
+        <div th:if="${!rooms.empty}" class="rooms-grid">
+            <div th:each="room : ${rooms}" class="room-card">
+                <div class="room-header">
+                    <div class="room-title">
+                        <span class="room-number" th:text="${room.displayName}">Room 101</span>
+                        <span th:class="${'room-status status-' + (room.isVacant ? 'vacant' : 'occupied')}" 
+                              th:text="${room.statusDisplay}">Vacant</span>
+                    </div>
+                    <div class="room-info" th:text="${room.roomType}">Single</div>
+                </div>
+                
+                <div class="room-content">
+                    <div class="info-row">
+                        <span class="info-label">Base Rate:</span>
+                        <span class="info-value" th:text="${'$' + #numbers.formatDecimal(room.baseRate, 1, 2)}">$100.00</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Current Code:</span>
+                        <span class="info-value" th:text="${room.currentCode != null ? room.currentCode : 'Not Set'}">1234</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Reset Code:</span>
+                        <span class="info-value" th:text="${room.resetCode != null ? room.resetCode : 'Not Set'}">0000</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Gate Key:</span>
+                        <span class="info-value" th:text="${room.gateKeyStatus}">Not Assigned</span>
+                    </div>
+                    <div class="info-row" th:if="${room.notes != null && !room.notes.trim().isEmpty()}">
+                        <span class="info-label">Notes:</span>
+                        <span class="info-value" th:text="${#strings.abbreviate(room.notes, 50)}">Room notes...</span>
+                    </div>
+                </div>
+                
+                <div class="room-actions">
+                    <a th:href="@{/property/rooms/{id}(id=${room.id})}" class="action-btn btn-view" 
+                       onclick="console.log('Navigating to room view:', this.href); return true;">View</a>
+                    <a th:href="@{/property/rooms/{id}/edit(id=${room.id})}" class="action-btn btn-edit"
+                       onclick="console.log('Navigating to room edit:', this.href); return true;">Edit</a>
+                    <form th:action="@{/property/rooms/{id}/delete(id=${room.id})}" method="post" style="flex: 1;">
+                        <button type="submit" class="action-btn btn-delete" 
+                                onclick="console.log('Deleting room ID:', [[${room.id}]]); return confirm('Are you sure you want to deactivate this room?')">Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

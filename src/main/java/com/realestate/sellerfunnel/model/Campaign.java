@@ -3,6 +3,7 @@ package com.realestate.sellerfunnel.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -66,6 +67,14 @@ public class Campaign {
     
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+    
+    // External platform IDs for tracking
+    private String facebookCampaignId;
+    private String facebookAdSetId;
+    private String facebookAdId;
+    private String googleAdsCampaignId;
+    private String googleAdsAdGroupId;
+    private String googleAdsAdId;
     
     @PrePersist
     protected void onCreate() {
@@ -151,6 +160,25 @@ public class Campaign {
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
     
+    // External platform ID getters and setters
+    public String getFacebookCampaignId() { return facebookCampaignId; }
+    public void setFacebookCampaignId(String facebookCampaignId) { this.facebookCampaignId = facebookCampaignId; }
+    
+    public String getFacebookAdSetId() { return facebookAdSetId; }
+    public void setFacebookAdSetId(String facebookAdSetId) { this.facebookAdSetId = facebookAdSetId; }
+    
+    public String getFacebookAdId() { return facebookAdId; }
+    public void setFacebookAdId(String facebookAdId) { this.facebookAdId = facebookAdId; }
+    
+    public String getGoogleAdsCampaignId() { return googleAdsCampaignId; }
+    public void setGoogleAdsCampaignId(String googleAdsCampaignId) { this.googleAdsCampaignId = googleAdsCampaignId; }
+    
+    public String getGoogleAdsAdGroupId() { return googleAdsAdGroupId; }
+    public void setGoogleAdsAdGroupId(String googleAdsAdGroupId) { this.googleAdsAdGroupId = googleAdsAdGroupId; }
+    
+    public String getGoogleAdsAdId() { return googleAdsAdId; }
+    public void setGoogleAdsAdId(String googleAdsAdId) { this.googleAdsAdId = googleAdsAdId; }
+    
     // Helper methods
     public Double getClickThroughRate() {
         if (impressions == null || impressions == 0 || clicks == null) return 0.0;
@@ -164,6 +192,6 @@ public class Campaign {
     
     public BigDecimal getCostPerLead() {
         if (cost == null || leads == null || leads == 0) return BigDecimal.ZERO;
-        return cost.divide(BigDecimal.valueOf(leads), 2, BigDecimal.ROUND_HALF_UP);
+        return cost.divide(BigDecimal.valueOf(leads), 2, RoundingMode.HALF_UP);
     }
 }

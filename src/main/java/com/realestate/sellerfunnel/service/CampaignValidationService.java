@@ -49,6 +49,11 @@ public class CampaignValidationService {
     public ValidationResult validateCampaign(Campaign campaign) {
         ValidationResult result = new ValidationResult();
         
+        System.out.println("=== CAMPAIGN VALIDATION STARTED ===");
+        System.out.println("Campaign name: " + campaign.getName());
+        System.out.println("Campaign type: " + campaign.getType());
+        System.out.println("Campaign target audience: " + campaign.getTargetAudience());
+        
         // Basic validation
         validateBasicFields(campaign, result);
         
@@ -66,6 +71,11 @@ public class CampaignValidationService {
         
         // Date validation
         validateDateRules(campaign, result);
+        
+        System.out.println("=== VALIDATION COMPLETE ===");
+        System.out.println("Validation result: " + (result.isValid() ? "VALID" : "INVALID"));
+        System.out.println("Errors: " + result.getErrors());
+        System.out.println("Warnings: " + result.getWarnings());
         
         return result;
     }

@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Process Payment - Property Portal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .nav-bar {
+            background: #f8f9fa;
+            padding: 15px 30px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .nav-links a {
+            text-decoration: none;
+            color: #495057;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .nav-links a:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .upp-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+        
+        .upp-status.healthy {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .upp-status.unhealthy {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .booking-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .booking-info h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .booking-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .booking-detail {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .booking-detail h4 {
+            color: #6c757d;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .booking-detail p {
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        .payment-form {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+        
+        .form-section {
+            margin-bottom: 30px;
+        }
+        
+        .form-section h3 {
+            color: #495057;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .upp-device-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .device-option {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .device-option:hover {
+            border-color: #667eea;
+            background: #f0f2ff;
+        }
+        
+        .device-option.selected {
+            border-color: #667eea;
+            background: #e8f2ff;
+        }
+        
+        .device-option h4 {
+            margin-bottom: 10px;
+            color: #495057;
+        }
+        
+        .device-option p {
+            font-size: 0.9em;
+            color: #6c757d;
+            margin-bottom: 10px;
+        }
+        
+        .device-capabilities {
+            font-size: 0.8em;
+            color: #28a745;
+            font-weight: 500;
+        }
+        
+        .upp-warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        .amount-display {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .amount-display h2 {
+            font-size: 2.5em;
+            margin-bottom: 5px;
+        }
+        
+        .amount-display p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+        
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .upp-device-options {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+            }
+            
+            .booking-details {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💳 Process Payment</h1>
+            <p>Accept payments from any device using Universal Payment Protocol</p>
+        </div>
+        
+        <div class="nav-bar">
+            <div class="nav-links">
+                <a href="/property/dashboard">🏠 Dashboard</a>
+                <a href="/property/bookings">📅 Bookings</a>
+                <a href="/property/payments">💳 Payments</a>
+            </div>
+            
+            <div th:class="${uppHealthy ? 'upp-status healthy' : 'upp-status unhealthy'}">
+                <span th:text="${uppHealthy ? '✅' : '❌'}">✅</span>
+                <span th:text="${uppHealthy ? 'UPP Connected' : 'UPP Disconnected'}">UPP Connected</span>
+            </div>
+        </div>
+        
+        <div class="content">
+            <!-- Booking Information -->
+            <div class="booking-info">
+                <h3>📅 Booking Details</h3>
+                <div class="booking-details">
+                    <div class="booking-detail">
+                        <h4>Room</h4>
+                        <p th:text="${booking.room.roomNumber}">101</p>
+                    </div>
+                    <div class="booking-detail">
+                        <h4>Guest</h4>
+                        <p th:text="${booking.guest.fullName}">John Doe</p>
+                    </div>
+                    <div class="booking-detail">
+                        <h4>Check-in</h4>
+                        <p th:text="${#temporals.format(booking.checkInDate, 'MM/dd/yyyy')}">12/01/2024</p>
+                    </div>
+                    <div class="booking-detail">
+                        <h4>Current Balance</h4>
+                        <p th:text="${'$' + booking.currentBalance}">$150.00</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Payment Form -->
+            <form th:action="@{/property/bookings/{bookingId}/payments(bookingId=${booking.id})}" 
+                  method="post" class="payment-form">
+                
+                <!-- UPP Warning -->
+                <div class="upp-warning" th:unless="${uppHealthy}">
+                    <span>⚠️</span>
+                    <div>
+                        <strong>Universal Payment Protocol is not available</strong><br>
+                        Traditional payment methods will be used instead.
+                    </div>
+                </div>
+                
+                <!-- Payment Method Selection -->
+                <div class="form-section">
+                    <h3>💳 Payment Method</h3>
+                    <div class="form-group">
+                        <label for="paymentMethod">Select Payment Method</label>
+                        <select id="paymentMethod" name="paymentMethod" required onchange="toggleDeviceOptions()">
+                            <option value="">Choose payment method...</option>
+                            <option value="UPP_DEVICE" th:if="${uppHealthy}">🌊 Universal Payment Device</option>
+                            <option value="CARD">💳 Credit/Debit Card</option>
+                            <option value="CASH">💰 Cash</option>
+                            <option value="TRANSFER">🏦 Bank Transfer</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- UPP Device Selection -->
+                <div class="form-section" id="uppDeviceSection" style="display: none;">
+                    <h3>📱 Device Selection</h3>
+                    <div class="upp-device-options">
+                        <div class="device-option" onclick="selectDevice('smartphone', this)">
+                            <h4>📱 Smartphone</h4>
+                            <p>NFC, QR codes, biometric authentication</p>
+                            <div class="device-capabilities" th:if="${smartphoneCapabilities != null}">
+                                <span th:each="capability : ${smartphoneCapabilities.keySet()}" 
+                                      th:text="${capability}">nfc</span>
+                            </div>
+                        </div>
+                        <div class="device-option" onclick="selectDevice('smart_tv', this)">
+                            <h4>📺 Smart TV</h4>
+                            <p>QR display, remote control navigation</p>
+                            <div class="device-capabilities" th:if="${smartTvCapabilities != null}">
+                                <span th:each="capability : ${smartTvCapabilities.keySet()}" 
+                                      th:text="${capability}">display</span>
+                            </div>
+                        </div>
+                        <div class="device-option" onclick="selectDevice('iot_device', this)">
+                            <h4>🏠 IoT Device</h4>
+                            <p>Sensors, automation, button interface</p>
+                            <div class="device-capabilities" th:if="${iotCapabilities != null}">
+                                <span th:each="capability : ${iotCapabilities.keySet()}" 
+                                      th:text="${capability}">sensors</span>
+                            </div>
+                        </div>
+                        <div class="device-option" onclick="selectDevice('voice_assistant', this)">
+                            <h4>🎤 Voice Assistant</h4>
+                            <p>Natural language processing</p>
+                        </div>
+                    </div>
+                    <input type="hidden" id="deviceType" name="deviceType">
+                    <input type="hidden" id="deviceId" name="deviceId" value="property_management_system">
+                </div>
+                
+                <!-- Payment Details -->
+                <div class="form-section">
+                    <h3>💰 Payment Details</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="amount">Amount ($)</label>
+                            <input type="number" id="amount" name="amount" 
+                                   th:value="${booking.currentBalance}" 
+                                   step="0.01" min="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="customerEmail">Customer Email (Optional)</label>
+                            <input type="email" id="customerEmail" name="customerEmail" 
+                                   th:value="${booking.guest.email}">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Form Actions -->
+                <div class="form-actions">
+                    <a th:href="@{/property/bookings/{id}(id=${booking.id})}" class="btn btn-secondary">
+                        ❌ Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        💳 Process Payment
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        function toggleDeviceOptions() {
+            const paymentMethod = document.getElementById('paymentMethod').value;
+            const uppSection = document.getElementById('uppDeviceSection');
+            
+            if (paymentMethod === 'UPP_DEVICE') {
+                uppSection.style.display = 'block';
+            } else {
+                uppSection.style.display = 'none';
+                // Clear device selection
+                document.getElementById('deviceType').value = '';
+                document.querySelectorAll('.device-option').forEach(option => {
+                    option.classList.remove('selected');
+                });
+            }
+        }
+        
+        function selectDevice(deviceType, element) {
+            // Remove selection from all options
+            document.querySelectorAll('.device-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            // Select the clicked option
+            element.classList.add('selected');
+            
+            // Set the device type
+            document.getElementById('deviceType').value = deviceType;
+            
+            // Generate a unique device ID
+            const deviceId = deviceType + '_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            document.getElementById('deviceId').value = deviceId;
+        }
+        
+        // Initialize form
+        document.addEventListener('DOMContentLoaded', function() {
+            toggleDeviceOptions();
+        });
+    </script>
+</body>
+</html>

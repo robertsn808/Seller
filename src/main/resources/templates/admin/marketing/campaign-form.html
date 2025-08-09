@@ -76,6 +76,7 @@
                                             <select class="form-select" th:field="*{type}"
                                                     th:classappend="${#fields.hasErrors('type')} ? 'is-invalid' : ''">
                                                 <option value="">Select Type</option>
+                                                <option value="FACEBOOK_POST">Facebook Post</option>
                                                 <option value="FACEBOOK">Facebook Ads</option>
                                                 <option value="GOOGLE_ADS">Google Ads</option>
                                                 <option value="CRAIGSLIST">Craigslist</option>
@@ -83,6 +84,7 @@
                                                 <option value="YARD_SIGNS">Yard Signs</option>
                                                 <option value="BUSINESS_CARDS">Business Cards</option>
                                                 <option value="COLD_CALLING">Cold Calling</option>
+                                                <option value="INSTAGRAM">Instagram Post</option>
                                             </select>
                                             <div th:if="${#fields.hasErrors('type')}" 
                                                  class="invalid-feedback" th:errors="*{type}">Type error</div>
@@ -206,10 +208,13 @@
                                     <!-- Submit Buttons -->
                                     <div class="d-flex justify-content-end mt-4">
                                         <a href="/admin/marketing/campaigns" class="btn btn-secondary me-2">Cancel</a>
-                                        <button type="submit" class="btn btn-primary">
+                                        <button type="submit" class="btn btn-primary" id="submitBtn">
                                             <i class="fas fa-save me-2"></i>
                                             <span th:text="${campaign.id != null ? 'Update Campaign' : 'Create Campaign'}">Save</span>
                                         </button>
+                                        <button type="button" class="btn btn-warning ms-2" onclick="debugForm()" style="display: none;" id="debugBtn">Debug</button>
+                                        <button type="button" class="btn btn-success ms-2" onclick="submitWithoutValidation()" style="display: none;" id="bypassBtn">Submit Anyway</button>
+                                        <button type="button" class="btn btn-info ms-2" onclick="submitWithFetch()" style="display: none;" id="fetchBtn">Submit with Fetch</button>
                                     </div>
                                 </form>
                             </div>
@@ -225,7 +230,9 @@
                             <div class="card-body">
                                 <h6>Campaign Types:</h6>
                                 <ul class="small mb-3">
+                                    <li><strong>Facebook Post:</strong> Direct Facebook page posts</li>
                                     <li><strong>Facebook Ads:</strong> Paid social media advertising</li>
+                                    <li><strong>Instagram Post:</strong> Direct Instagram posts</li>
                                     <li><strong>Google Ads:</strong> Search and display advertising</li>
                                     <li><strong>Craigslist:</strong> Local classified ads</li>
                                     <li><strong>Direct Mail:</strong> Physical mail campaigns</li>
@@ -260,7 +267,7 @@
             const form = document.querySelector('form');
             const submitBtn = document.querySelector('button[type="submit"]');
             const submitBtnText = submitBtn.querySelector('span');
-            const originalBtnText = submitBtnText.textContent;
+            const originalBtnText = submitBtnText ? submitBtnText.textContent : 'Save';
             
             // Form validation
             function validateForm() {
@@ -276,6 +283,13 @@
                 
                 requiredFields.forEach(item => {
                     const field = document.querySelector(`[name="${item.field}"]`);
+                    if (!field) {
+                        console.error('Field not found:', item.field);
+                        errors.push(`${item.name} field not found`);
+                        isValid = false;
+                        return;
+                    }
+                    
                     if (!field.value.trim()) {
                         field.classList.add('is-invalid');
                         errors.push(`${item.name} is required`);
@@ -323,27 +337,33 @@
             
             // Form submission handling
             form.addEventListener('submit', function(e) {
-                e.preventDefault();
+                console.log('Form submission started');
                 
+                // Don't prevent default immediately - let validation run first
                 const validation = validateForm();
+                console.log('Validation result:', validation);
                 
                 if (!validation.isValid) {
-                    // Show validation errors
+                    // Prevent submission only if validation fails
+                    e.preventDefault();
+                    console.log('Form submission prevented due to validation errors:', validation.errors);
                     showAlert('Please fix the following errors: ' + validation.errors.join(', '), 'danger');
-                    return;
+                    return false;
                 }
                 
-                // Show loading state
+                // Show loading state for valid submissions
                 submitBtn.disabled = true;
-                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Saving Campaign...';
+                if (submitBtnText) {
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Saving Campaign...';
+                } else {
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Saving...';
+                }
                 
                 // Show progress message
                 showAlert('Processing your campaign...', 'info');
                 
-                // Submit the form
-                setTimeout(() => {
-                    form.submit();
-                }, 500);
+                // Let the form submit normally
+                return true;
             });
             
             // Helper function to show alerts
@@ -385,6 +405,9 @@
                 if (campaignType === 'FACEBOOK' || campaignType === 'GOOGLE_ADS') {
                     budgetField.setAttribute('required', 'required');
                     showCampaignTypeHelp(campaignType);
+                } else if (campaignType === 'FACEBOOK_POST' || campaignType === 'INSTAGRAM') {
+                    budgetField.removeAttribute('required');
+                    showCampaignTypeHelp(campaignType);
                 } else {
                     budgetField.removeAttribute('required');
                 }
@@ -400,8 +423,14 @@
                 let helpText = '';
                 
                 switch(type) {
+                    case 'FACEBOOK_POST':
+                        helpText = 'Facebook posts will be published directly to your Facebook page. Make sure your content is engaging and includes a clear call-to-action.';
+                        break;
                     case 'FACEBOOK':
                         helpText = 'Facebook campaigns require a budget and compelling ad copy. Consider your target demographics.';
+                        break;
+                    case 'INSTAGRAM':
+                        helpText = 'Instagram posts will be published directly to your Instagram account. Use visual content and relevant hashtags.';
                         break;
                     case 'GOOGLE_ADS':
                         helpText = 'Google Ads campaigns require keywords and budget. Research high-performing keywords in real estate.';
@@ -444,7 +473,94 @@
                     return e.returnValue;
                 }
             });
+            
+            // Show debug buttons if there are issues
+            setTimeout(() => {
+                document.getElementById('debugBtn').style.display = 'inline-block';
+                document.getElementById('bypassBtn').style.display = 'inline-block';
+                document.getElementById('fetchBtn').style.display = 'inline-block';
+            }, 5000);
         });
+        
+        // Debug function
+        function debugForm() {
+            const form = document.querySelector('form');
+            const formData = new FormData(form);
+            
+            console.log('=== FORM DEBUG INFO ===');
+            console.log('Form action:', form.action);
+            console.log('Form method:', form.method);
+            console.log('Form data:');
+            for (let [key, value] of formData.entries()) {
+                console.log(`  ${key}: ${value}`);
+            }
+            
+            // Check required fields
+            const requiredFields = ['name', 'type', 'targetAudience'];
+            console.log('Required field validation:');
+            requiredFields.forEach(fieldName => {
+                const field = document.querySelector(`[name="${fieldName}"]`);
+                console.log(`  ${fieldName}:`, field ? field.value : 'FIELD NOT FOUND');
+            });
+            
+            alert('Check browser console for debug information');
+        }
+        
+        // Submit without client-side validation
+        function submitWithoutValidation() {
+            console.log('Attempting direct form submission...');
+            const form = document.querySelector('form');
+            
+            // Create a new form element to bypass all event listeners
+            const tempForm = document.createElement('form');
+            tempForm.action = form.action;
+            tempForm.method = form.method;
+            
+            // Copy all form data
+            const formData = new FormData(form);
+            for (let [key, value] of formData.entries()) {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = key;
+                input.value = value;
+                tempForm.appendChild(input);
+            }
+            
+            // Add to document and submit
+            document.body.appendChild(tempForm);
+            console.log('Submitting form with action:', tempForm.action);
+            tempForm.submit();
+        }
+        
+        // Submit using fetch API
+        function submitWithFetch() {
+            console.log('Attempting fetch submission...');
+            const form = document.querySelector('form');
+            const formData = new FormData(form);
+            
+            fetch(form.action, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                console.log('Fetch response:', response.status, response.statusText);
+                if (response.ok) {
+                    // If response is a redirect, follow it
+                    if (response.redirected) {
+                        window.location.href = response.url;
+                    } else {
+                        // Reload the page or redirect manually
+                        window.location.reload();
+                    }
+                } else {
+                    alert('Server error: ' + response.status + ' ' + response.statusText);
+                }
+            })
+            .catch(error => {
+                console.error('Fetch error:', error);
+                alert('Network error: ' + error.message);
+            });
+        }
     </script>
 </body>
 </html>

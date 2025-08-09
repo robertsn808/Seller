@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Management - Real Estate Connect</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; }
+        .header { background: linear-gradient(45deg, #667eea, #764ba2); color: white; padding: 20px; text-align: center; }
+        .header h1 { font-size: 2rem; margin-bottom: 10px; }
+        .nav { background: white; padding: 15px 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .nav a { color: #667eea; text-decoration: none; margin-right: 30px; font-weight: 600; }
+        .nav a:hover { text-decoration: underline; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 30px 20px; }
+        
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); text-align: center; }
+        .stat-card h3 { font-size: 2.5rem; color: #667eea; margin-bottom: 5px; }
+        .stat-card p { color: #666; font-size: 1rem; }
+        
+        .actions { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-bottom: 30px; }
+        .actions h2 { margin-bottom: 20px; color: #333; }
+        .btn { display: inline-block; padding: 10px 20px; background: #667eea; color: white; text-decoration: none; border-radius: 5px; margin-right: 10px; margin-bottom: 10px; }
+        .btn:hover { background: #5a6fd8; }
+        .btn-secondary { background: #6c757d; }
+        .btn-secondary:hover { background: #5a6268; }
+        .btn-success { background: #28a745; }
+        .btn-success:hover { background: #218838; }
+        
+        .search-filters { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-bottom: 30px; }
+        .search-filters h3 { margin-bottom: 15px; color: #333; }
+        .filter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; color: #333; }
+        .form-group input, .form-group select { width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: #667eea; }
+        
+        .clients-table { background: white; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); overflow: hidden; }
+        .table-header { background: #667eea; color: white; padding: 20px; }
+        .table-header h2 { margin: 0; }
+        .table-container { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #f8f9fa; font-weight: 600; color: #333; }
+        tr:hover { background: #f8f9fa; }
+        .contact-info { font-size: 0.9rem; }
+        .contact-info a { color: #667eea; text-decoration: none; }
+        .contact-info a:hover { text-decoration: underline; }
+        .status-badge { padding: 4px 8px; border-radius: 12px; font-size: 0.8rem; font-weight: 600; }
+        .status-suspect { background: #ffeaa7; color: #d63031; }
+        .status-prospect { background: #74b9ff; color: #0984e3; }
+        .status-lead { background: #55a3ff; color: #2d3436; }
+        .status-contract { background: #fd79a8; color: #e84393; }
+        .status-deal { background: #00b894; color: white; }
+        .type-badge { padding: 4px 8px; border-radius: 12px; font-size: 0.8rem; font-weight: 600; background: #ddd; color: #333; }
+        .contact-count { font-size: 0.9rem; color: #666; }
+        .date { color: #666; font-size: 0.9rem; }
+        .actions-cell { white-space: nowrap; }
+        .btn-small { padding: 5px 10px; font-size: 0.8rem; }
+        
+        .empty-state { text-align: center; padding: 50px; color: #666; }
+        .empty-state h3 { margin-bottom: 10px; }
+        
+        .message { padding: 15px; margin-bottom: 20px; border-radius: 5px; }
+        .message.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .message.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        
+        @media (max-width: 768px) {
+            .container { padding: 20px 10px; }
+            .filter-grid { grid-template-columns: 1fr; }
+            th, td { padding: 8px 5px; font-size: 0.9rem; }
+            .btn { display: block; margin-bottom: 10px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Client Management</h1>
+        <p>Manage your client database and track interactions</p>
+    </div>
+    
+    <div class="nav">
+        <a href="/admin">← Back to Admin</a>
+        <a href="/admin/marketing/dashboard">📊 Marketing Dashboard</a>
+        <a href="/admin/clients/dashboard">📈 Client Dashboard</a>
+        <a href="/admin/clients/new" style="background: #667eea; color: white; padding: 8px 15px; border-radius: 5px;">+ Add Client</a>
+        <a href="/admin/clients/import" style="background: #28a745; color: white; padding: 8px 15px; border-radius: 5px;">📥 Import Clients</a>
+    </div>
+    
+    <div class="container">
+        <!-- Flash Messages -->
+        <div th:if="${message}" class="message success" th:text="${message}"></div>
+        <div th:if="${error}" class="message error" th:text="${error}"></div>
+        
+        <!-- Statistics -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3 th:text="${totalClients}">0</h3>
+                <p>Total Clients</p>
+            </div>
+            <div class="stat-card">
+                <h3 th:text="${activeClients}">0</h3>
+                <p>Active Clients</p>
+            </div>
+            <div class="stat-card" th:each="status : ${statusCounts}">
+                <h3 th:text="${status.value}">0</h3>
+                <p th:text="${status.key}">Status</p>
+            </div>
+        </div>
+        
+        <!-- Actions -->
+        <div class="actions">
+            <h2>Quick Actions</h2>
+            <a href="/admin/clients/new" class="btn btn-success">+ Add New Client</a>
+            <a href="/admin/clients/dashboard" class="btn">📊 View Dashboard</a>
+            <a href="/admin/clients/export" class="btn btn-secondary">📥 Export Clients</a>
+            <a href="/admin/marketing/campaigns" class="btn">📧 Email Campaigns</a>
+        </div>
+        
+        <!-- Search and Filters -->
+        <div class="search-filters">
+            <h3>Search & Filter Clients</h3>
+            <form method="GET" action="/admin/clients">
+                <div class="filter-grid">
+                    <div class="form-group">
+                        <label for="search">Search (Name, Email, Phone)</label>
+                        <input type="text" id="search" name="search" th:value="${search}" placeholder="Search clients...">
+                    </div>
+                    <div class="form-group">
+                        <label for="clientType">Client Type</label>
+                        <select id="clientType" name="clientType">
+                            <option value="">All Types</option>
+                            <option value="SELLER" th:selected="${clientType == 'SELLER'}">Seller</option>
+                            <option value="BUYER" th:selected="${clientType == 'BUYER'}">Buyer</option>
+                            <option value="INVESTOR" th:selected="${clientType == 'INVESTOR'}">Investor</option>
+                            <option value="AGENT" th:selected="${clientType == 'AGENT'}">Agent</option>
+                            <option value="VENDOR" th:selected="${clientType == 'VENDOR'}">Vendor</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="clientStatus">Status</label>
+                        <select id="clientStatus" name="clientStatus">
+                            <option value="">All Statuses</option>
+                            <option value="SUSPECT" th:selected="${clientStatus == 'SUSPECT'}">Suspect</option>
+                            <option value="PROSPECT" th:selected="${clientStatus == 'PROSPECT'}">Prospect</option>
+                            <option value="LEAD" th:selected="${clientStatus == 'LEAD'}">Lead</option>
+                            <option value="CONTRACT" th:selected="${clientStatus == 'CONTRACT'}">Contract</option>
+                            <option value="DEAL" th:selected="${clientStatus == 'DEAL'}">Deal</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="leadSource">Lead Source</label>
+                        <select id="leadSource" name="leadSource">
+                            <option value="">All Sources</option>
+                            <option value="WEBSITE" th:selected="${leadSource == 'WEBSITE'}">Website</option>
+                            <option value="REFERRAL" th:selected="${leadSource == 'REFERRAL'}">Referral</option>
+                            <option value="SOCIAL_MEDIA" th:selected="${leadSource == 'SOCIAL_MEDIA'}">Social Media</option>
+                            <option value="COLD_CALL" th:selected="${leadSource == 'COLD_CALL'}">Cold Call</option>
+                            <option value="OPEN_HOUSE" th:selected="${leadSource == 'OPEN_HOUSE'}">Open House</option>
+                            <option value="SIGN" th:selected="${leadSource == 'SIGN'}">Sign</option>
+                            <option value="OTHER" th:selected="${leadSource == 'OTHER'}">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="city">City</label>
+                        <input type="text" id="city" name="city" th:value="${city}" placeholder="Filter by city">
+                    </div>
+                    <div class="form-group">
+                        <label for="state">State</label>
+                        <input type="text" id="state" name="state" th:value="${state}" placeholder="Filter by state">
+                    </div>
+                </div>
+                <button type="submit" class="btn">🔍 Search</button>
+                <a href="/admin/clients" class="btn btn-secondary">Clear Filters</a>
+            </form>
+        </div>
+        
+        <!-- Clients Table -->
+        <div class="clients-table">
+            <div class="table-header">
+                <h2>Client List</h2>
+            </div>
+            <div class="table-container">
+                <table th:if="${not #lists.isEmpty(clients)}">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Contact</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                            <th>Location</th>
+                            <th>Contact History</th>
+                            <th>Lead Source</th>
+                            <th>Added</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="client : ${clients}">
+                            <td>
+                                <strong th:text="${client.fullName}">John Doe</strong>
+                                <div th:if="${client.companyName}" style="font-size: 0.9rem; color: #666;" th:text="${client.companyName}">Company</div>
+                            </td>
+                            <td class="contact-info">
+                                <div><a th:href="'mailto:' + ${client.email}" th:text="${client.email}">email@example.com</a></div>
+                                <div th:if="${client.phoneNumber}"><a th:href="'tel:' + ${client.phoneNumber}" th:text="${client.phoneNumber}">123-456-7890</a></div>
+                            </td>
+                            <td>
+                                <span class="type-badge" th:text="${client.clientType}">BUYER</span>
+                            </td>
+                            <td>
+                                <span class="status-badge" th:class="${'status-' + #strings.toLowerCase(client.clientStatus)}" th:text="${client.clientStatus}">LEAD</span>
+                            </td>
+                            <td>
+                                <div th:if="${client.city}" th:text="${client.city + (client.state ? ', ' + client.state : '')}">City, State</div>
+                                <div th:if="${!client.city && client.state}" th:text="${client.state}">State</div>
+                                <div th:if="${!client.city && !client.state}" style="color: #999;">Not specified</div>
+                            </td>
+                            <td class="contact-count">
+                                <div th:if="${client.totalContactCount > 0}">
+                                    <div th:text="'📧 ' + ${client.emailContactCount} + ' emails'">📧 3 emails</div>
+                                    <div th:text="'📞 ' + ${client.phoneContactCount} + ' calls'">📞 2 calls</div>
+                                    <div th:if="${client.lastContactDate}" th:text="'Last: ' + ${#temporals.format(client.lastContactDate, 'MM/dd/yyyy')}">Last: 01/15/2024</div>
+                                </div>
+                                <div th:if="${client.totalContactCount == 0 || client.totalContactCount == null}" style="color: #999;">
+                                    No contact history
+                                </div>
+                            </td>
+                            <td>
+                                <span th:if="${client.leadSource}" th:text="${client.leadSource}">WEBSITE</span>
+                                <span th:if="${!client.leadSource}" style="color: #999;">Not specified</span>
+                            </td>
+                            <td class="date" th:text="${#temporals.format(client.createdAt, 'MM/dd/yyyy')}">01/15/2024</td>
+                            <td class="actions-cell">
+                                <a th:href="@{/admin/clients/{id}(id=${client.id})}" class="btn btn-small">View</a>
+                                <a th:href="@{/admin/clients/{id}/edit(id=${client.id})}" class="btn btn-small btn-secondary">Edit</a>
+                                <form th:action="@{/admin/clients/{id}/contact(id=${client.id})}" method="POST" style="display: inline;">
+                                    <input type="hidden" name="contactType" value="EMAIL">
+                                    <button type="submit" class="btn btn-small" style="background: #28a745;">📧</button>
+                                </form>
+                                <form th:action="@{/admin/clients/{id}/contact(id=${client.id})}" method="POST" style="display: inline;">
+                                    <input type="hidden" name="contactType" value="PHONE">
+                                    <button type="submit" class="btn btn-small" style="background: #17a2b8;">📞</button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="empty-state" th:if="${#lists.isEmpty(clients)}">
+                    <h3>No clients found</h3>
+                    <p>Try adjusting your search criteria or add your first client.</p>
+                    <a href="/admin/clients/new" class="btn btn-success">+ Add Your First Client</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

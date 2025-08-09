@@ -5,11 +5,16 @@ import com.realestate.sellerfunnel.model.ContentTemplate;
 import com.realestate.sellerfunnel.repository.CampaignRepository;
 import com.realestate.sellerfunnel.repository.CampaignLeadRepository;
 import com.realestate.sellerfunnel.repository.ContentTemplateRepository;
-import com.realestate.sellerfunnel.repository.BuyerRepository;
-import com.realestate.sellerfunnel.repository.SellerRepository;
 import com.realestate.sellerfunnel.service.CampaignPublishingService;
-import com.realestate.sellerfunnel.service.CampaignValidationService;
+import com.realestate.sellerfunnel.service.AIContentGenerationService;
+import com.realestate.sellerfunnel.service.ContentMemoryService;
 import com.realestate.sellerfunnel.service.CampaignPostSubmissionService;
+import com.realestate.sellerfunnel.service.CampaignValidationService;
+import com.realestate.sellerfunnel.model.AIGeneratedContent;
+import com.realestate.sellerfunnel.repository.AIGeneratedContentRepository;
+import com.realestate.sellerfunnel.repository.ClientRepository;
+import com.realestate.sellerfunnel.service.FacebookPostService;
+import com.realestate.sellerfunnel.service.CredentialManagementService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -21,6 +26,12 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.time.LocalDateTime;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.stream.Collectors;
+
+// Rest of the code remains unchanged
+
 
 @Controller
 @RequestMapping("/admin/marketing")
@@ -36,19 +47,31 @@ public class MarketingController {
     private ContentTemplateRepository templateRepository;
 
     @Autowired
-    private BuyerRepository buyerRepository;
-
-    @Autowired
-    private SellerRepository sellerRepository;
+    private CampaignPublishingService campaignPublishingService;
     
     @Autowired
-    private CampaignPublishingService campaignPublishingService;
+    private AIContentGenerationService aiContentGenerationService;
+    
+    @Autowired
+    private ContentMemoryService contentMemoryService;
+    
+    @Autowired
+    private AIGeneratedContentRepository aiGeneratedContentRepository;
+    
+    @Autowired
+    private CampaignPostSubmissionService campaignPostSubmissionService;
     
     @Autowired
     private CampaignValidationService campaignValidationService;
     
     @Autowired
-    private CampaignPostSubmissionService campaignPostSubmissionService;
+    private FacebookPostService facebookPostService;
+    
+    @Autowired
+    private ClientRepository clientRepository;
+    
+    @Autowired
+    private CredentialManagementService credentialManagementService;
 
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
@@ -56,6 +79,20 @@ public class MarketingController {
         model.addAttribute("totalCampaigns", campaignRepository.count());
         model.addAttribute("activeCampaigns", campaignRepository.findActiveCampaigns(LocalDateTime.now()).size());
         model.addAttribute("totalLeads", campaignLeadRepository.count());
+        
+        // Client statistics
+        model.addAttribute("totalClients", clientRepository.count());
+        model.addAttribute("activeClients", clientRepository.findByIsActiveTrueOrderByCreatedAtDesc().size());
+        model.addAttribute("emailOptedInClients", clientRepository.findByEmailOptedInTrueAndIsActiveTrueOrderByCreatedAtDesc().size());
+        
+        // Client status breakdown
+        List<Object[]> statusCounts = clientRepository.countByClientStatus();
+        Map<String, Long> statusMap = statusCounts.stream()
+            .collect(Collectors.toMap(
+                row -> (String) row[0],
+                row -> (Long) row[1]
+            ));
+        model.addAttribute("clientStatusCounts", statusMap);
         
         // Recent campaigns
         model.addAttribute("recentCampaigns", campaignRepository.findAllByOrderByCreatedAtDesc());
@@ -92,6 +129,7 @@ public class MarketingController {
     @GetMapping("/campaigns/new")
     public String newCampaign(Model model) {
         model.addAttribute("campaign", new Campaign());
+        addCampaignFormData(model);
         return "admin/marketing/campaign-form";
     }
 
@@ -199,6 +237,90 @@ public class MarketingController {
         return "redirect:/admin/marketing/campaigns/" + id;
     }
     
+    @PostMapping("/campaigns/{id}/activate")
+    public String activateCampaign(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        Campaign campaign = campaignRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Campaign not found"));
+        
+        boolean activated = campaignPublishingService.activateCampaign(campaign);
+        
+        if (activated) {
+            redirectAttributes.addFlashAttribute("message", "Campaign activated successfully!");
+        } else {
+            redirectAttributes.addFlashAttribute("message", "Failed to activate campaign. Check API configuration.");
+        }
+        
+        return "redirect:/admin/marketing/campaigns/" + id;
+    }
+    
+    @PostMapping("/campaigns/{id}/pause")
+    public String pauseCampaign(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        Campaign campaign = campaignRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Campaign not found"));
+        
+        boolean paused = campaignPublishingService.pauseCampaign(campaign);
+        
+        if (paused) {
+            redirectAttributes.addFlashAttribute("message", "Campaign paused successfully!");
+        } else {
+            redirectAttributes.addFlashAttribute("message", "Failed to pause campaign. Check API configuration.");
+        }
+        
+        return "redirect:/admin/marketing/campaigns/" + id;
+    }
+    
+    @PostMapping("/campaigns/{id}/sync-stats")
+    public String syncCampaignStats(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        Campaign campaign = campaignRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Campaign not found"));
+        
+        try {
+            campaignPublishingService.syncCampaignStats(campaign);
+            redirectAttributes.addFlashAttribute("message", "Campaign statistics synced successfully!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Failed to sync campaign statistics: " + e.getMessage());
+        }
+        
+        return "redirect:/admin/marketing/campaigns/" + id;
+    }
+    
+    @PostMapping("/campaigns/{id}/post-now")
+    public String postToFacebookNow(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        Campaign campaign = campaignRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Campaign not found"));
+        
+        if (!campaign.getType().equals("FACEBOOK_POST") && !campaign.getType().equals("INSTAGRAM")) {
+            redirectAttributes.addFlashAttribute("error", "This campaign type doesn't support direct posting.");
+            return "redirect:/admin/marketing/campaigns/" + id;
+        }
+        
+        if (!credentialManagementService.hasValidCredentials("FACEBOOK")) {
+            // Redirect to credential configuration page
+            redirectAttributes.addFlashAttribute("message", 
+                "Please configure your Facebook API credentials first.");
+            try {
+                String returnUrl = java.net.URLEncoder.encode("/admin/marketing/campaigns/" + id, "UTF-8");
+                return "redirect:/admin/marketing/facebook-credentials?returnUrl=" + returnUrl;
+            } catch (Exception e) {
+                return "redirect:/admin/marketing/facebook-credentials";
+            }
+        }
+        
+        boolean posted = facebookPostService.createPost(campaign);
+        
+        if (posted) {
+            campaign.setStatus("ACTIVE");
+            campaignRepository.save(campaign);
+            redirectAttributes.addFlashAttribute("message", 
+                "Successfully posted to Facebook! Campaign is now active.");
+        } else {
+            redirectAttributes.addFlashAttribute("error", 
+                "Failed to post to Facebook. Please check your API configuration and try again.");
+        }
+        
+        return "redirect:/admin/marketing/campaigns/" + id;
+    }
+    
     @GetMapping("/campaigns/{id}/validate")
     @ResponseBody
     public CampaignValidationService.ValidationResult validateCampaign(@PathVariable Long id) {
@@ -293,7 +415,128 @@ public class MarketingController {
         model.addAttribute("buyerTemplates", templateRepository.findByTargetAudienceAndIsActiveTrueOrderByCreatedAtDesc("BUYERS"));
         model.addAttribute("generalTemplates", templateRepository.findByTargetAudienceAndIsActiveTrueOrderByCreatedAtDesc("BOTH"));
         
+        // Add AI-generated content
+        model.addAttribute("aiSellerContent", aiGeneratedContentRepository.findByContentTypeAndTargetAudienceOrderByCreatedAtDesc("FACEBOOK_POST", "SELLERS"));
+        model.addAttribute("aiBuyerContent", aiGeneratedContentRepository.findByContentTypeAndTargetAudienceOrderByCreatedAtDesc("FACEBOOK_POST", "BUYERS"));
+        
+        // Add content statistics
+        Map<String, Object> contentStats = contentMemoryService.getContentStats();
+        model.addAttribute("contentStats", contentStats);
+        
         return "admin/marketing/content-generator";
+    }
+    
+    @PostMapping("/content-generator/generate")
+    @ResponseBody
+    public Map<String, Object> generateAIContent(@RequestParam String prompt,
+                                                @RequestParam String contentType,
+                                                @RequestParam String targetAudience,
+                                                @RequestParam(required = false) String category,
+                                                @RequestParam(required = false) String context) {
+        
+        try {
+            AIGeneratedContent generatedContent = aiContentGenerationService.generateContent(
+                prompt, contentType, targetAudience, category, context, 3);
+            
+            return Map.of(
+                "success", true,
+                "content", generatedContent,
+                "message", "Content generated successfully!"
+            );
+        } catch (Exception e) {
+            return Map.of(
+                "success", false,
+                "message", "Failed to generate content: " + e.getMessage()
+            );
+        }
+    }
+    
+    @PostMapping("/content-generator/generate-variations")
+    @ResponseBody
+    public Map<String, Object> generateContentVariations(@RequestParam String prompt,
+                                                        @RequestParam String contentType,
+                                                        @RequestParam String targetAudience,
+                                                        @RequestParam(required = false) String category,
+                                                        @RequestParam(required = false) String context,
+                                                        @RequestParam(defaultValue = "3") int count) {
+        
+        try {
+            List<AIGeneratedContent> variations = aiContentGenerationService.generateContentVariations(
+                prompt, contentType, targetAudience, category, context, count);
+            
+            return Map.of(
+                "success", true,
+                "variations", variations,
+                "message", count + " content variations generated successfully!"
+            );
+        } catch (Exception e) {
+            return Map.of(
+                "success", false,
+                "message", "Failed to generate variations: " + e.getMessage()
+            );
+        }
+    }
+    
+    @GetMapping("/content-generator/similarity-check")
+    @ResponseBody
+    public Map<String, Object> checkSimilarity(@RequestParam String content,
+                                              @RequestParam String contentType,
+                                              @RequestParam String targetAudience) {
+        
+        try {
+            List<Map<String, Object>> similarContent = contentMemoryService.findSimilarContent(
+                content, contentType, targetAudience);
+            
+            return Map.of(
+                "success", true,
+                "similarContent", similarContent,
+                "count", similarContent.size()
+            );
+        } catch (Exception e) {
+            return Map.of(
+                "success", false,
+                "message", "Failed to check similarity: " + e.getMessage()
+            );
+        }
+    }
+    
+    @GetMapping("/content-generator/suggestions")
+    @ResponseBody
+    public Map<String, Object> getSuggestions(@RequestParam String contentType,
+                                             @RequestParam String targetAudience) {
+        
+        try {
+            List<String> suggestions = contentMemoryService.getContentSuggestions(contentType, targetAudience);
+            
+            return Map.of(
+                "success", true,
+                "suggestions", suggestions
+            );
+        } catch (Exception e) {
+            return Map.of(
+                "success", false,
+                "message", "Failed to get suggestions: " + e.getMessage()
+            );
+        }
+    }
+    
+    @PostMapping("/content-generator/use-content")
+    @ResponseBody
+    public Map<String, Object> useContent(@RequestParam Long contentId) {
+        
+        try {
+            contentMemoryService.updateContentUsage(contentId);
+            
+            return Map.of(
+                "success", true,
+                "message", "Content usage updated successfully!"
+            );
+        } catch (Exception e) {
+            return Map.of(
+                "success", false,
+                "message", "Failed to update usage: " + e.getMessage()
+            );
+        }
     }
 
     @GetMapping("/analytics")
@@ -327,5 +570,89 @@ public class MarketingController {
         }
         
         return "admin/marketing/analytics";
+    }
+    
+    @GetMapping("/facebook-credentials")
+    public String facebookCredentials(@RequestParam(required = false) String returnUrl, Model model) {
+        model.addAttribute("returnUrl", returnUrl);
+        model.addAttribute("isConfigured", credentialManagementService.hasValidCredentials("FACEBOOK"));
+        
+        // Load existing credentials if available
+        var credentials = credentialManagementService.getFacebookCredentials();
+        if (!credentials.isEmpty()) {
+            // Show partial token for security (first 20 chars + ...)
+            String accessToken = credentials.get("accessToken");
+            if (accessToken != null && accessToken.length() > 20) {
+                model.addAttribute("currentAccessToken", accessToken.substring(0, 20) + "...");
+            }
+            model.addAttribute("currentPageId", credentials.get("pageId"));
+        }
+        
+        return "admin/marketing/facebook-credentials";
+    }
+    
+    @PostMapping("/facebook-credentials")
+    public String saveFacebookCredentials(@RequestParam String accessToken,
+                                        @RequestParam String pageId,
+                                        @RequestParam(required = false) String returnUrl,
+                                        RedirectAttributes redirectAttributes) {
+        try {
+            // Test credentials first
+            if (!credentialManagementService.testFacebookCredentials(accessToken, pageId)) {
+                redirectAttributes.addFlashAttribute("error", "Invalid credentials provided.");
+                if (returnUrl != null) {
+                    redirectAttributes.addAttribute("returnUrl", returnUrl);
+                }
+                return "redirect:/admin/marketing/facebook-credentials";
+            }
+            
+            // Save credentials
+            credentialManagementService.saveFacebookCredentials(accessToken, pageId);
+            redirectAttributes.addFlashAttribute("message", 
+                "Facebook credentials saved successfully! You can now post to Facebook.");
+            
+            // Redirect back to original page or campaigns
+            if (returnUrl != null && !returnUrl.isEmpty()) {
+                return "redirect:" + returnUrl;
+            } else {
+                return "redirect:/admin/marketing/campaigns";
+            }
+            
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", 
+                "Error saving credentials: " + e.getMessage());
+            if (returnUrl != null) {
+                redirectAttributes.addAttribute("returnUrl", returnUrl);
+            }
+            return "redirect:/admin/marketing/facebook-credentials";
+        }
+    }
+    
+    @PostMapping("/facebook-credentials/test")
+    @ResponseBody
+    public Map<String, Object> testFacebookCredentials(@RequestParam String accessToken,
+                                                      @RequestParam String pageId) {
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            boolean isValid = credentialManagementService.testFacebookCredentials(accessToken, pageId);
+            response.put("success", isValid);
+            
+            if (isValid) {
+                response.put("message", "Credentials are valid and working!");
+            } else {
+                response.put("message", "Invalid credentials. Please check your access token and page ID.");
+            }
+            
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Error testing credentials: " + e.getMessage());
+        }
+        
+        return response;
+    }
+
+    private void addCampaignFormData(Model model) {
+        // Add any necessary data for the campaign form dropdowns, etc.
     }
 }

@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mv:*)",
+      "Bash(mkdir:*)",
+      "Bash(sudo apt:*)",
+      "Bash(sudo apt install:*)",
+      "Bash(source:*)",
+      "Bash(sdk install maven:*)",
+      "Bash(sdk install:*)",
+      "Bash(curl:*)",
+      "Bash(pkill:*)",
+      "Bash(kill:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(gh repo create:*)",
+      "Bash(git push:*)",
+      "Bash(find:*)",
+      "Bash(./gradlew:*)",
+      "Bash(java:*)",
+      "Bash(echo $JAVA_HOME)",
+      "Bash(update-alternatives:*)",
+      "Bash(export:*)",
+      "Bash(grep:*)"
+    ],
+    "deny": []
+  }
+}
