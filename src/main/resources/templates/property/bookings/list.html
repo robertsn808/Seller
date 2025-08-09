@@ -53,8 +53,7 @@
     </div>
 </div>
 <div class="container">
-    <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
-    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+    <div th:replace="property/fragments/messages :: flashMessages"></div>
     <div class="page-header">
         <h2>Bookings</h2>
         <div class="filters">
