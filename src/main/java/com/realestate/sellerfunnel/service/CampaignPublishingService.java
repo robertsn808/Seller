@@ -23,6 +23,9 @@ public class CampaignPublishingService {
     @Autowired
     private GoogleAdsService googleAdsService;
     
+    @Autowired(required = false)
+    private GoogleAdsServiceComplete googleAdsServiceComplete;
+    
     @Autowired
     private CampaignRepository campaignRepository;
     
@@ -284,40 +287,43 @@ public class CampaignPublishingService {
     
     public boolean pauseCampaign(Campaign campaign) {
         try {
-            // Update status in external platforms
             boolean success = true;
-            
             switch (campaign.getType()) {
                 case "FACEBOOK":
                     if (campaign.getFacebookCampaignId() != null) {
                         success = facebookAdsService.pauseCampaign(campaign.getFacebookCampaignId());
+                    } else {
+                        logger.warn("Facebook campaign ID not found for campaign: {}", campaign.getName());
+                        success = false;
                     }
                     break;
-                    
                 case "FACEBOOK_POST":
                 case "INSTAGRAM":
-                    // Facebook posts cannot be paused once published
-                    logger.info("Facebook posts cannot be paused once published for campaign: {}", campaign.getName());
+                    logger.info("Facebook/Instagram posts cannot be paused once published for campaign: {}", campaign.getName());
                     break;
-                    
                 case "GOOGLE_ADS":
                 case "GOOGLE_AD":
-                    // Pause Google Ads campaign via API
                     if (campaign.getGoogleAdsCampaignId() != null) {
-                        // TODO: Implement Google Ads pause functionality
-                        logger.info("Google Ads pause functionality not yet implemented for campaign: {}", campaign.getName());
+                        if (googleAdsServiceComplete != null) {
+                            success = googleAdsServiceComplete.pauseCampaign(campaign.getGoogleAdsCampaignId());
+                        } else {
+                            logger.info("Extended Google Ads service not available; cannot pause remotely. Marking locally.");
+                            success = true; // mark locally
+                        }
+                    } else {
+                        logger.warn("Google Ads campaign ID not found for campaign: {}", campaign.getName());
+                        success = false;
                     }
                     break;
+                default:
+                    logger.info("Pause not implemented for type {} - marking as paused locally", campaign.getType());
             }
-            
             if (success) {
                 campaign.setStatus("PAUSED");
                 campaignRepository.save(campaign);
                 logger.info("Campaign {} paused successfully", campaign.getName());
             }
-            
             return success;
-            
         } catch (Exception e) {
             logger.error("Error pausing campaign {}: {}", campaign.getName(), e.getMessage());
             return false;

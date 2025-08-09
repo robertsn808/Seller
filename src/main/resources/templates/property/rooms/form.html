@@ -218,15 +218,14 @@
                 <p th:text="${room.id != null ? 'Update room information and settings' : 'Create a new room in your property management system'}">Create a new room in your property management system</p>
             </div>
 
-            <!-- Validation Errors -->
-            <div th:if="${#fields.hasErrors('*')}" class="alert alert-danger">
-                <strong>Please correct the following errors:</strong>
-                <ul style="margin: 10px 0 0 20px;">
-                    <li th:each="error : ${#fields.allErrors()}" th:text="${error}">Error message</li>
-                </ul>
-            </div>
-
             <form th:action="${room.id} != null ? @{/property/rooms/{id}(id=${room.id})} : @{/property/rooms}" th:object="${room}" method="post">
+                <!-- Validation Errors -->
+                <div th:if="${#fields.hasErrors('*')}" class="alert alert-danger">
+                    <strong>Please correct the following errors:</strong>
+                    <ul style="margin: 10px 0 0 20px;">
+                        <li th:each="error : ${#fields.allErrors()}" th:text="${error}">Error message</li>
+                    </ul>
+                </div>
                 <input type="hidden" th:field="*{id}">
                 <input type="hidden" th:field="*{isActive}">
                 <input type="hidden" th:field="*{isVacant}">

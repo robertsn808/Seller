@@ -186,7 +186,10 @@ public class PropertyManagementController {
             room.setIsActive(true);
             room.setIsVacant(true);
             room.setGateKeyAssigned(false);
-            logger.info("Created new room object with defaults");
+            // Set createdAt and updatedAt to current time to avoid null binding issues in form
+            room.setCreatedAt(java.time.LocalDateTime.now());
+            room.setUpdatedAt(java.time.LocalDateTime.now());
+            logger.info("Created new room object with defaults and timestamps");
             
             model.addAttribute("room", room);
             logger.info("Added room object to model");
