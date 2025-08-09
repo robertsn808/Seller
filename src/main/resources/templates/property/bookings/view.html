@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Booking Details</title>
+</head>
+<body>
+<h1>Booking Details</h1>
+<div><strong>ID:</strong> <span th:text="${booking.id}">1</span></div>
+<div><strong>Room:</strong> <span th:text="${booking.room != null ? booking.room.roomNumber : 'N/A'}">101</span></div>
+<div><strong>Guest:</strong> <span th:text="${booking.guest != null ? booking.guest.firstName + ' ' + booking.guest.lastName : 'N/A'}">Guest Name</span></div>
+<div><strong>Status:</strong> <span th:text="${booking.bookingStatus}">ACTIVE</span></div>
+<div><strong>Payment Status:</strong> <span th:text="${booking.paymentStatus}">PENDING</span></div>
+<div><strong>Check-in:</strong> <span th:text="${booking.checkInDate}">2025-01-01T12:00</span></div>
+<div><strong>Check-out:</strong> <span th:text="${booking.checkOutDate}">2025-01-05T12:00</span></div>
+<div><strong>Expected Check-out:</strong> <span th:text="${booking.expectedCheckOutDate}">2025-01-05</span></div>
+<div><strong>Nights:</strong> <span th:text="${booking.numberOfNights}">0</span></div>
+<div><strong>Nightly Rate:</strong> $<span th:text="${booking.nightlyRate}">0.00</span></div>
+<div><strong>Total Charges:</strong> $<span th:text="${booking.totalCharges}">0.00</span></div>
+<div><strong>Total Payments:</strong> $<span th:text="${booking.totalPayments}">0.00</span></div>
+<div><strong>Balance:</strong> $<span th:text="${booking.currentBalance}">0.00</span></div>
+<div><strong>Special Instructions:</strong> <pre th:text="${booking.specialInstructions}"></pre></div>
+<div><strong>Notes:</strong> <pre th:text="${booking.notes}"></pre></div>
+<p>
+    <a th:href="@{/property/bookings/{id}/edit(id=${booking.id})}">Edit</a> |
+    <form th:action="@{/property/bookings/{id}/checkout(id=${booking.id})}" method="post" style="display:inline" onsubmit="return confirm('Checkout booking?');">
+        <button type="submit">Checkout</button>
+    </form> |
+    <a href="/property/bookings">Back</a>
+</p>
+<h2>Payments</h2>
+<p>
+    <a th:href="@{/property/bookings/{id}/payments/new(id=${booking.id})}">Add Payment</a>
+</p>
+</body>
+</html>

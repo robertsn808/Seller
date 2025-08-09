@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Payment Details</title>
+</head>
+<body>
+<h1>Payment Details</h1>
+<div th:if="${error}" style="color:red" th:text="${error}"></div>
+<div><strong>ID:</strong> <span th:text="${payment.id}">1</span></div>
+<div><strong>Amount:</strong> $<span th:text="${payment.amount}">0.00</span></div>
+<div><strong>Method:</strong> <span th:text="${payment.paymentMethod}">CARD</span></div>
+<div><strong>Status:</strong> <span th:text="${payment.paymentStatus}">PAID</span></div>
+<div><strong>Device:</strong> <span th:text="${payment.deviceType}">smartphone</span> (<span th:text="${payment.deviceId}">id</span>)</div>
+<div><strong>Customer Email:</strong> <span th:text="${payment.customerEmail}">email</span></div>
+<div><strong>Description:</strong> <span th:text="${payment.description}">desc</span></div>
+<div><strong>Created:</strong> <span th:text="${payment.createdAt}">date</span></div>
+<div><strong>Updated:</strong> <span th:text="${payment.updatedAt}">date</span></div>
+<p>
+    <form th:action="@{/property/payments/{id}/refund(id=${payment.id})}" method="post" style="display:inline" onsubmit="return confirm('Refund payment?');">
+        <input type="number" name="refundAmount" step="0.01" placeholder="Refund amount" required>
+        <button type="submit">Refund</button>
+    </form> |
+    <a href="/property/payments">Back</a>
+</p>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Guests - Property Management</title>
+    <link rel="stylesheet" th:href="@{/css/property.css}" />
+</head>
+<body>
+<h1>Guests</h1>
+<div th:if="${message}" style="color:green" th:text="${message}"></div>
+<div th:if="${error}" style="color:red" th:text="${error}"></div>
+<form method="get" action="" style="margin-bottom:1rem;">
+    <input type="text" name="search" placeholder="Search guests" th:value="${search}">
+    <button type="submit">Search</button>
+    <a href="/property/guests/new">Add Guest</a>
+    <a href="/property/dashboard">Dashboard</a>
+</form>
+<table border="1" cellpadding="6" cellspacing="0">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Phone</th>
+        <th>Active</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="g : ${guests}">
+        <td th:text="${g.id}">1</td>
+        <td th:text="${g.firstName + ' ' + g.lastName}">Name</td>
+        <td th:text="${g.email}">email</td>
+        <td th:text="${g.phoneNumber}">phone</td>
+        <td th:text="${g.isActive}">true</td>
+        <td>
+            <a th:href="@{/property/guests/{id}(id=${g.id})}">View</a> |
+            <a th:href="@{/property/guests/{id}/edit(id=${g.id})}">Edit</a> |
+            <form th:action="@{/property/guests/{id}/delete(id=${g.id})}" method="post" style="display:inline" onsubmit="return confirm('Deactivate guest?');">
+                <button type="submit">Deactivate</button>
+            </form>
+        </td>
+    </tr>
+    <tr th:if="${guests == null or #lists.isEmpty(guests)}"><td colspan="6">No guests found.</td></tr>
+    </tbody>
+</table>
+</body>
+</html>
