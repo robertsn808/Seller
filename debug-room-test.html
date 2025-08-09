@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Room Management Test</title>
+</head>
+<body>
+    <h1>Property Management Room Test</h1>
+    
+    <h2>Test Steps:</h2>
+    <ol>
+        <li><a href="http://localhost:8080/property/login" target="_blank">Login to Property Management</a> 
+            <br>Use: admin / admin123</li>
+        <li><a href="http://localhost:8080/property/dashboard" target="_blank">Access Dashboard</a> 
+            <br>This should initialize sample rooms</li>
+        <li><a href="http://localhost:8080/property/rooms" target="_blank">View Rooms List</a> 
+            <br>Should show sample rooms</li>
+        <li><a href="http://localhost:8080/property/rooms/new" target="_blank">Add New Room</a> 
+            <br>Test creating a new room</li>
+        <li>Click "Edit" on any existing room to test editing functionality</li>
+    </ol>
+    
+    <h2>Expected Behavior:</h2>
+    <ul>
+        <li>✅ Login should work</li>
+        <li>✅ Dashboard should initialize 6 sample rooms</li>
+        <li>✅ Rooms list should display all rooms</li>
+        <li>✅ "Add New Room" should allow creating new rooms</li>
+        <li>❌ "Edit Room" should allow updating existing rooms (THIS IS THE ISSUE)</li>
+    </ul>
+    
+    <h2>Debug Information:</h2>
+    <p>Check the console logs in the terminal for debug output when performing actions.</p>
+    
+    <h3>Recent Fixes Applied:</h3>
+    <ul>
+        <li>Added isVacant hidden field to room form</li>
+        <li>Enhanced logging in controller</li>
+        <li>Verified form action URL is correct</li>
+    </ul>
+</body>
+</html>
