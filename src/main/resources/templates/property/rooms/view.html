@@ -264,11 +264,11 @@
                         <h3 class="section-title">Access Codes</h3>
                         <div class="info-row">
                             <span class="info-label">Current Code:</span>
-                            <span class="info-value" th:text="${room.currentCode != null ? room.currentCode : 'Not Set'}">1234</span>
+                            <span class="info-value"><span th:text="${room.currentCode != null ? '••••' : 'Not Set'}">••••</span> <button type="button" onclick="this.previousElementSibling.textContent=this.previousElementSibling.textContent==='••••'? (this.getAttribute('data-code')) : '••••'" th:attr="data-code=${room.currentCode}" style="margin-left:8px; font-size:0.85em;">Show</button></span>
                         </div>
                         <div class="info-row">
                             <span class="info-label">Reset Code:</span>
-                            <span class="info-value" th:text="${room.resetCode != null ? room.resetCode : 'Not Set'}">0000</span>
+                            <span class="info-value"><span th:text="${room.resetCode != null ? '••••' : 'Not Set'}">••••</span> <button type="button" onclick="this.previousElementSibling.textContent=this.previousElementSibling.textContent==='••••'? (this.getAttribute('data-code')) : '••••'" th:attr="data-code=${room.resetCode}" style="margin-left:8px; font-size:0.85em;">Show</button></span>
                         </div>
                         <div class="info-row">
                             <span class="info-label">Gate Key:</span>
@@ -302,6 +302,49 @@
                         <br>
                         <small>Rate: $<span th:text="${#numbers.formatDecimal(booking.nightlyRate, 1, 2)}">150.00</span>/night | 
                         Status: <span th:text="${booking.bookingStatus}">ACTIVE</span></small>
+                    </div>
+                </div>
+
+                <!-- Accounting / Payments Ledger -->
+                <div class="info-section" th:if="${ledgerBooking != null}">
+                    <h3 class="section-title">Accounting</h3>
+                    <div class="info-row">
+                        <span class="info-label">Current Balance:</span>
+                        <span class="info-value">$<span th:text="${#numbers.formatDecimal(ledgerBooking.currentBalance,1,2)}">0.00</span></span>
+                    </div>
+                    <div class="info-row" th:if="${nextDueAmount != null}">
+                        <span class="info-label">Next Payment Due:</span>
+                        <span class="info-value">
+                            $<span th:text="${#numbers.formatDecimal(nextDueAmount,1,2)}">0.00</span>
+                            <span th:if="${nextDueDate != null}"> on <span th:text="${#temporals.format(nextDueDate,'MM/dd/yyyy')}">01/31/2025</span></span>
+                        </span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Payment Frequency:</span>
+                        <span class="info-value" th:text="${ledgerBooking.paymentFrequencyDisplay}">Weekly</span>
+                    </div>
+
+                    <div style="margin-top:15px;">
+                        <h4 class="section-title" style="border:none; padding:0; margin-bottom:10px;">Payment History</h4>
+                        <div th:if="${#lists.isEmpty(ledgerPayments)}" style="color:#666;">No payments recorded yet.</div>
+                        <table th:if="${!#lists.isEmpty(ledgerPayments)}" style="width:100%; border-collapse:collapse;">
+                            <thead>
+                                <tr style="text-align:left; background:#eef1ff;">
+                                    <th style="padding:8px;">Date</th>
+                                    <th style="padding:8px;">Amount</th>
+                                    <th style="padding:8px;">Method</th>
+                                    <th style="padding:8px;">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="p : ${ledgerPayments}">
+                                    <td style="padding:8px; border-bottom:1px solid #f0f0f0;" th:text="${#temporals.format(p.createdAt,'MM/dd/yyyy HH:mm')}">01/01/2025 12:00</td>
+                                    <td style="padding:8px; border-bottom:1px solid #f0f0f0;"><strong>$</strong><span th:text="${#numbers.formatDecimal(p.amount,1,2)}">0.00</span></td>
+                                    <td style="padding:8px; border-bottom:1px solid #f0f0f0;" th:text="${p.paymentMethodDisplay}">Cash</td>
+                                    <td style="padding:8px; border-bottom:1px solid #f0f0f0;" th:text="${p.paymentStatus}">COMPLETED</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
