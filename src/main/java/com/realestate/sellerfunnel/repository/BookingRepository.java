@@ -87,6 +87,6 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     @Query("SELECT b FROM Booking b WHERE b.isActive = true AND b.checkInDate <= :date AND b.checkOutDate IS NULL AND b.bookingStatus = 'ACTIVE'")
     List<Booking> findExtendedStayBookings(@Param("date") LocalDateTime date);
     
-    @Query("SELECT b FROM Booking b WHERE b.room = :room AND b.bookingStatus IN ('BOOKED','CHECKED_IN')")
+    @Query("SELECT b FROM Booking b WHERE b.room = :room AND b.isActive = true AND b.bookingStatus = 'ACTIVE'")
     Optional<Booking> findActiveBookingByRoom(@Param("room") Room room);
 }

@@ -10,9 +10,9 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-public class CampaignPublishingService {
+public class CampaignPublishingServiceFixed {
     
-    private static final Logger logger = LoggerFactory.getLogger(CampaignPublishingService.class);
+    private static final Logger logger = LoggerFactory.getLogger(CampaignPublishingServiceFixed.class);
     
     @Autowired
     private FacebookAdsService facebookAdsService;
@@ -21,10 +21,7 @@ public class CampaignPublishingService {
     private FacebookPostService facebookPostService;
     
     @Autowired
-    private GoogleAdsService googleAdsService;
-    
-    @Autowired
-    private GoogleAdsServiceEnhanced googleAdsServiceEnhanced;
+    private GoogleAdsServiceComplete googleAdsServiceComplete;
     
     @Autowired
     private CampaignRepository campaignRepository;
@@ -128,14 +125,14 @@ public class CampaignPublishingService {
     }
     
     private boolean publishToGoogleAds(Campaign campaign) {
-        if (!googleAdsService.isConfigured()) {
+        if (!googleAdsServiceComplete.isConfigured()) {
             logger.info("Google Ads API not configured. Campaign saved locally only.");
             return true; // Don't fail if API isn't configured
         }
         
         try {
             // Create Google Ads campaign structure
-            boolean campaignCreated = googleAdsService.createCampaign(campaign);
+            boolean campaignCreated = googleAdsServiceComplete.createCampaign(campaign);
             
             if (campaignCreated) {
                 logger.info("Google Ads campaign created for: {}", campaign.getName());
@@ -265,14 +262,7 @@ public class CampaignPublishingService {
                 case "GOOGLE_AD":
                     // Activate Google Ads campaign via API
                     if (campaign.getGoogleAdsCampaignId() != null) {
-                        success = googleAdsServiceEnhanced.activateCampaign(campaign.getGoogleAdsCampaignId());
-                        if (success) {
-                            logger.info("Google Ads campaign {} activated successfully", campaign.getName());
-                        } else {
-                            logger.warn("Failed to activate Google Ads campaign: {}", campaign.getName());
-                        }
-                    } else {
-                        logger.warn("No Google Ads campaign ID found for campaign: {}", campaign.getName());
+                        success = googleAdsServiceComplete.activateCampaign(campaign.getGoogleAdsCampaignId());
                     }
                     break;
             }
@@ -293,43 +283,39 @@ public class CampaignPublishingService {
     
     public boolean pauseCampaign(Campaign campaign) {
         try {
+            // Update status in external platforms
             boolean success = true;
+            
             switch (campaign.getType()) {
                 case "FACEBOOK":
                     if (campaign.getFacebookCampaignId() != null) {
                         success = facebookAdsService.pauseCampaign(campaign.getFacebookCampaignId());
-                    } else {
-                        logger.warn("Facebook campaign ID not found for campaign: {}", campaign.getName());
-                        success = false;
                     }
                     break;
+                    
                 case "FACEBOOK_POST":
                 case "INSTAGRAM":
-                    logger.info("Facebook/Instagram posts cannot be paused once published for campaign: {}", campaign.getName());
+                    // Facebook posts cannot be paused once published
+                    logger.info("Facebook posts cannot be paused once published for campaign: {}", campaign.getName());
                     break;
+                    
                 case "GOOGLE_ADS":
                 case "GOOGLE_AD":
+                    // Pause Google Ads campaign via API
                     if (campaign.getGoogleAdsCampaignId() != null) {
-                        success = googleAdsServiceEnhanced.pauseCampaign(campaign.getGoogleAdsCampaignId());
-                        if (success) {
-                            logger.info("Google Ads campaign {} paused successfully", campaign.getName());
-                        } else {
-                            logger.warn("Failed to pause Google Ads campaign: {}", campaign.getName());
-                        }
-                    } else {
-                        logger.warn("Google Ads campaign ID not found for campaign: {}", campaign.getName());
-                        success = false;
+                        success = googleAdsServiceComplete.pauseCampaign(campaign.getGoogleAdsCampaignId());
                     }
                     break;
-                default:
-                    logger.info("Pause not implemented for type {} - marking as paused locally", campaign.getType());
             }
+            
             if (success) {
                 campaign.setStatus("PAUSED");
                 campaignRepository.save(campaign);
                 logger.info("Campaign {} paused successfully", campaign.getName());
             }
+            
             return success;
+            
         } catch (Exception e) {
             logger.error("Error pausing campaign {}: {}", campaign.getName(), e.getMessage());
             return false;
