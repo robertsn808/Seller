@@ -223,14 +223,55 @@ public class PropertyManagementController {
             logger.info("Found room: {} - {}", room.getRoomNumber(), room.getRoomName());
             
             // Get current booking if room is occupied
-            Optional<Booking> currentBooking = bookingRepository.findActiveBookingByRoom(room);
+            Optional<Booking> currentBookingOpt = bookingRepository.findActiveBookingByRoom(room);
+            Booking currentBooking = currentBookingOpt.orElse(null);
             
             // Get booking history
             List<Booking> bookingHistory = bookingRepository.findByRoomAndIsActiveTrueOrderByCreatedAtDesc(room);
             
+            // Determine ledger booking (use current if exists, else most recent)
+            Booking ledgerBooking = currentBooking != null ? currentBooking : (bookingHistory.isEmpty() ? null : bookingHistory.get(0));
+            
+            // Compute next due date and amount if we have a booking
+            LocalDateTime nextDueDate = null;
+            BigDecimal nextDueAmount = null;
+            if (ledgerBooking != null) {
+                String frequency = ledgerBooking.getPaymentFrequency();
+                BigDecimal nightly = ledgerBooking.getNightlyRate();
+                if (frequency != null && nightly != null) {
+                    switch (frequency.toUpperCase()) {
+                        case "DAILY":
+                            nextDueDate = LocalDateTime.now().withHour(23).withMinute(59).withSecond(59);
+                            nextDueAmount = nightly;
+                            break;
+                        case "WEEKLY":
+                            nextDueDate = LocalDateTime.now().plusWeeks(1);
+                            nextDueAmount = nightly.multiply(new BigDecimal("7"));
+                            break;
+                        case "MONTHLY":
+                            nextDueDate = LocalDateTime.now().plusMonths(1);
+                            // Approximate month at 30 nights for simplicity
+                            nextDueAmount = nightly.multiply(new BigDecimal("30"));
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+            
+            // Load payments for ledger booking
+            List<Payment> ledgerPayments = java.util.Collections.emptyList();
+            if (ledgerBooking != null) {
+                ledgerPayments = paymentRepository.findByBookingIdAndIsActiveTrueOrderByCreatedAtDesc(ledgerBooking.getId());
+            }
+            
             model.addAttribute("room", room);
-            model.addAttribute("currentBooking", currentBooking.orElse(null));
+            model.addAttribute("currentBooking", currentBooking);
             model.addAttribute("bookingHistory", bookingHistory);
+            model.addAttribute("ledgerBooking", ledgerBooking);
+            model.addAttribute("ledgerPayments", ledgerPayments);
+            model.addAttribute("nextDueDate", nextDueDate);
+            model.addAttribute("nextDueAmount", nextDueAmount);
             return "property/rooms/view";
         } catch (Exception e) {
             logger.error("Error viewing room {}: {}", id, e.getMessage(), e);

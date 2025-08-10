@@ -275,11 +275,11 @@
                     </div>
                     <div class="info-row">
                         <span class="info-label">Current Code:</span>
-                        <span class="info-value" th:text="${room.currentCode != null ? room.currentCode : 'Not Set'}">1234</span>
+                        <span class="info-value"><span th:text="${room.currentCode != null ? '••••' : 'Not Set'}">••••</span> <button type="button" onclick="this.previousElementSibling.textContent=this.previousElementSibling.textContent==='••••'? (this.getAttribute('data-code')) : '••••'" th:attr="data-code=${room.currentCode}" style="margin-left:8px; font-size:0.85em;">Show</button></span>
                     </div>
                     <div class="info-row">
                         <span class="info-label">Reset Code:</span>
-                        <span class="info-value" th:text="${room.resetCode != null ? room.resetCode : 'Not Set'}">0000</span>
+                        <span class="info-value"><span th:text="${room.resetCode != null ? '••••' : 'Not Set'}">••••</span> <button type="button" onclick="this.previousElementSibling.textContent=this.previousElementSibling.textContent==='••••'? (this.getAttribute('data-code')) : '••••'" th:attr="data-code=${room.resetCode}" style="margin-left:8px; font-size:0.85em;">Show</button></span>
                     </div>
                     <div class="info-row">
                         <span class="info-label">Gate Key:</span>
