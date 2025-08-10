@@ -7,6 +7,7 @@ import com.realestate.sellerfunnel.repository.BuyerRepository;
 import com.realestate.sellerfunnel.repository.SellerRepository;
 import com.realestate.sellerfunnel.repository.ClientRepository;
 import com.realestate.sellerfunnel.service.FileUploadService;
+import com.realestate.sellerfunnel.service.PersonalFollowUpService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -35,6 +36,9 @@ public class HomeController {
     
     @Autowired
     private ClientRepository clientRepository;
+    
+    @Autowired
+    private PersonalFollowUpService personalFollowUpService;
 
     @GetMapping("/")
     public String home() {
@@ -60,6 +64,9 @@ public class HomeController {
         
         // Create or update client record
         createOrUpdateClientFromBuyer(savedBuyer);
+        
+        // Send personal follow-up email and SMS
+        personalFollowUpService.sendBuyerFollowUp(savedBuyer);
         
         redirectAttributes.addFlashAttribute("message", "Thank you! Your buyer information has been submitted successfully.");
         return "redirect:/buyer/success";
@@ -91,6 +98,9 @@ public class HomeController {
             
             // Create or update client record
             createOrUpdateClientFromSeller(savedSeller);
+            
+            // Send personal follow-up email and SMS
+            personalFollowUpService.sendSellerFollowUp(savedSeller);
             
             // Then save photos
             if (photos != null && !photos.isEmpty()) {
