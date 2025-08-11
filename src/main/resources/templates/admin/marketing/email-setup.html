@@ -201,7 +201,7 @@
             <div class="col-md-10">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h1><i class="fas fa-envelope-open-text me-3"></i>DKIM Email Configuration</h1>
-                    <div class="status-badge" th:classappend="${configurationComplete} ? 'bg-success' : 'bg-warning'">
+                    <div class="status-badge" th:classappend="${configurationComplete ? 'bg-success' : 'bg-warning'}">
                         <i class="fas fa-circle me-2"></i>
                         <span th:text="${configurationStatus}">Configuration Status</span>
                     </div>
