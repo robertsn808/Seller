@@ -2,11 +2,11 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title th:text="${booking.id} != null ? 'Edit Booking' : 'New Booking'">Booking Form</title>
+    <title th:text="${booking.id != null ? 'Edit Booking' : 'New Booking'}">Booking Form</title>
     <link rel="stylesheet" th:href="@{/css/property.css}" />
 </head>
 <body>
-<h1 th:text="${booking.id} != null ? 'Edit Booking' : 'New Booking'">Booking Form</h1>
+<h1 th:text="${booking.id != null ? 'Edit Booking' : 'New Booking'}">Booking Form</h1>
 <div th:if="${#fields.hasErrors('*')}">
     <p style="color:red;">Please correct the following:</p>
     <ul>
@@ -35,7 +35,7 @@
     </select></label><br>
     <label>Special Instructions <textarea th:field="*{specialInstructions}"></textarea></label><br>
     <label>Notes <textarea th:field="*{notes}"></textarea></label><br>
-    <button type="submit" th:text="${booking.id} != null ? 'Update Booking' : 'Create Booking'">Save</button>
+    <button type="submit" th:text="${booking.id != null ? 'Update Booking' : 'Create Booking'}">Save</button>
     <a href="/property/bookings">Cancel</a>
 </form>
 </body>
