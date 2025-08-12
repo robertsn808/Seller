@@ -10,7 +10,7 @@
 <div th:if="${#fields.hasErrors()}">
     <p style="color:red" th:each="err : ${#fields.errors('*')}" th:text="${err}"></p>
 </div>
-<form th:action="${guest.id} == null ? @{/property/guests} : @{/property/guests/{id}(id=${guest.id})}" method="post" th:object="${guest}">
+<form th:action="@{/property/guests}" method="post" th:object="${guest}">
     <input type="hidden" th:field="*{id}" />
     <label>First Name: <input th:field="*{firstName}" required></label><br>
     <label>Last Name: <input th:field="*{lastName}" required></label><br>
