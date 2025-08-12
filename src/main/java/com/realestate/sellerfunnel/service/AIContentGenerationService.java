@@ -78,8 +78,8 @@ public class AIContentGenerationService {
                 String generatedContent = generateWithAI(prompt, contentType, targetAudience, 
                                                        category, context, existingContent, suggestions, attempt);
                 
-                // Check if content is too similar to existing content
-                if (!contentMemoryService.isContentTooSimilar(generatedContent, contentType, targetAudience, 0.7)) {
+                // Check if content is too similar to existing content (stricter threshold for variations)
+                if (!contentMemoryService.isContentTooSimilar(generatedContent, contentType, targetAudience, 0.6)) {
                     // Create and save the new content
                     AIGeneratedContent aiContent = new AIGeneratedContent();
                     aiContent.setPrompt(prompt);
@@ -96,7 +96,7 @@ public class AIContentGenerationService {
                     return aiGeneratedContentRepository.save(aiContent);
                 } else {
                     // Content is too similar, try again with different instructions
-                    prompt += " Make this content more unique and different from typical real estate content.";
+                    prompt += " Make this content completely different using alternative wording, structure, and approach. Avoid repeating phrases or concepts from previous attempts.";
                 }
             } catch (Exception e) {
                 // If AI generation fails, fall back to template-based generation
@@ -172,8 +172,11 @@ public class AIContentGenerationService {
         
         // Add attempt-specific instructions
         if (attempt > 1) {
-            systemPrompt.append("\nThis is attempt ").append(attempt).append(". Make the content more unique and different from typical real estate content.\n");
+            systemPrompt.append("\nThis is attempt ").append(attempt).append(". Make the content more unique and different from typical real estate content. Use different wording, structure, and approach.\n");
         }
+        
+        // Add randomization for better variation
+        systemPrompt.append("\nUse creative and varied language. Avoid clichés and generic phrases.");
         
         String userPrompt = "Generate content for: " + prompt;
         if (context != null && !context.isEmpty()) {
@@ -192,7 +195,8 @@ public class AIContentGenerationService {
             .model(getEffectiveModel())
             .messages(messages)
             .maxTokens(500)
-            .temperature(0.8)
+            .temperature(0.9) // Higher temperature for more variation
+            .topP(0.9) // Add top-p sampling for more diversity
             .build();
         
         String response = getOpenAiService().createChatCompletion(request)
@@ -289,11 +293,34 @@ public class AIContentGenerationService {
                                                              String context, int count) {
         List<AIGeneratedContent> variations = new ArrayList<>();
         
+        // Different approaches for each variation
+        String[] approaches = {
+            "Create a direct and urgent approach",
+            "Use a friendly and conversational tone", 
+            "Focus on benefits and value proposition",
+            "Emphasize urgency and scarcity",
+            "Use storytelling and emotional appeal"
+        };
+        
+        String[] styles = {
+            "professional and trustworthy",
+            "casual and approachable", 
+            "urgent and action-oriented",
+            "empathetic and understanding",
+            "confident and authoritative"
+        };
+        
         for (int i = 0; i < count; i++) {
-            String variationPrompt = prompt + " (Variation " + (i + 1) + ")";
-            AIGeneratedContent variation = generateContent(variationPrompt, contentType, targetAudience, 
-                                                         category, context, 3);
-            variations.add(variation);
+            String approach = approaches[i % approaches.length];
+            String style = styles[i % styles.length];
+            
+            String enhancedPrompt = prompt + ". " + approach + " with a " + style + " style. Make this variation unique and different from typical real estate content.";
+            
+            AIGeneratedContent variation = generateContent(enhancedPrompt, contentType, targetAudience, 
+                                                         category, context, 2);
+            if (variation != null) {
+                variations.add(variation);
+            }
         }
         
         return variations;
