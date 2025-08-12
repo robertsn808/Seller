@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -181,7 +180,6 @@ public class PersonalFollowUpService {
      */
     private String createSellerEmailContent(Seller seller, String firstName) {
         String timeOfDay = getTimeOfDayGreeting();
-        String propertyValue = seller.getAskingPrice() != null ? "$" + String.format("%,.0f", seller.getAskingPrice().doubleValue()) : "your property";
         
         return String.format("""
             <!DOCTYPE html>
