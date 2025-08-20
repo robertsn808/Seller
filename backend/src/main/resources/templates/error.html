@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error - Property Management</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f8f9fa;
+            color: #333;
+            text-align: center;
+            padding: 50px;
+        }
+        .error-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .error-code {
+            font-size: 4rem;
+            color: #dc3545;
+            margin-bottom: 20px;
+        }
+        .error-message {
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+            color: #666;
+        }
+        .debug-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            text-align: left;
+            margin: 20px 0;
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 10px;
+        }
+        .btn:hover {
+            background: #0056b3;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="error-code" th:text="${status ?: '500'}">500</div>
+        <div class="error-message" th:text="${error ?: 'Internal Server Error'}">Internal Server Error</div>
+        
+        <p>Something went wrong with your request.</p>
+        
+        <div class="debug-info" th:if="${message}">
+            <strong>Details:</strong><br>
+            <span th:text="${message}">Error details</span>
+        </div>
+        
+        <div class="debug-info" th:if="${path}">
+            <strong>Request Path:</strong> <span th:text="${path}">path</span><br>
+            <strong>Timestamp:</strong> <span th:text="${timestamp}">timestamp</span>
+        </div>
+        
+        <div>
+            <a href="/property/dashboard" class="btn">Property Dashboard</a>
+            <a href="/property/rooms" class="btn">Room Management</a>
+            <a href="/property/login" class="btn">Login</a>
+        </div>
+    </div>
+</body>
+</html>

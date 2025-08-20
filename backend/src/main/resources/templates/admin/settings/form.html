@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - Real Estate Connect</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; }
+        .header { background: linear-gradient(45deg, #667eea, #764ba2); color: white; padding: 20px; text-align: center; }
+        .nav { background: white; padding: 15px 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .nav a { color: #667eea; text-decoration: none; margin-right: 30px; font-weight: 600; }
+        .container { max-width: 1000px; margin: 0 auto; padding: 30px 20px; }
+        .card { background: white; padding: 25px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        h2 { margin-bottom: 15px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 15px; }
+        label { font-weight: 600; margin-bottom: 6px; display: block; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; }
+        .actions { text-align: center; margin-top: 20px; }
+        .btn { display: inline-block; padding: 12px 24px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        .message { padding: 12px; border-radius: 6px; margin-bottom: 15px; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+    </style>
+</head>
+<body>
+<div class="header">
+    <h1>Application Settings</h1>
+    <p>Configure credentials and providers</p>
+</div>
+<div class="nav">
+    <a href="/admin">← Back to Admin</a>
+</div>
+<div class="container">
+    <div th:if="${message}" class="message success" th:text="${message}"></div>
+
+    <form th:action="@{/admin/settings}" th:object="${settings}" method="post">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+        <div class="card">
+            <h2>OpenAI</h2>
+            <div class="grid">
+                <div>
+                    <label>API Key</label>
+                    <input type="password" th:field="*{openaiApiKey}" placeholder="sk-..." />
+                </div>
+                <div>
+                    <label>Model</label>
+                    <input type="text" th:field="*{openaiModel}" placeholder="gpt-3.5-turbo" />
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Twilio (SMS)</h2>
+            <div class="grid">
+                <div>
+                    <label>Account SID</label>
+                    <input type="text" th:field="*{twilioAccountSid}" />
+                </div>
+                <div>
+                    <label>Auth Token</label>
+                    <input type="password" th:field="*{twilioAuthToken}" />
+                </div>
+                <div>
+                    <label>Phone Number</label>
+                    <input type="text" th:field="*{twilioPhoneNumber}" placeholder="+1..." />
+                </div>
+                <div>
+                    <label>Messaging Service SID</label>
+                    <input type="text" th:field="*{twilioMessagingServiceSid}" />
+                </div>
+                <div>
+                    <label>Status Callback URL</label>
+                    <input type="text" th:field="*{twilioStatusCallbackUrl}" placeholder="https://..." />
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Email / SMTP</h2>
+            <div class="grid">
+                <div>
+                    <label>Provider</label>
+                    <select th:field="*{emailProvider}">
+                        <option value="smtp">SMTP</option>
+                        <option value="ses">AWS SES</option>
+                        <option value="sendgrid">SendGrid</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Host</label>
+                    <input type="text" th:field="*{emailHost}" />
+                </div>
+                <div>
+                    <label>Port</label>
+                    <input type="number" th:field="*{emailPort}" />
+                </div>
+                <div>
+                    <label>Username</label>
+                    <input type="text" th:field="*{emailUsername}" />
+                </div>
+                <div>
+                    <label>Password</label>
+                    <input type="password" th:field="*{emailPassword}" />
+                </div>
+                <div>
+                    <label>Sender Name</label>
+                    <input type="text" th:field="*{emailSenderName}" />
+                </div>
+                <div>
+                    <label>Sender Email</label>
+                    <input type="email" th:field="*{emailSenderEmail}" />
+                </div>
+                <div>
+                    <label>Reply-To</label>
+                    <input type="email" th:field="*{emailReplyTo}" />
+                </div>
+                <div>
+                    <label>From Domain</label>
+                    <input type="text" th:field="*{emailFromDomain}" />
+                </div>
+                <div>
+                    <label>AWS SES Region</label>
+                    <input type="text" th:field="*{awsSesRegion}" placeholder="us-east-1" />
+                </div>
+                <div>
+                    <label>SendGrid API Key</label>
+                    <input type="password" th:field="*{sendgridApiKey}" />
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>DKIM</h2>
+            <div class="grid">
+                <div>
+                    <label>Enabled</label>
+                    <select th:field="*{dkimEnabled}">
+                        <option th:value="true">True</option>
+                        <option th:value="false">False</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Domain</label>
+                    <input type="text" th:field="*{dkimDomain}" />
+                </div>
+                <div>
+                    <label>Selector</label>
+                    <input type="text" th:field="*{dkimSelector}" placeholder="default" />
+                </div>
+                <div>
+                    <label>Private Key Path</label>
+                    <input type="text" th:field="*{dkimPrivateKeyPath}" />
+                </div>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button type="submit" class="btn">Save Settings</button>
+        </div>
+    </form>
+</div>
+</body>
+</html>

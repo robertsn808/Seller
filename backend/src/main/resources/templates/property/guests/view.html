@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Guest Details</title>
+</head>
+<body>
+<h1>Guest Details</h1>
+<div><strong>Name:</strong> <span th:text="${guest.firstName + ' ' + guest.lastName}">Name</span></div>
+<div><strong>Email:</strong> <span th:text="${guest.email}">email</span></div>
+<div><strong>Phone:</strong> <span th:text="${guest.phoneNumber}">phone</span></div>
+<div><strong>ID:</strong> <span th:text="${guest.idType}">type</span> <span th:text="${guest.idNumber}">number</span></div>
+<div><strong>Vehicle:</strong> <span th:text="${guest.vehicleMakeModel}">vehicle</span> (<span th:text="${guest.vehicleLicensePlate}">plate</span>)</div>
+<div><strong>Emergency Contact:</strong> <span th:text="${guest.emergencyContactName}">EC</span> (<span th:text="${guest.emergencyContactPhone}">phone</span>)</div>
+<div><strong>Relationship:</strong> <span th:text="${guest.emergencyContactRelationship}">rel</span></div>
+<div><strong>Special Requests:</strong> <pre th:text="${guest.specialRequests}"></pre></div>
+<h2>Current Bookings</h2>
+<ul>
+    <li th:each="b : ${currentBookings}">
+        <a th:href="@{/property/bookings/{id}(id=${b.id})}" th:text="${'Booking #' + b.id}">Booking</a>
+    </li>
+    <li th:if="${#lists.isEmpty(currentBookings)}">None</li>
+</ul>
+<h2>Booking History</h2>
+<ul>
+    <li th:each="b : ${bookingHistory}">
+        <a th:href="@{/property/bookings/{id}(id=${b.id})}" th:text="${'Booking #' + b.id}">Booking</a>
+    </li>
+    <li th:if="${#lists.isEmpty(bookingHistory)}">None</li>
+</ul>
+<p>
+    <a th:href="@{/property/guests/{id}/edit(id=${guest.id})}">Edit Guest</a> |
+    <a href="/property/guests">Back to Guests</a>
+</p>
+</body>
+</html>

@@ -22,8 +22,30 @@
       "Bash(update-alternatives:*)",
       "Bash(export:*)",
       "Bash(grep:*)",
-      "Bash(git pull:*)"
+      "Bash(git pull:*)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:api.github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(git clone:*)",
+      "Bash(./mvnw clean:*)",
+      "Bash(npm install)",
+      "Bash(cp:*)",
+      "Bash(git init:*)",
+      "Bash(echo \"1. git remote add origin https://github.com/YOUR_USERNAME/unified-crm.git\n2. git branch -M main  \n3. git push -u origin main\n\nReplace YOUR_USERNAME with your actual GitHub username.\")",
+      "Bash(git remote add:*)",
+      "Bash(git config:*)",
+      "Bash(./mvnw:*)",
+      "Bash(npm run dev:*)",
+      "Bash(npm init:*)",
+      "Bash(npm install:*)",
+      "Bash(npx vite client:*)",
+      "Bash(python3:*)"
     ],
-    "deny": []
+    "deny": [],
+    "defaultMode": "acceptEdits",
+    "additionalDirectories": [
+      "/tmp/unified-crm",
+      "/tmp/unified-crm-clean"
+    ]
   }
 }

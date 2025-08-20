@@ -8,6 +8,7 @@ import com.realestate.sellerfunnel.repository.GuestRepository;
 import com.realestate.sellerfunnel.repository.BookingRepository;
 import com.realestate.sellerfunnel.repository.PaymentRepository;
 import com.realestate.sellerfunnel.service.PaymentService;
+import com.realestate.sellerfunnel.service.TransactionService;
 import com.realestate.sellerfunnel.service.UniversalPaymentProtocolService;
 import com.realestate.sellerfunnel.model.Payment;
 import jakarta.validation.Valid;
@@ -49,6 +50,9 @@ public class PropertyManagementController {
 
     @Autowired
     private PaymentService paymentService;
+
+    @Autowired
+    private TransactionService transactionService;
 
     // Helper method to check authentication
     private boolean isPropertyAuthenticated(HttpSession session) {
@@ -268,10 +272,6 @@ public class PropertyManagementController {
             model.addAttribute("room", room);
             model.addAttribute("currentBooking", currentBooking);
             model.addAttribute("bookingHistory", bookingHistory);
-            model.addAttribute("ledgerBooking", ledgerBooking);
-            model.addAttribute("ledgerPayments", ledgerPayments);
-            model.addAttribute("nextDueDate", nextDueDate);
-            model.addAttribute("nextDueAmount", nextDueAmount);
             return "property/rooms/view";
         } catch (Exception e) {
             logger.error("Error viewing room {}: {}", id, e.getMessage(), e);
@@ -441,6 +441,26 @@ public class PropertyManagementController {
         
         redirectAttributes.addFlashAttribute("message", "Room deactivated successfully!");
         return "redirect:/property/rooms";
+    }
+
+    @PostMapping("/rooms/{id}/transactions")
+    public String addTransaction(@PathVariable Long id,
+                                 @RequestParam String description,
+                                 @RequestParam BigDecimal amount,
+                                 @RequestParam String paidBy,
+                                 HttpSession session,
+                                 RedirectAttributes redirectAttributes) {
+        String authCheck = redirectToLoginIfNotAuthenticated(session);
+        if (authCheck != null) return authCheck;
+
+        try {
+            transactionService.addTransaction(id, description, amount, paidBy);
+            redirectAttributes.addFlashAttribute("message", "Transaction added successfully!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Error adding transaction: " + e.getMessage());
+        }
+
+        return "redirect:/property/rooms/" + id;
     }
 
     // Guest Management
@@ -1187,3 +1207,4 @@ public class PropertyManagementController {
         }
     }
 }
+

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${booking.id != null ? 'Edit Booking' : 'New Booking'}">Booking Form</title>
+    <link rel="stylesheet" th:href="@{/css/property.css}" />
+</head>
+<body>
+<h1 th:text="${booking.id != null ? 'Edit Booking' : 'New Booking'}">Booking Form</h1>
+<form th:action="${booking.id == null ? @{/property/bookings} : @{/property/bookings/{id}(id=${booking.id})}}" method="post" th:object="${booking}">
+    <div th:if="${#fields.hasErrors('*')}">
+        <p style="color:red;">Please correct the following:</p>
+        <ul>
+            <li th:each="err : ${#fields.allErrors()}" th:text="${err}">Error</li>
+        </ul>
+    </div>
+    <input type="hidden" th:field="*{id}">
+    <label>Room* <select th:field="*{room}" required>
+        <option value="">--Select--</option>
+        <option th:each="r : ${availableRooms}" th:value="${r.id}" th:text="${r.roomNumber + ' - ' + r.roomType}"></option>
+    </select></label><br>
+    <label>Guest* <select th:field="*{guest}" required>
+        <option value="">--Select--</option>
+        <option th:each="g : ${activeGuests}" th:value="${g.id}" th:text="${g.firstName + ' ' + g.lastName}"></option>
+    </select></label><br>
+    <label>Check-in <input type="datetime-local" th:field="*{checkInDate}"></label><br>
+    <label>Expected Check-out <input type="datetime-local" th:field="*{expectedCheckOutDate}"></label><br>
+    <label>Nightly Rate* <input type="number" step="0.01" th:field="*{nightlyRate}" required></label><br>
+    <label>Payment Frequency <select th:field="*{paymentFrequency}">
+        <option value="">--</option>
+        <option th:each="p : ${paymentFrequencies}" th:value="${p.key}" th:text="${p.value}"></option>
+    </select></label><br>
+    <label>Status <select th:field="*{bookingStatus}">
+        <option th:each="s : ${bookingStatuses}" th:value="${s.key}" th:text="${s.value}"></option>
+    </select></label><br>
+    <label>Special Instructions <textarea th:field="*{specialInstructions}"></textarea></label><br>
+    <label>Notes <textarea th:field="*{notes}"></textarea></label><br>
+    <button type="submit" th:text="${booking.id != null ? 'Update Booking' : 'Create Booking'}">Save</button>
+    <a href="/property/bookings">Cancel</a>
+</form>
+</body>
+</html>

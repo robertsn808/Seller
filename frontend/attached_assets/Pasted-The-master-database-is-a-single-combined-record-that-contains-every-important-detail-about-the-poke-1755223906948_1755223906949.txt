@@ -1,0 +1,20 @@
+The master database is a single, combined record that contains every important detail about the poke shop’s business activities in one place. Instead of splitting the information into separate tables for customers, orders, menu items, inventory, marketing, and AI insights, all of that data is stored together in one large table.
+
+This table is divided into five main sections:
+1. Customer Information – Who is making the purchase.
+This section holds customer IDs, names, contact details, loyalty points, and information on favorite items.
+2. Order Details – What was purchased and how.
+It includes order numbers, dates, sales channels (like in-store, online, or delivery), payment methods, and total amounts spent.
+3. Menu Item Information – What products were part of the order.
+Each row contains the item name, its category (such as bowl or topping), description, price, and ingredient list.
+4. Inventory Connection – How the order affects stock levels.
+It links the sale to specific ingredients, how much stock is left, the unit of measurement, and when a reorder is needed.
+5. Marketing and AI Data – How the order relates to promotions and AI recommendations.
+This section connects sales to specific marketing campaigns, tracks customer engagement, and logs Grok AI’s suggestions, whether they were applied, and what the AI based them on (trends, sentiment, or pricing analysis).
+
+⸻
+
+How it works in practice:
+Each row in this table represents a single sold item tied to a specific customer and transaction. It also contains the marketing and AI context that influenced the sale. This means you can open one record and see exactly who bought what, how it was promoted, what stock it used, and whether an AI recommendation played a role.
+
+The benefit is simplicity—everything is in one place, so you can filter and analyze quickly without joining multiple tables. The drawback is duplication—the same customer or menu item details will appear repeatedly in different rows, which can make up

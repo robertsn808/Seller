@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${room.id != null ? 'Edit Room' : 'Add New Room'} + ' - Property Management'">Add Room - Property Management</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: #f5f7fa; 
+            color: #333; 
+        }
+        .header { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            color: white; 
+            padding: 20px 0; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+        }
+        .header-content { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 0 20px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+        }
+        .header h1 { 
+            font-size: 2rem; 
+            font-weight: 300; 
+        }
+        .nav-links a { 
+            color: white; 
+            text-decoration: none; 
+            margin-left: 20px; 
+            padding: 8px 15px; 
+            border-radius: 5px; 
+            transition: background 0.3s; 
+        }
+        .nav-links a:hover { 
+            background: rgba(255,255,255,0.2); 
+        }
+        .container { 
+            max-width: 800px; 
+            margin: 0 auto; 
+            padding: 20px; 
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 8px 15px;
+            background: #6c757d;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        .back-link:hover {
+            background: #5a6268;
+            text-decoration: none;
+            color: white;
+        }
+        .form-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+        .form-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f1f3f4;
+        }
+        .form-header h2 {
+            color: #333;
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+        .form-header p {
+            color: #666;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        .required {
+            color: #dc3545;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        .error {
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 5px;
+        }
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #f1f3f4;
+        }
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            min-width: 120px;
+            font-size: 1rem;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            text-decoration: none;
+        }
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+        }
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        .input-help {
+            font-size: 0.875rem;
+            color: #666;
+            margin-top: 5px;
+        }
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .alert-danger {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+        }
+        .form-section {
+            grid-column: 1 / -1;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #dee2e6;
+            padding-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h1>🏨 Property Management</h1>
+            <div class="nav-links">
+                <a href="/property/dashboard">Dashboard</a>
+                <a href="/property/rooms">Rooms</a>
+                <a href="/property/guests">Guests</a>
+                <a href="/property/bookings">Bookings</a>
+                <a href="/property/logout">Logout</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <a href="/property/rooms" class="back-link">← Back to Rooms</a>
+
+        <div class="form-container">
+            <div class="form-header">
+                <h2 th:text="${room.id != null ? 'Edit Room' : 'Add New Room'}">Add New Room</h2>
+                <p th:text="${room.id != null ? 'Update room information and settings' : 'Create a new room in your property management system'}">Create a new room in your property management system</p>
+            </div>
+
+            <form th:action="${room.id} != null ? @{/property/rooms/{id}(id=${room.id})} : @{/property/rooms}" th:object="${room}" method="post">
+                <!-- Validation Errors -->
+                <div th:if="${#fields.hasErrors('*')}" class="alert alert-danger">
+                    <strong>Please correct the following errors:</strong>
+                    <ul style="margin: 10px 0 0 20px;">
+                        <li th:each="error : ${#fields.allErrors()}" th:text="${error}">Error message</li>
+                    </ul>
+                </div>
+                <input type="hidden" th:field="*{id}">
+                <input type="hidden" th:field="*{isActive}">
+                <input type="hidden" th:field="*{createdAt}">
+                <input type="hidden" th:field="*{updatedAt}">
+                
+                <div class="form-section">
+                    <h3 class="section-title">Basic Information</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="roomNumber">Room Number <span class="required">*</span></label>
+                            <input type="text" id="roomNumber" th:field="*{roomNumber}" required>
+                            <div th:if="${#fields.hasErrors('roomNumber')}" class="error" th:errors="*{roomNumber}">Error</div>
+                            <div class="input-help">Unique identifier for this room (e.g., 101, A1, etc.)</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="roomName">Room Name</label>
+                            <input type="text" id="roomName" th:field="*{roomName}" placeholder="Optional display name">
+                            <div th:if="${#fields.hasErrors('roomName')}" class="error" th:errors="*{roomName}">Error</div>
+                            <div class="input-help">Optional descriptive name (e.g., Ocean View, Garden Suite)</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="roomType">Room Type <span class="required">*</span></label>
+                            <select id="roomType" th:field="*{roomType}" required>
+                                <option value="">Select Room Type</option>
+                                <option th:each="type : ${roomTypes}" th:value="${type.key}" th:text="${type.value}">Single</option>
+                            </select>
+                            <div th:if="${#fields.hasErrors('roomType')}" class="error" th:errors="*{roomType}">Error</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="baseRate">Base Nightly Rate <span class="required">*</span></label>
+                            <input type="number" id="baseRate" th:field="*{baseRate}" step="0.01" min="0" required>
+                            <div th:if="${#fields.hasErrors('baseRate')}" class="error" th:errors="*{baseRate}">Error</div>
+                            <div class="input-help">Default nightly rate in USD</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3 class="section-title">Access & Security</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="currentCode">Current Door Code</label>
+                            <input type="text" id="currentCode" th:field="*{currentCode}" maxlength="10">
+                            <div th:if="${#fields.hasErrors('currentCode')}" class="error" th:errors="*{currentCode}">Error</div>
+                            <div class="input-help">Current access code for the room door</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="resetCode">Reset Code</label>
+                            <input type="text" id="resetCode" th:field="*{resetCode}" maxlength="10">
+                            <div th:if="${#fields.hasErrors('resetCode')}" class="error" th:errors="*{resetCode}">Error</div>
+                            <div class="input-help">Code used to reset the door lock</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="gateKeyNumber">Gate Key Number</label>
+                            <input type="text" id="gateKeyNumber" th:field="*{gateKeyNumber}" maxlength="10">
+                            <div th:if="${#fields.hasErrors('gateKeyNumber')}" class="error" th:errors="*{gateKeyNumber}">Error</div>
+                            <div class="input-help">Gate key number if assigned</div>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="isVacant" th:field="*{isVacant}">
+                                <label for="isVacant">Room is currently vacant</label>
+                            </div>
+                            <div class="input-help">Check this box if the room is available for new bookings</div>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="gateKeyAssigned" th:field="*{gateKeyAssigned}">
+                                <label for="gateKeyAssigned">Gate key is assigned</label>
+                            </div>
+                            <div class="input-help">Check if a gate key has been assigned to this room</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3 class="section-title">Additional Information</h3>
+                    <div class="form-group full-width">
+                        <label for="notes">Notes</label>
+                        <textarea id="notes" th:field="*{notes}" placeholder="Optional notes about this room, maintenance information, special features, etc."></textarea>
+                        <div th:if="${#fields.hasErrors('notes')}" class="error" th:errors="*{notes}">Error</div>
+                        <div class="input-help">Any additional information about this room</div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary" th:text="${room.id != null ? '💾 Update Room' : '✅ Create Room'}">Create Room</button>
+                    <a href="/property/rooms" class="btn btn-secondary">❌ Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,251 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Inter:wght@300;400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Updated color scheme from design reference */
+  --primary: hsl(207, 75%, 44%); /* #1976D2 */
+  --primary-foreground: hsl(0, 0%, 100%);
+  --secondary: hsl(122, 40%, 39%); /* #388E3C */
+  --secondary-foreground: hsl(0, 0%, 100%);
+  --accent: hsl(36, 100%, 49%); /* #F57C00 */
+  --accent-foreground: hsl(0, 0%, 100%);
+  
+  --surface: hsl(0, 0%, 100%); /* #FFFFFF */
+  --background: hsl(0, 0%, 98%); /* #FAFAFA */
+  --foreground: hsl(0, 0%, 13%); /* #212121 */
+  --text: hsl(0, 0%, 13%); /* #212121 */
+  --text-secondary: hsl(0, 0%, 46%); /* #757575 */
+  
+  --success: hsl(122, 45%, 49%); /* #4CAF50 */
+  --success-foreground: hsl(0, 0%, 100%);
+  --warning: hsl(36, 100%, 56%); /* #FF9800 */
+  --warning-foreground: hsl(0, 0%, 100%);
+  --error: hsl(4, 86%, 58%); /* #F44336 */
+  --error-foreground: hsl(0, 0%, 100%);
+  
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(0, 0%, 13%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(0, 0%, 13%);
+  --muted: hsl(240, 2%, 90%);
+  --muted-foreground: hsl(0, 0%, 46%);
+  --border: hsl(220, 13%, 91%);
+  --input: hsl(200, 23%, 97%);
+  --ring: hsl(202, 89%, 53%);
+  
+  --chart-1: hsl(207, 75%, 44%);
+  --chart-2: hsl(122, 40%, 39%);
+  --chart-3: hsl(36, 100%, 49%);
+  --chart-4: hsl(122, 45%, 49%);
+  --chart-5: hsl(4, 86%, 58%);
+  
+  --sidebar: hsl(0, 0%, 100%);
+  --sidebar-foreground: hsl(0, 0%, 13%);
+  --sidebar-primary: hsl(207, 75%, 44%);
+  --sidebar-primary-foreground: hsl(0, 0%, 100%);
+  --sidebar-accent: hsl(220, 13%, 91%);
+  --sidebar-accent-foreground: hsl(207, 75%, 44%);
+  --sidebar-border: hsl(220, 13%, 91%);
+  --sidebar-ring: hsl(202, 89%, 53%);
+  
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-roboto: 'Roboto', system-ui, sans-serif;
+  --font-serif: Georgia, serif;
+  --font-mono: Menlo, monospace;
+  --radius: 0.75rem;
+  
+  --shadow-2xs: 0px 1px 2px 0px hsl(0, 0%, 0%, 0.05);
+  --shadow-xs: 0px 1px 3px 0px hsl(0, 0%, 0%, 0.1), 0px 1px 2px 0px hsl(0, 0%, 0%, 0.06);
+  --shadow-sm: 0px 1px 3px 0px hsl(0, 0%, 0%, 0.1), 0px 1px 2px 0px hsl(0, 0%, 0%, 0.06);
+  --shadow: 0px 1px 3px 0px hsl(0, 0%, 0%, 0.1), 0px 1px 2px 0px hsl(0, 0%, 0%, 0.06);
+  --shadow-md: 0px 4px 6px -1px hsl(0, 0%, 0%, 0.1), 0px 2px 4px -1px hsl(0, 0%, 0%, 0.06);
+  --shadow-lg: 0px 10px 15px -3px hsl(0, 0%, 0%, 0.1), 0px 4px 6px -2px hsl(0, 0%, 0%, 0.05);
+  --shadow-xl: 0px 20px 25px -5px hsl(0, 0%, 0%, 0.1), 0px 10px 10px -5px hsl(0, 0%, 0%, 0.04);
+  --shadow-2xl: 0px 25px 50px -12px hsl(0, 0%, 0%, 0.25);
+  
+  --tracking-normal: 0em;
+  --spacing: 0.25rem;
+}
+
+.dark {
+  --background: hsl(0, 0%, 6%);
+  --foreground: hsl(0, 0%, 95%);
+  --card: hsl(0, 0%, 10%);
+  --card-foreground: hsl(0, 0%, 95%);
+  --popover: hsl(0, 0%, 6%);
+  --popover-foreground: hsl(0, 0%, 95%);
+  --primary: hsl(207, 75%, 44%);
+  --primary-foreground: hsl(0, 0%, 100%);
+  --secondary: hsl(122, 40%, 39%);
+  --secondary-foreground: hsl(0, 0%, 100%);
+  --muted: hsl(0, 0%, 14%);
+  --muted-foreground: hsl(0, 0%, 63%);
+  --accent: hsl(36, 100%, 49%);
+  --accent-foreground: hsl(0, 0%, 100%);
+  --surface: hsl(0, 0%, 10%);
+  --text: hsl(0, 0%, 95%);
+  --text-secondary: hsl(0, 0%, 63%);
+  --border: hsl(0, 0%, 20%);
+  --input: hsl(0, 0%, 14%);
+  --ring: hsl(202, 89%, 53%);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+  }
+  
+  /* Custom utility classes matching design reference */
+  .text-primary {
+    color: var(--primary);
+  }
+  
+  .text-secondary {
+    color: var(--secondary);
+  }
+  
+  .text-accent {
+    color: var(--accent);
+  }
+  
+  .text-success {
+    color: var(--success);
+  }
+  
+  .text-warning {
+    color: var(--warning);
+  }
+  
+  .text-error {
+    color: var(--error);
+  }
+  
+  .bg-primary {
+    background-color: var(--primary);
+  }
+  
+  .bg-secondary {
+    background-color: var(--secondary);
+  }
+  
+  .bg-accent {
+    background-color: var(--accent);
+  }
+  
+  .bg-success {
+    background-color: var(--success);
+  }
+  
+  .bg-warning {
+    background-color: var(--warning);
+  }
+  
+  .bg-error {
+    background-color: var(--error);
+  }
+  
+  .bg-surface {
+    background-color: var(--surface);
+  }
+  
+  .font-roboto {
+    font-family: var(--font-roboto);
+  }
+}
+
+@layer components {
+  .metric-card {
+    @apply bg-surface rounded-xl shadow-sm border border-gray-200 p-6;
+  }
+  
+  .insight-card {
+    @apply flex items-start space-x-4 p-4 bg-gray-50 rounded-lg;
+  }
+  
+  .nav-item {
+    @apply flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors;
+  }
+  
+  .nav-item-active {
+    @apply bg-primary text-white;
+  }
+  
+  .nav-item-inactive {
+    @apply hover:bg-gray-100;
+  }
+  
+  .status-badge {
+    @apply text-xs px-2 py-1 rounded font-medium;
+  }
+  
+  .status-completed {
+    @apply bg-success text-white;
+  }
+  
+  .status-pending {
+    @apply bg-warning text-white;
+  }
+  
+  .status-active {
+    @apply bg-primary text-white;
+  }
+  
+  .inventory-alert-critical {
+    @apply bg-red-50 border border-red-200 rounded-lg;
+  }
+  
+  .inventory-alert-warning {
+    @apply bg-yellow-50 border border-yellow-200 rounded-lg;
+  }
+  
+  .inventory-alert-good {
+    @apply bg-green-50 border border-green-200 rounded-lg;
+  }
+}
+
+/* Chart styles */
+.chart-container {
+  position: relative;
+  height: 200px;
+  width: 100%;
+}
+
+/* Animation utilities */
+@keyframes pulse-dot {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse-dot {
+  animation: pulse-dot 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Custom scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: var(--muted);
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}

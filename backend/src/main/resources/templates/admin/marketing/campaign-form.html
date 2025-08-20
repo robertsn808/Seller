@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campaign Form - Marketing Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/admin">Admin Portal</a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/admin">Dashboard</a>
+                <a class="nav-link active" href="/admin/marketing/dashboard">Marketing</a>
+                <a class="nav-link" href="/logout">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-2">
+                <div class="list-group">
+                    <a href="/admin/marketing/dashboard" class="list-group-item list-group-item-action">
+                        <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                    </a>
+                    <a href="/admin/marketing/campaigns" class="list-group-item list-group-item-action active">
+                        <i class="fas fa-bullhorn me-2"></i>Campaigns
+                    </a>
+                    <a href="/admin/marketing/templates" class="list-group-item list-group-item-action">
+                        <i class="fas fa-file-alt me-2"></i>Templates
+                    </a>
+                    <a href="/admin/marketing/content-generator" class="list-group-item list-group-item-action">
+                        <i class="fas fa-magic me-2"></i>Content Generator
+                    </a>
+                    <a href="/admin/marketing/analytics" class="list-group-item list-group-item-action">
+                        <i class="fas fa-chart-bar me-2"></i>Analytics
+                    </a>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-10">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h1 th:text="${campaign.id != null ? 'Edit Campaign' : 'Create New Campaign'}">Campaign Form</h1>
+                    <a href="/admin/marketing/campaigns" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Campaigns
+                    </a>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="card">
+                            <div class="card-body">
+                                <form th:action="@{/admin/marketing/campaigns}" th:object="${campaign}" method="post">
+                                    <input type="hidden" th:field="*{id}">
+                                    
+                                    <!-- Basic Information -->
+                                    <h5 class="mb-3">Basic Information</h5>
+                                    
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="name" class="form-label">Campaign Name *</label>
+                                            <input type="text" class="form-control" th:field="*{name}" 
+                                                   th:classappend="${#fields.hasErrors('name')} ? 'is-invalid' : ''"
+                                                   placeholder="Enter campaign name">
+                                            <div th:if="${#fields.hasErrors('name')}" 
+                                                 class="invalid-feedback" th:errors="*{name}">Name error</div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="type" class="form-label">Campaign Type *</label>
+                                            <select class="form-select" th:field="*{type}"
+                                                    th:classappend="${#fields.hasErrors('type')} ? 'is-invalid' : ''">
+                                                <option value="">Select Type</option>
+                                                <option value="FACEBOOK_POST">Facebook Post</option>
+                                                <option value="FACEBOOK">Facebook Ads</option>
+                                                <option value="GOOGLE_ADS">Google Ads</option>
+                                                <option value="CRAIGSLIST">Craigslist</option>
+                                                <option value="DIRECT_MAIL">Direct Mail</option>
+                                                <option value="YARD_SIGNS">Yard Signs</option>
+                                                <option value="BUSINESS_CARDS">Business Cards</option>
+                                                <option value="COLD_CALLING">Cold Calling</option>
+                                                <option value="INSTAGRAM">Instagram Post</option>
+                                            </select>
+                                            <div th:if="${#fields.hasErrors('type')}" 
+                                                 class="invalid-feedback" th:errors="*{type}">Type error</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="targetAudience" class="form-label">Target Audience *</label>
+                                            <select class="form-select" th:field="*{targetAudience}"
+                                                    th:classappend="${#fields.hasErrors('targetAudience')} ? 'is-invalid' : ''">
+                                                <option value="">Select Audience</option>
+                                                <option value="SELLERS">Sellers Only</option>
+                                                <option value="BUYERS">Buyers Only</option>
+                                                <option value="BOTH">Both Sellers & Buyers</option>
+                                            </select>
+                                            <div th:if="${#fields.hasErrors('targetAudience')}" 
+                                                 class="invalid-feedback" th:errors="*{targetAudience}">Target audience error</div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="status" class="form-label">Status</label>
+                                            <select class="form-select" th:field="*{status}">
+                                                <option value="DRAFT">Draft</option>
+                                                <option value="ACTIVE">Active</option>
+                                                <option value="PAUSED">Paused</option>
+                                                <option value="COMPLETED">Completed</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="description" class="form-label">Description</label>
+                                        <textarea class="form-control" th:field="*{description}" rows="3"
+                                                  placeholder="Brief description of the campaign"></textarea>
+                                    </div>
+
+                                    <!-- Budget & Dates -->
+                                    <h5 class="mb-3 mt-4">Budget & Timeline</h5>
+                                    
+                                    <div class="row mb-3">
+                                        <div class="col-md-4">
+                                            <label for="budget" class="form-label">Budget ($)</label>
+                                            <input type="number" class="form-control" th:field="*{budget}" 
+                                                   step="0.01" min="0" placeholder="0.00">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="startDate" class="form-label">Start Date</label>
+                                            <input type="date" class="form-control" th:field="*{startDate}">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="endDate" class="form-label">End Date</label>
+                                            <input type="date" class="form-control" th:field="*{endDate}">
+                                        </div>
+                                    </div>
+
+                                    <!-- Campaign Content -->
+                                    <h5 class="mb-3 mt-4">Campaign Content</h5>
+                                    
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="headline" class="form-label">Headline</label>
+                                            <input type="text" class="form-control" th:field="*{headline}" 
+                                                   placeholder="Catchy headline for your campaign">
+                                            <div class="form-text">Keep it short and compelling</div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="callToAction" class="form-label">Call to Action</label>
+                                            <input type="text" class="form-control" th:field="*{callToAction}" 
+                                                   placeholder="e.g., Call Now, Get Free Quote, Learn More">
+                                            <div class="form-text">What do you want people to do?</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="adCopy" class="form-label">Ad Copy / Content</label>
+                                        <textarea class="form-control" th:field="*{adCopy}" rows="5"
+                                                  placeholder="Enter your marketing message or ad copy here..."></textarea>
+                                        <div class="form-text">This will be the main content of your campaign</div>
+                                    </div>
+
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="keywords" class="form-label">Keywords / Tags</label>
+                                            <input type="text" class="form-control" th:field="*{keywords}" 
+                                                   placeholder="e.g., real estate, investment, cash buyer">
+                                            <div class="form-text">Separate multiple keywords with commas</div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="demographicTargeting" class="form-label">Demographic Targeting</label>
+                                            <input type="text" class="form-control" th:field="*{demographicTargeting}" 
+                                                   placeholder="e.g., Age 25-55, Location: Metro area">
+                                            <div class="form-text">Target demographics and locations</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Performance Tracking (for existing campaigns) -->
+                                    <div th:if="${campaign.id != null}">
+                                        <h5 class="mb-3 mt-4">Performance Tracking</h5>
+                                        
+                                        <div class="row mb-3">
+                                            <div class="col-md-3">
+                                                <label for="impressions" class="form-label">Impressions</label>
+                                                <input type="number" class="form-control" th:field="*{impressions}" min="0">
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label for="clicks" class="form-label">Clicks</label>
+                                                <input type="number" class="form-control" th:field="*{clicks}" min="0">
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label for="leads" class="form-label">Leads</label>
+                                                <input type="number" class="form-control" th:field="*{leads}" min="0">
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label for="cost" class="form-label">Actual Cost ($)</label>
+                                                <input type="number" class="form-control" th:field="*{cost}" 
+                                                       step="0.01" min="0">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Submit Buttons -->
+                                    <div class="d-flex justify-content-end mt-4">
+                                        <a href="/admin/marketing/campaigns" class="btn btn-secondary me-2">Cancel</a>
+                                        <button type="submit" class="btn btn-primary" id="submitBtn">
+                                            <i class="fas fa-save me-2"></i>
+                                            <span th:text="${campaign.id != null ? 'Update Campaign' : 'Create Campaign'}">Save</span>
+                                        </button>
+                                        <button type="button" class="btn btn-warning ms-2" onclick="debugForm()" style="display: none;" id="debugBtn">Debug</button>
+                                        <button type="button" class="btn btn-success ms-2" onclick="submitWithoutValidation()" style="display: none;" id="bypassBtn">Submit Anyway</button>
+                                        <button type="button" class="btn btn-info ms-2" onclick="submitWithFetch()" style="display: none;" id="fetchBtn">Submit with Fetch</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Help Panel -->
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Campaign Tips</h6>
+                            </div>
+                            <div class="card-body">
+                                <h6>Campaign Types:</h6>
+                                <ul class="small mb-3">
+                                    <li><strong>Facebook Post:</strong> Direct Facebook page posts</li>
+                                    <li><strong>Facebook Ads:</strong> Paid social media advertising</li>
+                                    <li><strong>Instagram Post:</strong> Direct Instagram posts</li>
+                                    <li><strong>Google Ads:</strong> Search and display advertising</li>
+                                    <li><strong>Craigslist:</strong> Local classified ads</li>
+                                    <li><strong>Direct Mail:</strong> Physical mail campaigns</li>
+                                    <li><strong>Yard Signs:</strong> Physical signage placement</li>
+                                </ul>
+
+                                <h6>Target Audiences:</h6>
+                                <ul class="small mb-3">
+                                    <li><strong>Sellers:</strong> Property owners looking to sell</li>
+                                    <li><strong>Buyers:</strong> People looking to purchase properties</li>
+                                    <li><strong>Both:</strong> General real estate audience</li>
+                                </ul>
+
+                                <h6>Best Practices:</h6>
+                                <ul class="small">
+                                    <li>Set clear, measurable goals</li>
+                                    <li>Test different ad copy variations</li>
+                                    <li>Monitor performance regularly</li>
+                                    <li>Adjust budget based on results</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            const submitBtn = document.querySelector('button[type="submit"]');
+            const submitBtnText = submitBtn.querySelector('span');
+            const originalBtnText = submitBtnText ? submitBtnText.textContent : 'Save';
+            
+            // Form validation
+            function validateForm() {
+                let isValid = true;
+                const errors = [];
+                
+                // Required field validation
+                const requiredFields = [
+                    { field: 'name', name: 'Campaign Name' },
+                    { field: 'type', name: 'Campaign Type' },
+                    { field: 'targetAudience', name: 'Target Audience' }
+                ];
+                
+                requiredFields.forEach(item => {
+                    const field = document.querySelector(`[name="${item.field}"]`);
+                    if (!field) {
+                        console.error('Field not found:', item.field);
+                        errors.push(`${item.name} field not found`);
+                        isValid = false;
+                        return;
+                    }
+                    
+                    if (!field.value.trim()) {
+                        field.classList.add('is-invalid');
+                        errors.push(`${item.name} is required`);
+                        isValid = false;
+                    } else {
+                        field.classList.remove('is-invalid');
+                        field.classList.add('is-valid');
+                    }
+                });
+                
+                // Date validation
+                const startDate = document.querySelector('[name="startDate"]').value;
+                const endDate = document.querySelector('[name="endDate"]').value;
+                
+                if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
+                    document.querySelector('[name="endDate"]').classList.add('is-invalid');
+                    errors.push('End date must be after start date');
+                    isValid = false;
+                } else if (endDate) {
+                    document.querySelector('[name="endDate"]').classList.remove('is-invalid');
+                    document.querySelector('[name="endDate"]').classList.add('is-valid');
+                }
+                
+                // Budget validation
+                const budget = document.querySelector('[name="budget"]').value;
+                if (budget && parseFloat(budget) < 0) {
+                    document.querySelector('[name="budget"]').classList.add('is-invalid');
+                    errors.push('Budget cannot be negative');
+                    isValid = false;
+                } else if (budget) {
+                    document.querySelector('[name="budget"]').classList.remove('is-invalid');
+                    document.querySelector('[name="budget"]').classList.add('is-valid');
+                }
+                
+                return { isValid, errors };
+            }
+            
+            // Real-time validation
+            const inputs = form.querySelectorAll('input, select, textarea');
+            inputs.forEach(input => {
+                input.addEventListener('blur', function() {
+                    validateForm();
+                });
+            });
+            
+            // Form submission handling
+            form.addEventListener('submit', function(e) {
+                console.log('Form submission started');
+                
+                // Don't prevent default immediately - let validation run first
+                const validation = validateForm();
+                console.log('Validation result:', validation);
+                
+                if (!validation.isValid) {
+                    // Prevent submission only if validation fails
+                    e.preventDefault();
+                    console.log('Form submission prevented due to validation errors:', validation.errors);
+                    showAlert('Please fix the following errors: ' + validation.errors.join(', '), 'danger');
+                    return false;
+                }
+                
+                // Show loading state for valid submissions
+                submitBtn.disabled = true;
+                if (submitBtnText) {
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Saving Campaign...';
+                } else {
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Saving...';
+                }
+                
+                // Show progress message
+                showAlert('Processing your campaign...', 'info');
+                
+                // Let the form submit normally
+                return true;
+            });
+            
+            // Helper function to show alerts
+            function showAlert(message, type) {
+                // Remove existing alerts
+                const existingAlert = document.querySelector('.dynamic-alert');
+                if (existingAlert) {
+                    existingAlert.remove();
+                }
+                
+                const alertHtml = `
+                    <div class="alert alert-${type} alert-dismissible fade show dynamic-alert" role="alert">
+                        ${message}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                `;
+                
+                const mainContent = document.querySelector('.col-md-10');
+                mainContent.insertAdjacentHTML('afterbegin', alertHtml);
+                
+                // Auto-hide info alerts after 3 seconds
+                if (type === 'info') {
+                    setTimeout(() => {
+                        const alert = document.querySelector('.dynamic-alert');
+                        if (alert) {
+                            alert.remove();
+                        }
+                    }, 3000);
+                }
+            }
+            
+            // Campaign type specific validations
+            document.querySelector('[name="type"]').addEventListener('change', function() {
+                const campaignType = this.value;
+                const budgetField = document.querySelector('[name="budget"]');
+                const keywordsField = document.querySelector('[name="keywords"]');
+                
+                // Show/hide relevant fields based on campaign type
+                if (campaignType === 'FACEBOOK' || campaignType === 'GOOGLE_ADS') {
+                    budgetField.setAttribute('required', 'required');
+                    showCampaignTypeHelp(campaignType);
+                } else if (campaignType === 'FACEBOOK_POST' || campaignType === 'INSTAGRAM') {
+                    budgetField.removeAttribute('required');
+                    showCampaignTypeHelp(campaignType);
+                } else {
+                    budgetField.removeAttribute('required');
+                }
+                
+                if (campaignType === 'GOOGLE_ADS') {
+                    keywordsField.setAttribute('required', 'required');
+                } else {
+                    keywordsField.removeAttribute('required');
+                }
+            });
+            
+            function showCampaignTypeHelp(type) {
+                let helpText = '';
+                
+                switch(type) {
+                    case 'FACEBOOK_POST':
+                        helpText = 'Facebook posts will be published directly to your Facebook page. Make sure your content is engaging and includes a clear call-to-action.';
+                        break;
+                    case 'FACEBOOK':
+                        helpText = 'Facebook campaigns require a budget and compelling ad copy. Consider your target demographics.';
+                        break;
+                    case 'INSTAGRAM':
+                        helpText = 'Instagram posts will be published directly to your Instagram account. Use visual content and relevant hashtags.';
+                        break;
+                    case 'GOOGLE_ADS':
+                        helpText = 'Google Ads campaigns require keywords and budget. Research high-performing keywords in real estate.';
+                        break;
+                    case 'CRAIGSLIST':
+                        helpText = 'Craigslist posts are free but require manual posting. Prepare multiple ad variations.';
+                        break;
+                    case 'DIRECT_MAIL':
+                        helpText = 'Direct mail campaigns have longer lead times. Budget should include printing and postage costs.';
+                        break;
+                }
+                
+                if (helpText) {
+                    showAlert(helpText, 'info');
+                }
+            }
+            
+            // Auto-save functionality (optional)
+            let autoSaveTimer;
+            inputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    clearTimeout(autoSaveTimer);
+                    autoSaveTimer = setTimeout(() => {
+                        // Could implement auto-save to localStorage here
+                        console.log('Form data auto-saved');
+                    }, 2000);
+                });
+            });
+            
+            // Warn user before leaving with unsaved changes
+            let formChanged = false;
+            inputs.forEach(input => {
+                input.addEventListener('change', () => formChanged = true);
+            });
+            
+            window.addEventListener('beforeunload', function(e) {
+                if (formChanged && !submitBtn.disabled) {
+                    e.preventDefault();
+                    e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
+                    return e.returnValue;
+                }
+            });
+            
+            // Show debug buttons if there are issues
+            setTimeout(() => {
+                document.getElementById('debugBtn').style.display = 'inline-block';
+                document.getElementById('bypassBtn').style.display = 'inline-block';
+                document.getElementById('fetchBtn').style.display = 'inline-block';
+            }, 5000);
+        });
+        
+        // Debug function
+        function debugForm() {
+            const form = document.querySelector('form');
+            const formData = new FormData(form);
+            
+            console.log('=== FORM DEBUG INFO ===');
+            console.log('Form action:', form.action);
+            console.log('Form method:', form.method);
+            console.log('Form data:');
+            for (let [key, value] of formData.entries()) {
+                console.log(`  ${key}: ${value}`);
+            }
+            
+            // Check required fields
+            const requiredFields = ['name', 'type', 'targetAudience'];
+            console.log('Required field validation:');
+            requiredFields.forEach(fieldName => {
+                const field = document.querySelector(`[name="${fieldName}"]`);
+                console.log(`  ${fieldName}:`, field ? field.value : 'FIELD NOT FOUND');
+            });
+            
+            alert('Check browser console for debug information');
+        }
+        
+        // Submit without client-side validation
+        function submitWithoutValidation() {
+            console.log('Attempting direct form submission...');
+            const form = document.querySelector('form');
+            
+            // Create a new form element to bypass all event listeners
+            const tempForm = document.createElement('form');
+            tempForm.action = form.action;
+            tempForm.method = form.method;
+            
+            // Copy all form data
+            const formData = new FormData(form);
+            for (let [key, value] of formData.entries()) {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = key;
+                input.value = value;
+                tempForm.appendChild(input);
+            }
+            
+            // Add to document and submit
+            document.body.appendChild(tempForm);
+            console.log('Submitting form with action:', tempForm.action);
+            tempForm.submit();
+        }
+        
+        // Submit using fetch API
+        function submitWithFetch() {
+            console.log('Attempting fetch submission...');
+            const form = document.querySelector('form');
+            const formData = new FormData(form);
+            
+            fetch(form.action, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                console.log('Fetch response:', response.status, response.statusText);
+                if (response.ok) {
+                    // If response is a redirect, follow it
+                    if (response.redirected) {
+                        window.location.href = response.url;
+                    } else {
+                        // Reload the page or redirect manually
+                        window.location.reload();
+                    }
+                } else {
+                    alert('Server error: ' + response.status + ' ' + response.statusText);
+                }
+            })
+            .catch(error => {
+                console.error('Fetch error:', error);
+                alert('Network error: ' + error.message);
+            });
+        }
+    </script>
+</body>
+</html>

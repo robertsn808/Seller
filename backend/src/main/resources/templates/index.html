@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real Estate Connect</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+        .container { max-width: 800px; margin: 0 auto; padding: 40px 20px; text-align: center; }
+        .header { color: white; margin-bottom: 50px; }
+        .header h1 { font-size: 3rem; margin-bottom: 20px; font-weight: 300; }
+        .header p { font-size: 1.2rem; opacity: 0.9; }
+        .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 50px; }
+        .card { background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); transition: transform 0.3s ease; }
+        .card:hover { transform: translateY(-5px); }
+        .card h2 { font-size: 2rem; margin-bottom: 20px; color: #333; }
+        .card p { color: #666; margin-bottom: 30px; line-height: 1.6; }
+        .btn { display: inline-block; padding: 15px 30px; background: linear-gradient(45deg, #667eea, #764ba2); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; transition: all 0.3s ease; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        .admin-link { position: fixed; top: 20px; right: 20px; background: rgba(255,255,255,0.2); color: white; padding: 10px 20px; border-radius: 25px; text-decoration: none; font-size: 0.9rem; }
+        @media (max-width: 768px) { 
+            .cards { grid-template-columns: 1fr; }
+            .header h1 { font-size: 2rem; }
+        }
+    </style>
+</head>
+<body>
+    <a href="/admin" class="admin-link">🔐 Admin Login</a>
+    <a href="/property/login" class="admin-link" style="top: 70px;">🏨 Property Management</a>
+    
+    <div class="container">
+        <div class="header">
+            <h1>Real Estate Connect</h1>
+            <p>Connecting buyers and sellers for seamless real estate transactions</p>
+        </div>
+        
+        <div class="cards">
+            <div class="card">
+                <h2>🏠 I Want to Buy</h2>
+                <p>Looking for your dream home or investment property? Tell us about your ideal property and budget. Whether you're buying to live in or invest, we'll help connect you with sellers who have what you're looking for.</p>
+                <a href="/buyer" class="btn">Submit Your Buy Box</a>
+            </div>
+            
+            <div class="card">
+                <h2>💰 I Want to Sell</h2>
+                <p>Ready to sell your property? Share details about your home and we'll help connect you with qualified buyers actively searching in your area.</p>
+                <a href="/seller" class="btn">List Your Property</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

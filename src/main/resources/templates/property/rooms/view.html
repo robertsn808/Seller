@@ -210,6 +210,7 @@
                 <a href="/property/rooms">Rooms</a>
                 <a href="/property/guests">Guests</a>
                 <a href="/property/bookings">Bookings</a>
+                <a href="/financials/dashboard">Financials</a>
                 <a href="/property/logout">Logout</a>
             </div>
         </div>
@@ -305,47 +306,57 @@
                     </div>
                 </div>
 
-                <!-- Accounting / Payments Ledger -->
-                <div class="info-section" th:if="${ledgerBooking != null}">
-                    <h3 class="section-title">Accounting</h3>
+                <!-- Transaction Ledger -->
+                <div class="info-section">
+                    <h3 class="section-title">Transaction Ledger</h3>
                     <div class="info-row">
                         <span class="info-label">Current Balance:</span>
-                        <span class="info-value">$<span th:text="${#numbers.formatDecimal(ledgerBooking.currentBalance,1,2)}">0.00</span></span>
+                        <span class="info-value">$<span th:text="${#numbers.formatDecimal(room.balance, 1, 2)}">0.00</span></span>
                     </div>
-                    <div class="info-row" th:if="${nextDueAmount != null}">
-                        <span class="info-label">Next Payment Due:</span>
-                        <span class="info-value">
-                            $<span th:text="${#numbers.formatDecimal(nextDueAmount,1,2)}">0.00</span>
-                            <span th:if="${nextDueDate != null}"> on <span th:text="${#temporals.format(nextDueDate,'MM/dd/yyyy')}">01/31/2025</span></span>
-                        </span>
-                    </div>
-                    <div class="info-row">
-                        <span class="info-label">Payment Frequency:</span>
-                        <span class="info-value" th:text="${ledgerBooking.paymentFrequencyDisplay}">Weekly</span>
-                    </div>
-
                     <div style="margin-top:15px;">
-                        <h4 class="section-title" style="border:none; padding:0; margin-bottom:10px;">Payment History</h4>
-                        <div th:if="${#lists.isEmpty(ledgerPayments)}" style="color:#666;">No payments recorded yet.</div>
-                        <table th:if="${!#lists.isEmpty(ledgerPayments)}" style="width:100%; border-collapse:collapse;">
+                        <h4 class="section-title" style="border:none; padding:0; margin-bottom:10px;">History</h4>
+                        <div th:if="${#lists.isEmpty(room.transactions)}" style="color:#666;">No transactions recorded yet.</div>
+                        <table th:if="${!#lists.isEmpty(room.transactions)}" style="width:100%; border-collapse:collapse;">
                             <thead>
                                 <tr style="text-align:left; background:#eef1ff;">
                                     <th style="padding:8px;">Date</th>
+                                    <th style="padding:8px;">Description</th>
                                     <th style="padding:8px;">Amount</th>
-                                    <th style="padding:8px;">Method</th>
-                                    <th style="padding:8px;">Status</th>
+                                    <th style="padding:8px;">Paid By</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr th:each="p : ${ledgerPayments}">
-                                    <td style="padding:8px; border-bottom:1px solid #f0f0f0;" th:text="${#temporals.format(p.createdAt,'MM/dd/yyyy HH:mm')}">01/01/2025 12:00</td>
-                                    <td style="padding:8px; border-bottom:1px solid #f0f0f0;"><strong>$</strong><span th:text="${#numbers.formatDecimal(p.amount,1,2)}">0.00</span></td>
-                                    <td style="padding:8px; border-bottom:1px solid #f0f0f0;" th:text="${p.paymentMethodDisplay}">Cash</td>
-                                    <td style="padding:8px; border-bottom:1px solid #f0f0f0;" th:text="${p.paymentStatus}">COMPLETED</td>
+                                <tr th:each="t : ${room.transactions}">
+                                    <td style="padding:8px; border-bottom:1px solid #f0f0f0;" th:text="${#temporals.format(t.createdAt,'MM/dd/yyyy HH:mm')}">01/01/2025 12:00</td>
+                                    <td style="padding:8px; border-bottom:1px solid #f0f0f0;" th:text="${t.description}">Payment</td>
+                                    <td style="padding:8px; border-bottom:1px solid #f0f0f0;"><strong>$</strong><span th:text="${#numbers.formatDecimal(t.amount,1,2)}">0.00</span></td>
+                                    <td style="padding:8px; border-bottom:1px solid #f0f0f0;" th:text="${t.paidBy}">Guest</td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
+                </div>
+
+                <!-- Add Transaction Form -->
+                <div class="info-section">
+                    <h3 class="section-title">Add New Transaction</h3>
+                    <form th:action="@{/property/rooms/{id}/transactions(id=${room.id})}" method="post">
+                        <div class="info-row">
+                            <label for="description" class="info-label">Description:</label>
+                            <input type="text" id="description" name="description" required class="info-value" style="width: 60%;">
+                        </div>
+                        <div class="info-row">
+                            <label for="amount" class="info-label">Amount:</label>
+                            <input type="number" id="amount" name="amount" step="0.01" required class="info-value" style="width: 60%;">
+                        </div>
+                        <div class="info-row">
+                            <label for="paidBy" class="info-label">Paid By:</label>
+                            <input type="text" id="paidBy" name="paidBy" required class="info-value" style="width: 60%;">
+                        </div>
+                        <div class="actions">
+                            <button type="submit" class="btn btn-primary">Add Transaction</button>
+                        </div>
+                    </form>
                 </div>
             </div>
 

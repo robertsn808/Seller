@@ -1,0 +1,38 @@
+1. Brand Positioning & Strategy
+
+Goal: Position the poke shop as the must-visit fresh, local, and authentic Hawaiian food experience.
+• Brand Identity:
+• Tagline: “Fresh from the Pacific to Your Bowl”
+• Tone: Warm, local, community-driven with modern tech-savvy touches.
+• Core Values: Freshness, sustainability, Hawaiian culture, health-conscious dining.
+• Target Audience Segments:
+• Locals seeking consistent quality
+• Tourists wanting authentic Hawaiian cuisine
+• Health-conscious foodies and Instagram/TikTok users
+
+⸻
+
+2. AI Tech Stack (Grok Integration)
+
+Purpose: Use Grok’s real-time search & analysis to optimize marketing campaigns.
+• Social Listening: Grok monitors keywords like “poke near me,” “Hawaii food,” and trending hashtags to detect viral food trends.
+• Competitor Analysis: Grok scrapes menus, pricing, and promotions from rival poke shops.
+• Trend Forecasting: AI predicts which ingredients, toppings, or bowl styles are gaining popularity based on TikTok, Instagram, and Yelp data.
+• Customer Sentiment Tracking: Grok analyzes reviews in real time to detect issues or opportunities.
+
+⸻
+
+3. Content & Creative Plan
+
+Grok-powered personalization:
+• Daily Specials: Grok suggests “Bowl of the Day” based on weather, local events, and ingredient availability.
+• Visual Content: AI-assisted photo captioning with SEO-rich keywords.
+• Short-form Videos: Grok identifies trending video styles on TikTok and generates script prompts for staff.
+• Local Storytelling: Spotlight local fishermen, farms, and Hawaiian traditions behind the bowls.
+
+⸻
+
+4. Paid Ads & Social Media
+• Hyper-Targeted Facebook/Instagram Ads: Use Grok’s audience segmentation to run separate ads for tourists (geo-fenced near airports, hotels) vs. locals (loyalty discounts).
+• Google Search Ads: Grok adjusts keywords based on tourist arrival trends and cruise ship schedules.
+• TikTok Spark Ads: Partner with micro-influencers visiting Hawaii; AI identifies best performing content to boost.

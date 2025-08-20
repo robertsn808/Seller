@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campaigns - Marketing Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/admin">Admin Portal</a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/admin">Dashboard</a>
+                <a class="nav-link active" href="/admin/marketing/dashboard">Marketing</a>
+                <a class="nav-link" href="/logout">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-2">
+                <div class="list-group">
+                    <a href="/admin/marketing/dashboard" class="list-group-item list-group-item-action">
+                        <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                    </a>
+                    <a href="/admin/marketing/campaigns" class="list-group-item list-group-item-action active">
+                        <i class="fas fa-bullhorn me-2"></i>Campaigns
+                    </a>
+                    <a href="/admin/email-campaigns" class="list-group-item list-group-item-action">
+                        <i class="fas fa-envelope me-2"></i>Email Campaigns
+                    </a>
+                    <a href="/admin/marketing/templates" class="list-group-item list-group-item-action">
+                        <i class="fas fa-file-alt me-2"></i>Templates
+                    </a>
+                    <a href="/admin/marketing/content-generator" class="list-group-item list-group-item-action">
+                        <i class="fas fa-magic me-2"></i>Content Generator
+                    </a>
+                    <a href="/admin/marketing/analytics" class="list-group-item list-group-item-action">
+                        <i class="fas fa-chart-bar me-2"></i>Analytics
+                    </a>
+                    <a href="/admin/marketing/email-setup" class="list-group-item list-group-item-action">
+                        <i class="fas fa-envelope-open me-2"></i>Email Setup
+                    </a>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-10">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h1>Marketing Campaigns</h1>
+                    <a href="/admin/marketing/campaigns/new" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>New Campaign
+                    </a>
+                </div>
+
+                <!-- Alert Messages -->
+                <div th:if="${message}" class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>
+                    <span th:text="${message}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                
+                <!-- Warnings -->
+                <div th:if="${warnings}" class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Warnings:</strong>
+                    <ul class="mb-0 mt-2">
+                        <li th:each="warning : ${warnings}" th:text="${warning}"></li>
+                    </ul>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                
+                <!-- Suggestions -->
+                <div th:if="${suggestions}" class="alert alert-info alert-dismissible fade show" role="alert">
+                    <i class="fas fa-lightbulb me-2"></i>
+                    <strong>Suggestions to improve your campaign:</strong>
+                    <ul class="mb-0 mt-2">
+                        <li th:each="suggestion : ${suggestions}" th:text="${suggestion}"></li>
+                    </ul>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                
+                <!-- Completed Actions -->
+                <div th:if="${actions}" class="alert alert-success alert-dismissible fade show bg-light border-success" role="alert">
+                    <i class="fas fa-tasks me-2"></i>
+                    <strong>Actions completed:</strong>
+                    <ul class="mb-0 mt-2">
+                        <li th:each="action : ${actions}" th:text="${action}"></li>
+                    </ul>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                
+                <!-- Next Steps -->
+                <div th:if="${nextSteps}" class="alert alert-primary alert-dismissible fade show" role="alert">
+                    <i class="fas fa-arrow-right me-2"></i>
+                    <strong>Next steps:</strong>
+                    <ol class="mb-0 mt-2">
+                        <li th:each="step : ${nextSteps}" th:text="${step}"></li>
+                    </ol>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+
+                <!-- Campaigns Table -->
+                <div class="card">
+                    <div class="card-body">
+                        <div th:if="${#lists.isEmpty(campaigns)}" class="text-center py-5">
+                            <i class="fas fa-bullhorn fa-3x text-muted mb-3"></i>
+                            <h4 class="text-muted">No campaigns found</h4>
+                            <p class="text-muted mb-4">Get started by creating your first marketing campaign</p>
+                            <a href="/admin/marketing/campaigns/new" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>Create Campaign
+                            </a>
+                        </div>
+
+                        <div th:unless="${#lists.isEmpty(campaigns)}" class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Campaign Name</th>
+                                        <th>Type</th>
+                                        <th>Target Audience</th>
+                                        <th>Status</th>
+                                        <th>Budget</th>
+                                        <th>Performance</th>
+                                        <th>Dates</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="campaign : ${campaigns}">
+                                        <td>
+                                            <div>
+                                                <a th:href="@{/admin/marketing/campaigns/{id}(id=${campaign.id})}" 
+                                                   th:text="${campaign.name}" class="text-decoration-none fw-bold">Campaign Name</a>
+                                                <div class="text-muted small" th:text="${campaign.description}"></div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-secondary" th:text="${campaign.type}">Type</span>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-info" th:text="${campaign.targetAudience}">Audience</span>
+                                        </td>
+                                        <td>
+                                            <span class="badge" 
+                                                  th:classappend="${campaign.status == 'ACTIVE' ? 'bg-success' : (campaign.status == 'PAUSED' ? 'bg-warning text-dark' : (campaign.status == 'COMPLETED' ? 'bg-primary' : 'bg-secondary'))}"
+                                                  th:text="${campaign.status}">Status</span>
+                                        </td>
+                                        <td>
+                                            <div>$<span th:text="${#numbers.formatDecimal(campaign.budget, 0, 2)}">0.00</span></div>
+                                            <div class="text-muted small">
+                                                Spent: $<span th:text="${campaign.cost != null ? #numbers.formatDecimal(campaign.cost, 0, 2) : '0.00'}">0.00</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="small">
+                                                <div><strong th:text="${campaign.leads != null ? campaign.leads : 0}">0</strong> leads</div>
+                                                <div th:text="${campaign.clicks != null ? campaign.clicks : 0}">0</div> clicks
+                                                <div th:text="${campaign.clickThroughRate != null ? #numbers.formatDecimal(campaign.clickThroughRate, 0, 2) + '%' : 'N/A'}">N/A</div> CTR
+                                            </div>
+                                        </td>
+                                        <td class="small">
+                                            <div th:text="${#temporals.format(campaign.startDate, 'MMM dd, yyyy')}" 
+                                                 th:if="${campaign.startDate}">Start Date</div>
+                                            <div th:text="${#temporals.format(campaign.endDate, 'MMM dd, yyyy')}" 
+                                                 th:if="${campaign.endDate}" class="text-muted">End Date</div>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <a th:href="@{/admin/marketing/campaigns/{id}(id=${campaign.id})}" 
+                                                   class="btn btn-sm btn-outline-primary" title="View Details">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <a th:href="@{/admin/marketing/campaigns/{id}/edit(id=${campaign.id})}" 
+                                                   class="btn btn-sm btn-outline-secondary" title="Edit">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <div class="btn-group" role="group">
+                                                    <button type="button" class="btn btn-sm btn-outline-warning dropdown-toggle" 
+                                                            data-bs-toggle="dropdown" title="Change Status">
+                                                        <i class="fas fa-cog"></i>
+                                                    </button>
+                                                    <ul class="dropdown-menu">
+                                                        <li th:if="${campaign.status != 'ACTIVE'}">
+                                                            <form th:action="@{/admin/marketing/campaigns/{id}/status(id=${campaign.id})}" 
+                                                                  method="post" class="m-0">
+                                                                <input type="hidden" name="status" value="ACTIVE">
+                                                                <button type="submit" class="dropdown-item">
+                                                                    <i class="fas fa-play me-2"></i>Activate
+                                                                </button>
+                                                            </form>
+                                                        </li>
+                                                        <li th:if="${campaign.status == 'ACTIVE'}">
+                                                            <form th:action="@{/admin/marketing/campaigns/{id}/status(id=${campaign.id})}" 
+                                                                  method="post" class="m-0">
+                                                                <input type="hidden" name="status" value="PAUSED">
+                                                                <button type="submit" class="dropdown-item">
+                                                                    <i class="fas fa-pause me-2"></i>Pause
+                                                                </button>
+                                                            </form>
+                                                        </li>
+                                                        <li th:if="${campaign.status != 'COMPLETED'}">
+                                                            <form th:action="@{/admin/marketing/campaigns/{id}/status(id=${campaign.id})}" 
+                                                                  method="post" class="m-0">
+                                                                <input type="hidden" name="status" value="COMPLETED">
+                                                                <button type="submit" class="dropdown-item">
+                                                                    <i class="fas fa-check me-2"></i>Complete
+                                                                </button>
+                                                            </form>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

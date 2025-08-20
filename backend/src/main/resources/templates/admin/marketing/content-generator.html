@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Content Generator - Marketing Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/admin">Admin Portal</a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/admin">Dashboard</a>
+                <a class="nav-link active" href="/admin/marketing/dashboard">Marketing</a>
+                <a class="nav-link" href="/admin/clients">Clients</a>
+                <a class="nav-link" href="/admin/email-campaigns">Email Campaigns</a>
+                <a class="nav-link" href="/logout">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-2">
+                <div class="list-group">
+                    <a href="/admin/marketing/dashboard" class="list-group-item list-group-item-action">
+                        <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                    </a>
+                    <a href="/admin/marketing/campaigns" class="list-group-item list-group-item-action">
+                        <i class="fas fa-bullhorn me-2"></i>Campaigns
+                    </a>
+                    <a href="/admin/marketing/templates" class="list-group-item list-group-item-action">
+                        <i class="fas fa-file-alt me-2"></i>Templates
+                    </a>
+                    <a href="/admin/marketing/content-generator" class="list-group-item list-group-item-action active">
+                        <i class="fas fa-magic me-2"></i>Content Generator
+                    </a>
+                    <a href="/admin/marketing/analytics" class="list-group-item list-group-item-action">
+                        <i class="fas fa-chart-bar me-2"></i>Analytics
+                    </a>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-10">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h1>Content Generator</h1>
+                    <div>
+                        <button class="btn btn-success me-2" data-bs-toggle="modal" data-bs-target="#aiGeneratorModal">
+                            <i class="fas fa-robot me-2"></i>AI Content Generator
+                        </button>
+                        <a href="/admin/marketing/templates/new" class="btn btn-outline-primary">
+                            <i class="fas fa-plus me-2"></i>Create Custom Template
+                        </a>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <!-- Seller Templates -->
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100">
+                            <div class="card-header bg-success text-white">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-home me-2"></i>Seller Templates
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <p class="card-text">Ready-to-use templates targeting property sellers</p>
+                                
+                                <div th:if="${#lists.isEmpty(sellerTemplates)}" class="text-center py-3">
+                                    <i class="fas fa-file-alt fa-2x text-muted mb-2"></i>
+                                    <p class="text-muted small">No seller templates available</p>
+                                    <a href="/admin/marketing/templates/new" class="btn btn-success btn-sm">Create First Template</a>
+                                </div>
+                                
+                                <div th:unless="${#lists.isEmpty(sellerTemplates)}" class="template-list">
+                                    <div class="template-item mb-3 p-3 border rounded" th:each="template : ${sellerTemplates}">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <h6 class="mb-1" th:text="${template.name}">Template Name</h6>
+                                            <span class="badge bg-secondary small" th:text="${template.type}">Type</span>
+                                        </div>
+                                        <p class="small text-muted mb-2" th:text="${#strings.abbreviate(template.content, 80)}">Content preview</p>
+                                        <div class="d-flex gap-2">
+                                            <button class="btn btn-success btn-sm copy-template" 
+                                                    th:data-content="${template.content}"
+                                                    th:data-headline="${template.headline}"
+                                                    th:data-cta="${template.callToAction}">
+                                                <i class="fas fa-copy me-1"></i>Copy
+                                            </button>
+                                            <button class="btn btn-outline-success btn-sm preview-template"
+                                                    th:data-name="${template.name}"
+                                                    th:data-type="${template.type}"
+                                                    th:data-content="${template.content}"
+                                                    th:data-headline="${template.headline}"
+                                                    th:data-cta="${template.callToAction}">
+                                                <i class="fas fa-eye me-1"></i>Preview
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Buyer Templates -->
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-search me-2"></i>Buyer Templates
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <p class="card-text">Ready-to-use templates targeting property buyers</p>
+                                
+                                <div th:if="${#lists.isEmpty(buyerTemplates)}" class="text-center py-3">
+                                    <i class="fas fa-file-alt fa-2x text-muted mb-2"></i>
+                                    <p class="text-muted small">No buyer templates available</p>
+                                    <a href="/admin/marketing/templates/new" class="btn btn-primary btn-sm">Create First Template</a>
+                                </div>
+                                
+                                <div th:unless="${#lists.isEmpty(buyerTemplates)}" class="template-list">
+                                    <div class="template-item mb-3 p-3 border rounded" th:each="template : ${buyerTemplates}">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <h6 class="mb-1" th:text="${template.name}">Template Name</h6>
+                                            <span class="badge bg-secondary small" th:text="${template.type}">Type</span>
+                                        </div>
+                                        <p class="small text-muted mb-2" th:text="${#strings.abbreviate(template.content, 80)}">Content preview</p>
+                                        <div class="d-flex gap-2">
+                                            <button class="btn btn-primary btn-sm copy-template" 
+                                                    th:data-content="${template.content}"
+                                                    th:data-headline="${template.headline}"
+                                                    th:data-cta="${template.callToAction}">
+                                                <i class="fas fa-copy me-1"></i>Copy
+                                            </button>
+                                            <button class="btn btn-outline-primary btn-sm preview-template"
+                                                    th:data-name="${template.name}"
+                                                    th:data-type="${template.type}"
+                                                    th:data-content="${template.content}"
+                                                    th:data-headline="${template.headline}"
+                                                    th:data-cta="${template.callToAction}">
+                                                <i class="fas fa-eye me-1"></i>Preview
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- General Templates -->
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100">
+                            <div class="card-header bg-info text-white">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-users me-2"></i>General Templates
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <p class="card-text">Templates suitable for both buyers and sellers</p>
+                                
+                                <div th:if="${#lists.isEmpty(generalTemplates)}" class="text-center py-3">
+                                    <i class="fas fa-file-alt fa-2x text-muted mb-2"></i>
+                                    <p class="text-muted small">No general templates available</p>
+                                    <a href="/admin/marketing/templates/new" class="btn btn-info btn-sm">Create First Template</a>
+                                </div>
+                                
+                                <div th:unless="${#lists.isEmpty(generalTemplates)}" class="template-list">
+                                    <div class="template-item mb-3 p-3 border rounded" th:each="template : ${generalTemplates}">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <h6 class="mb-1" th:text="${template.name}">Template Name</h6>
+                                            <span class="badge bg-secondary small" th:text="${template.type}">Type</span>
+                                        </div>
+                                        <p class="small text-muted mb-2" th:text="${#strings.abbreviate(template.content, 80)}">Content preview</p>
+                                        <div class="d-flex gap-2">
+                                            <button class="btn btn-info btn-sm copy-template" 
+                                                    th:data-content="${template.content}"
+                                                    th:data-headline="${template.headline}"
+                                                    th:data-cta="${template.callToAction}">
+                                                <i class="fas fa-copy me-1"></i>Copy
+                                            </button>
+                                            <button class="btn btn-outline-info btn-sm preview-template"
+                                                    th:data-name="${template.name}"
+                                                    th:data-type="${template.type}"
+                                                    th:data-content="${template.content}"
+                                                    th:data-headline="${template.headline}"
+                                                    th:data-cta="${template.callToAction}">
+                                                <i class="fas fa-eye me-1"></i>Preview
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Generated Content -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header bg-success text-white">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-robot me-2"></i>AI Generated Content
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h6 class="text-success">For Sellers:</h6>
+                                        <div th:if="${#lists.isEmpty(aiSellerContent)}" class="text-center py-3">
+                                            <i class="fas fa-robot fa-2x text-muted mb-2"></i>
+                                            <p class="text-muted small">No AI-generated content yet</p>
+                                            <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#aiGeneratorModal">
+                                                Generate AI Content
+                                            </button>
+                                        </div>
+                                        <div th:unless="${#lists.isEmpty(aiSellerContent)}" class="ai-content-list">
+                                            <div class="ai-content-item mb-3 p-3 border rounded" th:each="content : ${aiSellerContent}">
+                                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                                    <h6 class="mb-1" th:text="${content.category ?: 'General'}">Category</h6>
+                                                    <span class="badge bg-success small" th:text="${content.contentType}">Type</span>
+                                                </div>
+                                                <p class="small text-muted mb-2" th:text="${#strings.abbreviate(content.content, 100)}">Content preview</p>
+                                                <div class="d-flex gap-2">
+                                                    <button class="btn btn-success btn-sm copy-ai-content" 
+                                                            th:data-content="${content.content}"
+                                                            th:data-id="${content.id}">
+                                                        <i class="fas fa-copy me-1"></i>Copy
+                                                    </button>
+                                                    <button class="btn btn-outline-success btn-sm preview-ai-content"
+                                                            th:data-content="${content.content}"
+                                                            th:data-type="${content.contentType}"
+                                                            th:data-category="${content.category}">
+                                                        <i class="fas fa-eye me-1"></i>Preview
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h6 class="text-primary">For Buyers:</h6>
+                                        <div th:if="${#lists.isEmpty(aiBuyerContent)}" class="text-center py-3">
+                                            <i class="fas fa-robot fa-2x text-muted mb-2"></i>
+                                            <p class="text-muted small">No AI-generated content yet</p>
+                                            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#aiGeneratorModal">
+                                                Generate AI Content
+                                            </button>
+                                        </div>
+                                        <div th:unless="${#lists.isEmpty(aiBuyerContent)}" class="ai-content-list">
+                                            <div class="ai-content-item mb-3 p-3 border rounded" th:each="content : ${aiBuyerContent}">
+                                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                                    <h6 class="mb-1" th:text="${content.category ?: 'General'}">Category</h6>
+                                                    <span class="badge bg-primary small" th:text="${content.contentType}">Type</span>
+                                                </div>
+                                                <p class="small text-muted mb-2" th:text="${#strings.abbreviate(content.content, 100)}">Content preview</p>
+                                                <div class="d-flex gap-2">
+                                                    <button class="btn btn-primary btn-sm copy-ai-content" 
+                                                            th:data-content="${content.content}"
+                                                            th:data-id="${content.id}">
+                                                        <i class="fas fa-copy me-1"></i>Copy
+                                                    </button>
+                                                    <button class="btn btn-outline-primary btn-sm preview-ai-content"
+                                                            th:data-content="${content.content}"
+                                                            th:data-type="${content.contentType}"
+                                                            th:data-category="${content.category}">
+                                                        <i class="fas fa-eye me-1"></i>Preview
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Content Ideas -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-lightbulb me-2"></i>Quick Content Ideas
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h6 class="text-success">For Sellers:</h6>
+                                        <ul class="list-unstyled">
+                                            <li class="mb-2">
+                                                <button class="btn btn-outline-success btn-sm me-2 copy-idea" 
+                                                        data-content="Need to sell your house fast? We buy houses in any condition - no repairs needed! Cash offer in 24 hours. Call now!">
+                                                    <i class="fas fa-copy"></i>
+                                                </button>
+                                                <small>Fast cash buyers - no repairs needed</small>
+                                            </li>
+                                            <li class="mb-2">
+                                                <button class="btn btn-outline-success btn-sm me-2 copy-idea" 
+                                                        data-content="Inherited a property you don't want? We specialize in helping families sell inherited homes quickly and hassle-free.">
+                                                    <i class="fas fa-copy"></i>
+                                                </button>
+                                                <small>Inherited property solutions</small>
+                                            </li>
+                                            <li class="mb-2">
+                                                <button class="btn btn-outline-success btn-sm me-2 copy-idea" 
+                                                        data-content="Behind on mortgage payments? We can help! We buy houses before foreclosure and help you move forward with dignity.">
+                                                    <i class="fas fa-copy"></i>
+                                                </button>
+                                                <small>Pre-foreclosure assistance</small>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h6 class="text-primary">For Buyers:</h6>
+                                        <ul class="list-unstyled">
+                                            <li class="mb-2">
+                                                <button class="btn btn-outline-primary btn-sm me-2 copy-idea" 
+                                                        data-content="Looking for your next investment property? We have off-market deals with great potential returns. Join our buyers list!">
+                                                    <i class="fas fa-copy"></i>
+                                                </button>
+                                                <small>Investment property opportunities</small>
+                                            </li>
+                                            <li class="mb-2">
+                                                <button class="btn btn-outline-primary btn-sm me-2 copy-idea" 
+                                                        data-content="First-time buyer? We'll guide you through the process and help you find the perfect home within your budget.">
+                                                    <i class="fas fa-copy"></i>
+                                                </button>
+                                                <small>First-time buyer guidance</small>
+                                            </li>
+                                            <li class="mb-2">
+                                                <button class="btn btn-outline-primary btn-sm me-2 copy-idea" 
+                                                        data-content="Cash buyers wanted! Get access to exclusive properties before they hit the market. No financing contingencies needed.">
+                                                    <i class="fas fa-copy"></i>
+                                                </button>
+                                                <small>Cash buyer opportunities</small>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Generator Modal -->
+    <div class="modal fade" id="aiGeneratorModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-robot me-2"></i>AI Content Generator
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <!-- Input Form -->
+                        <div class="col-md-6">
+                            <form id="aiGeneratorForm">
+                                <div class="mb-3">
+                                    <label for="prompt" class="form-label">Content Description</label>
+                                    <textarea class="form-control" id="prompt" name="prompt" rows="3" 
+                                              placeholder="Describe the content you want to generate..."></textarea>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label for="contentType" class="form-label">Content Type</label>
+                                        <select class="form-select" id="contentType" name="contentType" required>
+                                            <option value="">Select Type</option>
+                                            <option value="FACEBOOK_POST">Facebook Post</option>
+                                            <option value="GOOGLE_AD">Google Ad</option>
+                                            <option value="EMAIL">Email</option>
+                                            <option value="CRAIGSLIST_AD">Craigslist Ad</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="targetAudience" class="form-label">Target Audience</label>
+                                        <select class="form-select" id="targetAudience" name="targetAudience" required>
+                                            <option value="">Select Audience</option>
+                                            <option value="SELLERS">Sellers</option>
+                                            <option value="BUYERS">Buyers</option>
+                                            <option value="BOTH">Both</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="row mt-3">
+                                    <div class="col-md-6">
+                                        <label for="category" class="form-label">Category (Optional)</label>
+                                        <select class="form-select" id="category" name="category">
+                                            <option value="">Select Category</option>
+                                            <option value="GENERAL">General</option>
+                                            <option value="DISTRESSED">Distressed Properties</option>
+                                            <option value="INHERITED">Inherited Properties</option>
+                                            <option value="INVESTORS">Investors</option>
+                                            <option value="FIRST_TIME">First Time Buyers</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="variationCount" class="form-label">Variations</label>
+                                        <select class="form-select" id="variationCount" name="variationCount">
+                                            <option value="1">1 Variation</option>
+                                            <option value="3" selected>3 Variations</option>
+                                            <option value="5">5 Variations</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3 mt-3">
+                                    <label for="context" class="form-label">Additional Context (Optional)</label>
+                                    <textarea class="form-control" id="context" name="context" rows="2" 
+                                              placeholder="Any additional context or specific requirements..."></textarea>
+                                </div>
+                                
+                                <div class="d-grid gap-2">
+                                    <button type="submit" class="btn btn-success" id="generateBtn">
+                                        <i class="fas fa-magic me-2"></i>Generate Content
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary" id="getSuggestionsBtn">
+                                        <i class="fas fa-lightbulb me-2"></i>Get Suggestions
+                                    </button>
+                                </div>
+                            </form>
+                            
+                            <!-- Suggestions Panel -->
+                            <div id="suggestionsPanel" class="mt-3" style="display: none;">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h6 class="mb-0">AI Suggestions</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <ul id="suggestionsList" class="list-unstyled">
+                                            <!-- Suggestions will be inserted here -->
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Generated Content -->
+                        <div class="col-md-6">
+                            <div id="generationStatus" class="text-center py-4" style="display: none;">
+                                <div class="spinner-border text-success" role="status">
+                                    <span class="visually-hidden">Generating...</span>
+                                </div>
+                                <p class="mt-2">Generating AI content...</p>
+                            </div>
+                            
+                            <div id="generatedContent" style="display: none;">
+                                <h6>Generated Content:</h6>
+                                <div id="contentResults">
+                                    <!-- Generated content will be inserted here -->
+                                </div>
+                            </div>
+                            
+                            <div id="noContentMessage" class="text-center py-4">
+                                <i class="fas fa-robot fa-2x text-muted mb-2"></i>
+                                <p class="text-muted">Fill out the form and click "Generate Content" to create AI-powered marketing content.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="saveAllContent" style="display: none;">
+                        <i class="fas fa-save me-2"></i>Save All Content
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Preview Modal -->
+    <div class="modal fade" id="previewModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="previewModalTitle">Template Preview</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="modalPreviewContent">
+                        <!-- Preview content will be inserted here -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="modalCopyButton">
+                        <i class="fas fa-copy me-2"></i>Copy Content
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Toast -->
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+        <div id="copyToast" class="toast" role="alert">
+            <div class="toast-header">
+                <i class="fas fa-check-circle text-success me-2"></i>
+                <strong class="me-auto">Success</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body">
+                Content copied to clipboard!
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const copyToast = new bootstrap.Toast(document.getElementById('copyToast'));
+            const previewModal = new bootstrap.Modal(document.getElementById('previewModal'));
+            const aiGeneratorModal = new bootstrap.Modal(document.getElementById('aiGeneratorModal'));
+            let currentTemplateData = {};
+            let generatedContentData = [];
+
+            // Copy template content
+            document.querySelectorAll('.copy-template, .copy-idea').forEach(button => {
+                button.addEventListener('click', function() {
+                    const content = this.dataset.content;
+                    copyToClipboard(content);
+                });
+            });
+
+            // Copy AI content
+            document.querySelectorAll('.copy-ai-content').forEach(button => {
+                button.addEventListener('click', function() {
+                    const content = this.dataset.content;
+                    const contentId = this.dataset.id;
+                    copyToClipboard(content);
+                    
+                    // Update usage tracking
+                    if (contentId) {
+                        fetch('/admin/marketing/content-generator/use-content', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                            },
+                            body: 'contentId=' + contentId
+                        });
+                    }
+                });
+            });
+
+            // Preview template
+            document.querySelectorAll('.preview-template, .preview-ai-content').forEach(button => {
+                button.addEventListener('click', function() {
+                    currentTemplateData = {
+                        name: this.dataset.name || this.dataset.category || 'AI Generated',
+                        type: this.dataset.type,
+                        content: this.dataset.content,
+                        headline: this.dataset.headline,
+                        cta: this.dataset.cta
+                    };
+                    
+                    showPreview(currentTemplateData);
+                });
+            });
+
+            // Modal copy button
+            document.getElementById('modalCopyButton').addEventListener('click', function() {
+                if (currentTemplateData.content) {
+                    copyToClipboard(currentTemplateData.content);
+                    previewModal.hide();
+                }
+            });
+
+            // AI Generator Form
+            document.getElementById('aiGeneratorForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                generateAIContent();
+            });
+
+            // Get Suggestions Button
+            document.getElementById('getSuggestionsBtn').addEventListener('click', function() {
+                getSuggestions();
+            });
+
+            // Save All Content Button
+            document.getElementById('saveAllContent').addEventListener('click', function() {
+                saveAllGeneratedContent();
+            });
+
+            function copyToClipboard(text) {
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(text).then(function() {
+                        copyToast.show();
+                    });
+                } else {
+                    // Fallback for older browsers
+                    const textArea = document.createElement('textarea');
+                    textArea.value = text;
+                    document.body.appendChild(textArea);
+                    textArea.focus();
+                    textArea.select();
+                    try {
+                        document.execCommand('copy');
+                        copyToast.show();
+                    } catch (err) {
+                        console.error('Failed to copy text: ', err);
+                    }
+                    document.body.removeChild(textArea);
+                }
+            }
+
+            function generateAIContent() {
+                const formData = new FormData(document.getElementById('aiGeneratorForm'));
+                const data = Object.fromEntries(formData);
+                
+                // Show loading state
+                document.getElementById('generationStatus').style.display = 'block';
+                document.getElementById('generatedContent').style.display = 'none';
+                document.getElementById('noContentMessage').style.display = 'none';
+                document.getElementById('generateBtn').disabled = true;
+                
+                const variationCount = parseInt(data.variationCount);
+                
+                if (variationCount > 1) {
+                    // Generate multiple variations
+                    fetch('/admin/marketing/content-generator/generate-variations', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: new URLSearchParams(data)
+                    })
+                    .then(response => response.json())
+                    .then(result => {
+                        document.getElementById('generationStatus').style.display = 'none';
+                        document.getElementById('generateBtn').disabled = false;
+                        
+                        if (result.success) {
+                            generatedContentData = result.variations;
+                            displayGeneratedContent(result.variations);
+                            document.getElementById('saveAllContent').style.display = 'block';
+                        } else {
+                            showError('Failed to generate content: ' + result.message);
+                        }
+                    })
+                    .catch(error => {
+                        document.getElementById('generationStatus').style.display = 'none';
+                        document.getElementById('generateBtn').disabled = false;
+                        showError('Error generating content: ' + error.message);
+                    });
+                } else {
+                    // Generate single content
+                    fetch('/admin/marketing/content-generator/generate', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: new URLSearchParams(data)
+                    })
+                    .then(response => response.json())
+                    .then(result => {
+                        document.getElementById('generationStatus').style.display = 'none';
+                        document.getElementById('generateBtn').disabled = false;
+                        
+                        if (result.success) {
+                            generatedContentData = [result.content];
+                            displayGeneratedContent([result.content]);
+                            document.getElementById('saveAllContent').style.display = 'block';
+                        } else {
+                            showError('Failed to generate content: ' + result.message);
+                        }
+                    })
+                    .catch(error => {
+                        document.getElementById('generationStatus').style.display = 'none';
+                        document.getElementById('generateBtn').disabled = false;
+                        showError('Error generating content: ' + error.message);
+                    });
+                }
+            }
+
+            function getSuggestions() {
+                const contentType = document.getElementById('contentType').value;
+                const targetAudience = document.getElementById('targetAudience').value;
+                
+                if (!contentType || !targetAudience) {
+                    showError('Please select both content type and target audience first.');
+                    return;
+                }
+                
+                fetch(`/admin/marketing/content-generator/suggestions?contentType=${contentType}&targetAudience=${targetAudience}`)
+                    .then(response => response.json())
+                    .then(result => {
+                        if (result.success) {
+                            displaySuggestions(result.suggestions);
+                        } else {
+                            showError('Failed to get suggestions: ' + result.message);
+                        }
+                    })
+                    .catch(error => {
+                        showError('Error getting suggestions: ' + error.message);
+                    });
+            }
+
+            function displaySuggestions(suggestions) {
+                const suggestionsList = document.getElementById('suggestionsList');
+                const suggestionsPanel = document.getElementById('suggestionsPanel');
+                
+                suggestionsList.innerHTML = '';
+                
+                if (suggestions.length === 0) {
+                    suggestionsList.innerHTML = '<li class="text-muted">No suggestions available yet.</li>';
+                } else {
+                    suggestions.forEach(suggestion => {
+                        const li = document.createElement('li');
+                        li.className = 'mb-2';
+                        li.innerHTML = `<i class="fas fa-lightbulb text-warning me-2"></i>${suggestion}`;
+                        suggestionsList.appendChild(li);
+                    });
+                }
+                
+                suggestionsPanel.style.display = 'block';
+            }
+
+            function displayGeneratedContent(contentArray) {
+                const contentResults = document.getElementById('contentResults');
+                const generatedContent = document.getElementById('generatedContent');
+                
+                contentResults.innerHTML = '';
+                
+                contentArray.forEach((content, index) => {
+                    const contentCard = document.createElement('div');
+                    contentCard.className = 'card mb-3';
+                    contentCard.innerHTML = `
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <span class="badge bg-success">Variation ${index + 1}</span>
+                            <div>
+                                <button class="btn btn-sm btn-outline-primary copy-generated-content" data-content="${content.content}">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary preview-generated-content" 
+                                        data-content="${content.content}" 
+                                        data-type="${content.contentType}"
+                                        data-category="${content.category || 'General'}">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">${content.content}</p>
+                            <div class="small text-muted">
+                                <strong>Keywords:</strong> ${content.keywords || 'None extracted'}<br>
+                                <strong>Category:</strong> ${content.category || 'General'}
+                            </div>
+                        </div>
+                    `;
+                    contentResults.appendChild(contentCard);
+                });
+                
+                generatedContent.style.display = 'block';
+                
+                // Add event listeners to new buttons
+                document.querySelectorAll('.copy-generated-content').forEach(button => {
+                    button.addEventListener('click', function() {
+                        copyToClipboard(this.dataset.content);
+                    });
+                });
+                
+                document.querySelectorAll('.preview-generated-content').forEach(button => {
+                    button.addEventListener('click', function() {
+                        currentTemplateData = {
+                            name: 'AI Generated',
+                            type: this.dataset.type,
+                            content: this.dataset.content,
+                            category: this.dataset.category
+                        };
+                        showPreview(currentTemplateData);
+                    });
+                });
+            }
+
+            function saveAllGeneratedContent() {
+                // This would typically save the content to templates or campaigns
+                // For now, we'll just show a success message
+                copyToast.show();
+                document.getElementById('saveAllContent').style.display = 'none';
+            }
+
+            function showError(message) {
+                // Create a simple error toast
+                const errorToast = document.createElement('div');
+                errorToast.className = 'toast align-items-center text-white bg-danger border-0';
+                errorToast.setAttribute('role', 'alert');
+                errorToast.innerHTML = `
+                    <div class="d-flex">
+                        <div class="toast-body">${message}</div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                    </div>
+                `;
+                
+                const toastContainer = document.querySelector('.position-fixed');
+                toastContainer.appendChild(errorToast);
+                
+                const toast = new bootstrap.Toast(errorToast);
+                toast.show();
+                
+                // Remove the toast element after it's hidden
+                errorToast.addEventListener('hidden.bs.toast', function() {
+                    toastContainer.removeChild(errorToast);
+                });
+            }
+
+            function showPreview(templateData) {
+                const modalTitle = document.getElementById('previewModalTitle');
+                const modalContent = document.getElementById('modalPreviewContent');
+                
+                modalTitle.textContent = `${templateData.name} - ${templateData.type}`;
+                
+                let previewHtml = '';
+                
+                switch(templateData.type) {
+                    case 'FACEBOOK_POST':
+                        previewHtml = `
+                            <div class="border p-3 bg-light rounded">
+                                <div class="d-flex align-items-center mb-2">
+                                    <div class="bg-primary rounded-circle me-2" style="width: 32px; height: 32px;"></div>
+                                    <strong>Your Business</strong>
+                                </div>
+                                <div class="mb-3">${templateData.content}</div>
+                                ${templateData.cta ? `<button class="btn btn-primary btn-sm" disabled>${templateData.cta}</button>` : ''}
+                            </div>`;
+                        break;
+                    case 'GOOGLE_AD':
+                        previewHtml = `
+                            <div class="border p-3 rounded">
+                                <div class="text-success small">Ad</div>
+                                <h6 class="text-primary mb-1">${templateData.headline || 'Headline'}</h6>
+                                <p class="small mb-1">${templateData.content}</p>
+                                <div class="text-success small">${templateData.cta || 'www.example.com'}</div>
+                            </div>`;
+                        break;
+                    case 'CRAIGSLIST_AD':
+                        previewHtml = `
+                            <div class="border p-3 bg-white rounded">
+                                <h6 class="fw-bold">${templateData.headline || 'Title'}</h6>
+                                <div class="small text-muted mb-2">Real Estate - by owner</div>
+                                <pre class="small">${templateData.content}</pre>
+                                ${templateData.cta ? `<div class="small text-muted">${templateData.cta}</div>` : ''}
+                            </div>`;
+                        break;
+                    case 'EMAIL':
+                        previewHtml = `
+                            <div class="border rounded">
+                                <div class="bg-light p-2 border-bottom">
+                                    <small class="text-muted">Subject: </small>
+                                    <span>${templateData.headline || 'Subject line'}</span>
+                                </div>
+                                <div class="p-3">
+                                    <div>${templateData.content}</div>
+                                    ${templateData.cta ? `<button class="btn btn-primary btn-sm mt-2" disabled>${templateData.cta}</button>` : ''}
+                                </div>
+                            </div>`;
+                        break;
+                    default:
+                        previewHtml = `
+                            <div class="border p-3 rounded">
+                                ${templateData.headline ? `<h6>${templateData.headline}</h6>` : ''}
+                                <p>${templateData.content}</p>
+                                ${templateData.cta ? `<p class="text-primary"><strong>${templateData.cta}</strong></p>` : ''}
+                            </div>`;
+                }
+                
+                modalContent.innerHTML = previewHtml;
+                previewModal.show();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "rooms")
@@ -53,6 +55,12 @@ public class Room {
     
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Transaction> transactions = new ArrayList<>();
+
+    @Column(name = "balance")
+    private BigDecimal balance = BigDecimal.ZERO;
     
     @PrePersist
     protected void onCreate() {
@@ -126,6 +134,22 @@ public class Room {
     
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+
+    public List<Transaction> getTransactions() {
+        return transactions;
+    }
+
+    public void setTransactions(List<Transaction> transactions) {
+        this.transactions = transactions;
+    }
+
+    public BigDecimal getBalance() {
+        return balance;
+    }
+
+    public void setBalance(BigDecimal balance) {
+        this.balance = balance;
+    }
     
     // Helper methods
     public String getDisplayName() {
@@ -144,5 +168,21 @@ public class Room {
             return gateKeyNumber != null ? "Key #" + gateKeyNumber : "Assigned";
         }
         return "Not Assigned";
+    }
+
+    public void addTransaction(Transaction transaction) {
+        transactions.add(transaction);
+        transaction.setRoom(this);
+        calculateBalance();
+    }
+
+    public void calculateBalance() {
+        if (transactions == null) {
+            this.balance = BigDecimal.ZERO;
+            return;
+        }
+        this.balance = transactions.stream()
+                .map(Transaction::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 }

@@ -1,3 +1,11 @@
+# Node.js dependencies and secrets
+node_modules/
+package-lock.json
+yarn.lock
+*.env
+client_secret*.json
+credentials.json
+
 ### IntelliJ IDEA ###
 out/
 !**/src/main/**/out/
@@ -36,3 +44,5 @@ target/
 
 ### File Uploads ###
 uploads/
+
+*.env*

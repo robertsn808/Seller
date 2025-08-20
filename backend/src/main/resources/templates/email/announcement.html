@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Important Announcement - Real Estate Connect</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .header {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 40px;
+            border-radius: 5px 5px 0 0;
+        }
+        .logo {
+            max-width: 200px;
+            height: auto;
+            margin-bottom: 20px;
+        }
+        .announcement-badge {
+            background: #e74c3c;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+        .content {
+            background: #fff;
+            padding: 40px;
+            border-radius: 0 0 5px 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .highlight-box {
+            background: #f8f9fa;
+            border-left: 4px solid #2c3e50;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            font-size: 12px;
+            color: #666;
+        }
+        .button {
+            display: inline-block;
+            padding: 12px 25px;
+            background: #2c3e50;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        .button:hover {
+            background: #34495e;
+        }
+        .unsubscribe {
+            color: #999;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="logo.png" alt="Real Estate Connect" class="logo">
+        <div class="announcement-badge">Important Announcement</div>
+        <h1>Special Announcement</h1>
+    </div>
+    
+    <div class="content">
+        <p>Dear <span th:text="${client.firstName}">Client</span>,</p>
+        
+        <div class="highlight-box">
+            <div th:utext="${message}">Announcement content goes here.</div>
+        </div>
+        
+        <p>If you have any questions about this announcement, please don't hesitate to contact us.</p>
+        
+        <a href="#" class="button">Learn More</a>
+        
+        <p style="margin-top: 30px;">
+            Best regards,<br>
+            The Real Estate Connect Team
+        </p>
+    </div>
+    
+    <div class="footer">
+        <p>
+            This email was sent to <span th:text="${client.email}">email@example.com</span><br>
+            You received this announcement because you're a valued client of Real Estate Connect.
+        </p>
+        <p>
+            <a href="#" class="unsubscribe">Unsubscribe from announcements</a>
+        </p>
+    </div>
+</body>
+</html>

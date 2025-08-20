@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${client.id == null ? 'Add New Client' : 'Edit Client'} + ' - Real Estate Connect'">Client Form</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; }
+        .header { background: linear-gradient(45deg, #667eea, #764ba2); color: white; padding: 20px; text-align: center; }
+        .header h1 { font-size: 2rem; margin-bottom: 10px; }
+        .nav { background: white; padding: 15px 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .nav a { color: #667eea; text-decoration: none; margin-right: 30px; font-weight: 600; }
+        .nav a:hover { text-decoration: underline; }
+        .container { max-width: 800px; margin: 0 auto; padding: 30px 20px; }
+        
+        .form-card { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .form-card h2 { margin-bottom: 30px; color: #333; text-align: center; }
+        
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group.full-width { grid-column: 1 / -1; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #333; }
+        .form-group input, .form-group select, .form-group textarea { 
+            width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; 
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { 
+            outline: none; border-color: #667eea; box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1); 
+        }
+        .form-group textarea { resize: vertical; min-height: 100px; }
+        
+        .required { color: #e74c3c; }
+        .error { color: #e74c3c; font-size: 0.9rem; margin-top: 5px; }
+        
+        .btn { display: inline-block; padding: 12px 24px; background: #667eea; color: white; text-decoration: none; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; margin-right: 15px; }
+        .btn:hover { background: #5a6fd8; }
+        .btn-secondary { background: #6c757d; }
+        .btn-secondary:hover { background: #5a6268; }
+        .btn-success { background: #28a745; }
+        .btn-success:hover { background: #218838; }
+        
+        .form-actions { text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; }
+        
+        .message { padding: 15px; margin-bottom: 20px; border-radius: 5px; }
+        .message.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        
+        .section { margin-bottom: 30px; }
+        .section h3 { margin-bottom: 20px; color: #333; border-bottom: 2px solid #667eea; padding-bottom: 10px; }
+        
+        @media (max-width: 768px) {
+            .form-grid { grid-template-columns: 1fr; }
+            .container { padding: 20px 10px; }
+            .form-card { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 th:text="${client.id == null ? 'Add New Client' : 'Edit Client'}">Client Form</h1>
+        <p>Manage client information and preferences</p>
+    </div>
+    
+    <div class="nav">
+        <a href="/admin/clients">← Back to Client List</a>
+        <a href="/admin">← Back to Admin</a>
+    </div>
+    
+    <div class="container">
+        <!-- Error Messages -->
+        <div th:if="${#fields.hasErrors('*')}" class="message error">
+            <strong>Please correct the following errors:</strong>
+            <ul>
+                <li th:each="error : ${#fields.errors('*')}" th:text="${error}">Error message</li>
+            </ul>
+        </div>
+        
+        <div class="form-card">
+            <h2 th:text="${client.id == null ? 'Add New Client' : 'Edit Client Information'}">Client Form</h2>
+            
+            <form th:action="@{/admin/clients}" th:object="${client}" method="POST">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <input type="hidden" th:field="*{id}">
+                
+                <!-- Basic Information -->
+                <div class="section">
+                    <h3>Basic Information</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="firstName">First Name <span class="required">*</span></label>
+                            <input type="text" id="firstName" th:field="*{firstName}" placeholder="Enter first name">
+                            <div th:if="${#fields.hasErrors('firstName')}" class="error" th:errors="*{firstName}"></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="lastName">Last Name <span class="required">*</span></label>
+                            <input type="text" id="lastName" th:field="*{lastName}" placeholder="Enter last name">
+                            <div th:if="${#fields.hasErrors('lastName')}" class="error" th:errors="*{lastName}"></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="email">Email Address <span class="required">*</span></label>
+                            <input type="email" id="email" th:field="*{email}" placeholder="Enter email address">
+                            <div th:if="${#fields.hasErrors('email')}" class="error" th:errors="*{email}"></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="phoneNumber">Phone Number</label>
+                            <input type="tel" id="phoneNumber" th:field="*{phoneNumber}" placeholder="Enter phone number">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Company Information -->
+                <div class="section">
+                    <h3>Company Information</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="companyName">Company Name</label>
+                            <input type="text" id="companyName" th:field="*{companyName}" placeholder="Enter company name">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="jobTitle">Job Title</label>
+                            <input type="text" id="jobTitle" th:field="*{jobTitle}" placeholder="Enter job title">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Address Information -->
+                <div class="section">
+                    <h3>Address Information</h3>
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label for="address">Street Address</label>
+                            <input type="text" id="address" th:field="*{address}" placeholder="Enter street address">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="city">City</label>
+                            <input type="text" id="city" th:field="*{city}" placeholder="Enter city">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="state">State</label>
+                            <select id="state" th:field="*{state}">
+                                <option value="">Select State</option>
+                                <option th:each="stateOption : ${states}" th:value="${stateOption}" th:text="${stateOption}">State</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="zipCode">ZIP Code</label>
+                            <input type="text" id="zipCode" th:field="*{zipCode}" placeholder="Enter ZIP code">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Client Classification -->
+                <div class="section">
+                    <h3>Client Classification</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="clientType">Client Type</label>
+                            <select id="clientType" th:field="*{clientType}">
+                                <option value="">Select Client Type</option>
+                                <option th:each="type : ${clientTypes}" th:value="${type}" th:text="${type}">Type</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="clientStatus">Client Status</label>
+                            <select id="clientStatus" th:field="*{clientStatus}">
+                                <option value="">Select Status</option>
+                                <option th:each="status : ${clientStatuses}" th:value="${status}" th:text="${status}">Status</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="leadSource">Lead Source</label>
+                            <select id="leadSource" th:field="*{leadSource}">
+                                <option value="">Select Lead Source</option>
+                                <option th:each="source : ${leadSources}" th:value="${source}" th:text="${source}">Source</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Preferences -->
+                <div class="section">
+                    <h3>Preferences & Settings</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" th:field="*{isActive}"> Active Client
+                            </label>
+                            <small style="display: block; color: #666; margin-top: 5px;">Inactive clients won't appear in regular searches</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" th:field="*{emailOptedIn}"> Email Opt-in
+                            </label>
+                            <small style="display: block; color: #666; margin-top: 5px;">Allow this client to receive email communications</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Notes -->
+                <div class="section">
+                    <h3>Notes & Additional Information</h3>
+                    <div class="form-group full-width">
+                        <label for="notes">Notes</label>
+                        <textarea id="notes" th:field="*{notes}" placeholder="Enter any additional notes about this client..."></textarea>
+                    </div>
+                </div>
+                
+                <!-- Form Actions -->
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-success" th:text="${client.id == null ? 'Create Client' : 'Update Client'}">Save Client</button>
+                    <a href="/admin/clients" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

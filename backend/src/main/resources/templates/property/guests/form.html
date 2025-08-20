@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${guest.id == null ? 'New Guest' : 'Edit Guest'}">Guest Form</title>
+    <link rel="stylesheet" th:href="@{/css/property.css}" />
+</head>
+<body>
+<h1 th:text="${guest.id == null ? 'New Guest' : 'Edit Guest'}"></h1>
+<form th:action="@{/property/guests}" method="post" th:object="${guest}">
+    <div th:if="${#fields.hasErrors('*')}">
+        <p style="color:red" th:each="err : ${#fields.errors('*')}" th:text="${err}"></p>
+    </div>
+    <input type="hidden" th:field="*{id}" />
+    <label>First Name: <input th:field="*{firstName}" required></label><br>
+    <label>Last Name: <input th:field="*{lastName}" required></label><br>
+    <label>Email: <input th:field="*{email}" type="email" required></label><br>
+    <label>Phone: <input th:field="*{phoneNumber}" required></label><br>
+    <label>Active: <input type="checkbox" th:field="*{isActive}"></label><br>
+    <button type="submit" th:text="${guest.id == null ? 'Create' : 'Update'}"></button>
+    <a href="/property/guests">Cancel</a>
+</form>
+</body>
+</html>

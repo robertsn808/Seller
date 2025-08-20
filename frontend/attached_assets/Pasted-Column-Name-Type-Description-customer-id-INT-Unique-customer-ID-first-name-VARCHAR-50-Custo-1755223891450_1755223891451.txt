@@ -1,0 +1,141 @@
+Column Name
+Type
+Description
+customer_id
+INT
+Unique customer ID
+first_name
+VARCHAR(50)
+Customer first name
+last_name
+VARCHAR(50)
+Customer last name
+email
+VARCHAR(100)
+Customer email
+phone
+VARCHAR(20)
+Phone number
+join_date
+DATE
+When customer first visited
+loyalty_points
+INT
+Current loyalty points
+preferred_items
+JSON/Text
+Favorite bowls/toppings
+last_visit
+DATETIME
+Last time they ordered
+order_id
+INT
+Unique order ID
+order_date
+DATETIME
+Date of order
+order_channel
+ENUM
+‘in-store’, ‘online’, ‘delivery’
+total_amount
+DECIMAL(8,2)
+Order total
+payment_method
+ENUM
+‘cash’,‘credit’,‘mobile’
+order_status
+ENUM
+‘pending’,‘completed’,‘canceled’
+order_item_id
+INT
+Unique ID for item in the order
+item_id
+INT
+Menu item ID
+item_name
+VARCHAR(100)
+Bowl/topping name
+description
+TEXT
+Menu item description
+category
+ENUM
+‘bowl’,‘topping’,‘sauce’,‘drink’
+price
+DECIMAL(6,2)
+Item price
+seasonal
+BOOLEAN
+Seasonal availability
+ingredients
+JSON/Text
+Ingredient list
+image_url
+VARCHAR(255)
+Menu image
+ingredient_id
+INT
+Ingredient stock ID
+ingredient_name
+VARCHAR(100)
+Ingredient name
+stock_quantity
+DECIMAL(8,2)
+Current stock
+unit
+VARCHAR(20)
+Measurement unit
+reorder_level
+DECIMAL(8,2)
+Low-stock threshold
+supplier
+VARCHAR(100)
+Supplier name
+marketing_interaction_id
+INT
+Interaction record ID
+marketing_channel
+ENUM
+‘email’,‘sms’,‘social’,‘ad’
+campaign_id
+INT
+Marketing campaign ID
+campaign_name
+VARCHAR(100)
+Campaign name
+campaign_start
+DATE
+Campaign start date
+campaign_end
+DATE
+Campaign end date
+campaign_budget
+DECIMAL(10,2)
+Campaign budget
+campaign_platform
+ENUM
+‘facebook’,‘instagram’,‘tiktok’,‘google’
+campaign_objective
+VARCHAR(255)
+Campaign goal
+marketing_action_taken
+ENUM
+‘clicked’,‘purchased’,‘ignored’
+marketing_timestamp
+DATETIME
+Action time
+ai_insight_id
+INT
+AI-generated suggestion ID
+ai_source
+ENUM
+‘social_trend’,‘menu_suggestion’,‘pricing’,‘sentiment’
+ai_data_json
+JSON/Text
+Raw Grok AI output
+ai_created_at
+DATETIME
+When AI insight was generated
+ai_applied
+BOOLEAN
+If the AI suggestion was used

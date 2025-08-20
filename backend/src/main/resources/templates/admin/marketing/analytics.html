@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marketing Analytics - Marketing Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/admin">Admin Portal</a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/admin">Dashboard</a>
+                <a class="nav-link active" href="/admin/marketing/dashboard">Marketing</a>
+                <a class="nav-link" href="/logout">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-2">
+                <div class="list-group">
+                    <a href="/admin/marketing/dashboard" class="list-group-item list-group-item-action">
+                        <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                    </a>
+                    <a href="/admin/marketing/campaigns" class="list-group-item list-group-item-action">
+                        <i class="fas fa-bullhorn me-2"></i>Campaigns
+                    </a>
+                    <a href="/admin/marketing/templates" class="list-group-item list-group-item-action">
+                        <i class="fas fa-file-alt me-2"></i>Templates
+                    </a>
+                    <a href="/admin/marketing/content-generator" class="list-group-item list-group-item-action">
+                        <i class="fas fa-magic me-2"></i>Content Generator
+                    </a>
+                    <a href="/admin/marketing/analytics" class="list-group-item list-group-item-action active">
+                        <i class="fas fa-chart-bar me-2"></i>Analytics
+                    </a>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-10">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h1>Marketing Analytics</h1>
+                    <div>
+                        <button class="btn btn-outline-primary me-2" onclick="refreshData()">
+                            <i class="fas fa-sync-alt me-1"></i>Refresh
+                        </button>
+                        <div class="btn-group" role="group">
+                            <input type="radio" class="btn-check" name="timeRange" id="week" autocomplete="off" checked>
+                            <label class="btn btn-outline-secondary" for="week">7 Days</label>
+                            
+                            <input type="radio" class="btn-check" name="timeRange" id="month" autocomplete="off">
+                            <label class="btn btn-outline-secondary" for="month">30 Days</label>
+                            
+                            <input type="radio" class="btn-check" name="timeRange" id="quarter" autocomplete="off">
+                            <label class="btn btn-outline-secondary" for="quarter">90 Days</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Key Performance Metrics -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="card bg-primary text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="card-title mb-1">This Month Leads</h6>
+                                        <h3 class="mb-0" th:text="${thisMonthLeads}">0</h3>
+                                        <small th:if="${leadGrowth != null}" 
+                                               th:classappend="${leadGrowth >= 0 ? 'text-success' : 'text-danger'}"
+                                               th:text="${leadGrowth >= 0 ? '↗ +' + leadGrowth + '%' : '↘ ' + leadGrowth + '%'}">
+                                            Growth %
+                                        </small>
+                                    </div>
+                                    <i class="fas fa-users fa-2x opacity-50"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-success text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="card-title mb-1">Last Month</h6>
+                                        <h3 class="mb-0" th:text="${lastMonthLeads}">0</h3>
+                                        <small class="opacity-75">Previous period</small>
+                                    </div>
+                                    <i class="fas fa-chart-line fa-2x opacity-50"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-warning text-dark">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="card-title mb-1">Conversion Rate</h6>
+                                        <h3 class="mb-0" id="overallConversionRate">0%</h3>
+                                        <small>Leads to contacts</small>
+                                    </div>
+                                    <i class="fas fa-percentage fa-2x opacity-50"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-info text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="card-title mb-1">Avg Cost/Lead</h6>
+                                        <h3 class="mb-0" id="avgCostPerLead">$0.00</h3>
+                                        <small>Across all campaigns</small>
+                                    </div>
+                                    <i class="fas fa-dollar-sign fa-2x opacity-50"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Row -->
+                <div class="row mb-4">
+                    <!-- Lead Sources Chart -->
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Lead Sources</h5>
+                            </div>
+                            <div class="card-body">
+                                <div th:if="${#lists.isEmpty(sourceStats)}" class="text-center py-4">
+                                    <i class="fas fa-chart-pie fa-3x text-muted mb-3"></i>
+                                    <p class="text-muted">No source data available</p>
+                                </div>
+                                <div th:unless="${#lists.isEmpty(sourceStats)}">
+                                    <canvas id="sourceChart" width="400" height="200"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Campaign Performance Chart -->
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Campaign Performance</h5>
+                            </div>
+                            <div class="card-body">
+                                <div th:if="${#lists.isEmpty(campaignStats)}" class="text-center py-4">
+                                    <i class="fas fa-chart-bar fa-3x text-muted mb-3"></i>
+                                    <p class="text-muted">No campaign data available</p>
+                                </div>
+                                <div th:unless="${#lists.isEmpty(campaignStats)}">
+                                    <canvas id="campaignChart" width="400" height="200"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lead Timeline -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Lead Generation Timeline</h5>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="timelineChart" width="400" height="100"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity & Top Campaigns -->
+                <div class="row mb-4">
+                    <!-- Recent Leads -->
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">Recent Leads</h5>
+                                <span class="badge bg-primary" th:text="${#lists.size(recentLeads)}">0</span>
+                            </div>
+                            <div class="card-body">
+                                <div th:if="${#lists.isEmpty(recentLeads)}" class="text-center py-4">
+                                    <i class="fas fa-users fa-2x text-muted mb-2"></i>
+                                    <p class="text-muted">No recent leads</p>
+                                </div>
+                                <div th:unless="${#lists.isEmpty(recentLeads)}">
+                                    <div class="list-group list-group-flush">
+                                        <div class="list-group-item px-0" th:each="lead : ${recentLeads}">
+                                            <div class="d-flex justify-content-between align-items-start">
+                                                <div>
+                                                    <div class="d-flex align-items-center mb-1">
+                                                        <span th:if="${lead.buyer}" class="badge bg-primary me-2">Buyer</span>
+                                                        <span th:if="${lead.seller}" class="badge bg-success me-2">Seller</span>
+                                                        <small class="text-muted" 
+                                                               th:text="${#temporals.format(lead.createdAt, 'MMM dd, HH:mm')}">Date</small>
+                                                    </div>
+                                                    <div class="fw-bold" th:text="${lead.buyer != null ? lead.buyer.name : lead.seller.name}">Name</div>
+                                                    <div class="small text-muted">
+                                                        Source: <span th:text="${lead.source}">Source</span>
+                                                        <span th:if="${lead.campaign}" class="ms-2">
+                                                            Campaign: <span th:text="${lead.campaign.name}">Campaign</span>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <div class="text-end">
+                                                    <div class="small text-muted" th:if="${lead.utmSource}">
+                                                        <span th:text="${lead.utmSource}">UTM Source</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Top Performing Sources -->
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Top Performing Sources</h5>
+                            </div>
+                            <div class="card-body">
+                                <div th:if="${#lists.isEmpty(sourceStats)}" class="text-center py-4">
+                                    <i class="fas fa-chart-line fa-2x text-muted mb-2"></i>
+                                    <p class="text-muted">No performance data available</p>
+                                </div>
+                                <div th:unless="${#lists.isEmpty(sourceStats)}">
+                                    <div class="row g-3">
+                                        <div class="col-12" th:each="source, iterStat : ${sourceStats}" th:if="${iterStat.index < 5}">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="me-3">
+                                                        <i class="fas fa-circle" 
+                                                           th:style="'color: ' + (${iterStat.index == 0 ? '#0d6efd' : (iterStat.index == 1 ? '#198754' : (iterStat.index == 2 ? '#ffc107' : '#6c757d'))})"></i>
+                                                    </div>
+                                                    <div>
+                                                        <div class="fw-bold" th:text="${source[0]}">Source</div>
+                                                        <div class="small text-muted">Lead source</div>
+                                                    </div>
+                                                </div>
+                                                <div class="text-end">
+                                                    <div class="fw-bold" th:text="${source[1]}">0</div>
+                                                    <div class="small text-muted">leads</div>
+                                                </div>
+                                            </div>
+                                            <div class="progress mt-2" style="height: 4px;">
+                                                <div class="progress-bar" 
+                                                     th:style="'width: ' + (${source[1]} * 100.0 / ${sourceStats[0][1]}) + '%'"
+                                                     th:classappend="${iterStat.index == 0 ? 'bg-primary' : (iterStat.index == 1 ? 'bg-success' : (iterStat.index == 2 ? 'bg-warning' : 'bg-secondary'))}"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Export Options -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Export & Reports</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-3 mb-2">
+                                        <button class="btn btn-outline-primary w-100" onclick="exportData('leads')">
+                                            <i class="fas fa-download me-2"></i>Export Leads Data
+                                        </button>
+                                    </div>
+                                    <div class="col-md-3 mb-2">
+                                        <button class="btn btn-outline-success w-100" onclick="exportData('campaigns')">
+                                            <i class="fas fa-download me-2"></i>Export Campaign Data
+                                        </button>
+                                    </div>
+                                    <div class="col-md-3 mb-2">
+                                        <button class="btn btn-outline-info w-100" onclick="generateReport('monthly')">
+                                            <i class="fas fa-file-pdf me-2"></i>Monthly Report
+                                        </button>
+                                    </div>
+                                    <div class="col-md-3 mb-2">
+                                        <button class="btn btn-outline-warning w-100" onclick="generateReport('quarterly')">
+                                            <i class="fas fa-file-excel me-2"></i>Quarterly Report
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:inline="javascript">
+        // Data from Thymeleaf
+        var sourceData = /*[[${sourceStats}]]*/ [];
+        var campaignData = /*[[${campaignStats}]]*/ [];
+        var recentLeadsData = /*[[${recentLeads}]]*/ [];
+
+        // Chart instances
+        let sourceChart, campaignChart, timelineChart;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeCharts();
+            calculateMetrics();
+        });
+
+        function initializeCharts() {
+            // Source Chart (Pie Chart)
+            if (sourceData && sourceData.length > 0) {
+                const sourceCtx = document.getElementById('sourceChart').getContext('2d');
+                sourceChart = new Chart(sourceCtx, {
+                    type: 'pie',
+                    data: {
+                        labels: sourceData.map(item => item[0]),
+                        datasets: [{
+                            data: sourceData.map(item => item[1]),
+                            backgroundColor: [
+                                '#0d6efd', '#198754', '#ffc107', '#dc3545', 
+                                '#6f42c1', '#20c997', '#fd7e14', '#6c757d'
+                            ],
+                            borderWidth: 2,
+                            borderColor: '#ffffff'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Campaign Chart (Bar Chart)
+            if (campaignData && campaignData.length > 0) {
+                const campaignCtx = document.getElementById('campaignChart').getContext('2d');
+                campaignChart = new Chart(campaignCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: campaignData.map(item => item[0]),
+                        datasets: [{
+                            label: 'Leads Generated',
+                            data: campaignData.map(item => item[1]),
+                            backgroundColor: 'rgba(13, 110, 253, 0.7)',
+                            borderColor: 'rgba(13, 110, 253, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    stepSize: 1
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Timeline Chart (Line Chart)
+            initializeTimelineChart();
+        }
+
+        function initializeTimelineChart() {
+            // Generate sample timeline data for the past 30 days
+            const timelineCtx = document.getElementById('timelineChart').getContext('2d');
+            const last30Days = [];
+            const leadCounts = [];
+            
+            for (let i = 29; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(date.getDate() - i);
+                last30Days.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+                // Generate random data for demo purposes
+                leadCounts.push(Math.floor(Math.random() * 10));
+            }
+
+            timelineChart = new Chart(timelineCtx, {
+                type: 'line',
+                data: {
+                    labels: last30Days,
+                    datasets: [{
+                        label: 'Daily Leads',
+                        data: leadCounts,
+                        borderColor: 'rgba(13, 110, 253, 1)',
+                        backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+
+        function calculateMetrics() {
+            // Calculate overall conversion rate (demo calculation)
+            if (sourceData && sourceData.length > 0) {
+                const totalLeads = sourceData.reduce((sum, item) => sum + parseInt(item[1]), 0);
+                // Assume 15% conversion rate for demo
+                const conversionRate = Math.round(totalLeads * 0.15 * 100) / totalLeads || 15;
+                document.getElementById('overallConversionRate').textContent = conversionRate.toFixed(1) + '%';
+                
+                // Calculate average cost per lead (demo calculation)
+                const avgCost = totalLeads > 0 ? (1000 / totalLeads).toFixed(2) : '0.00';
+                document.getElementById('avgCostPerLead').textContent = '$' + avgCost;
+            }
+        }
+
+        function refreshData() {
+            // In a real application, this would fetch fresh data from the server
+            location.reload();
+        }
+
+        function exportData(type) {
+            // In a real application, this would trigger a server-side export
+            alert(`Exporting ${type} data... (This is a demo function)`);
+        }
+
+        function generateReport(period) {
+            // In a real application, this would generate and download a report
+            alert(`Generating ${period} report... (This is a demo function)`);
+        }
+
+        // Time range filtering
+        document.querySelectorAll('input[name="timeRange"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                // In a real application, this would filter the data based on the selected time range
+                console.log('Time range changed to:', this.id);
+                // You could make an AJAX call here to fetch filtered data
+            });
+        });
+    </script>
+</body>
+</html>

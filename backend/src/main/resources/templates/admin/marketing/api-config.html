@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Configuration - Marketing Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/admin">Admin Portal</a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/admin">Dashboard</a>
+                <a class="nav-link active" href="/admin/marketing/dashboard">Marketing</a>
+                <a class="nav-link" href="/logout">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-2">
+                <div class="list-group">
+                    <a href="/admin/marketing/dashboard" class="list-group-item list-group-item-action">
+                        <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                    </a>
+                    <a href="/admin/marketing/campaigns" class="list-group-item list-group-item-action">
+                        <i class="fas fa-bullhorn me-2"></i>Campaigns
+                    </a>
+                    <a href="/admin/marketing/templates" class="list-group-item list-group-item-action">
+                        <i class="fas fa-file-alt me-2"></i>Templates
+                    </a>
+                    <a href="/admin/marketing/content-generator" class="list-group-item list-group-item-action">
+                        <i class="fas fa-magic me-2"></i>Content Generator
+                    </a>
+                    <a href="/admin/marketing/analytics" class="list-group-item list-group-item-action">
+                        <i class="fas fa-chart-bar me-2"></i>Analytics
+                    </a>
+                    <a href="/admin/marketing/api-config" class="list-group-item list-group-item-action active">
+                        <i class="fas fa-cog me-2"></i>API Configuration
+                    </a>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-10">
+                <h1 class="mb-4">API Configuration Guide</h1>
+
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Important:</strong> To publish campaigns directly to Facebook, Google Ads, and Instagram, you need to configure API credentials. 
+                    Without these, campaigns will be saved locally for manual publishing.
+                </div>
+
+                <!-- Facebook/Meta Ads Configuration -->
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="fab fa-facebook me-2"></i>Facebook/Meta Ads API Setup
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <h6>Steps to Configure Facebook Ads API:</h6>
+                                <ol>
+                                    <li><strong>Create a Facebook App:</strong>
+                                        <ul>
+                                            <li>Go to <a href="https://developers.facebook.com" target="_blank">Facebook Developers</a></li>
+                                            <li>Create a new app and select "Business" as the app type</li>
+                                            <li>Add the "Marketing API" product to your app</li>
+                                        </ul>
+                                    </li>
+                                    <li><strong>Get Access Token:</strong>
+                                        <ul>
+                                            <li>Go to Tools → Graph API Explorer</li>
+                                            <li>Select your app and generate a User Access Token</li>
+                                            <li>Add permissions: <code>ads_management</code>, <code>ads_read</code>, <code>pages_read_engagement</code></li>
+                                        </ul>
+                                    </li>
+                                    <li><strong>Find Your Ad Account ID:</strong>
+                                        <ul>
+                                            <li>Go to Facebook Ads Manager</li>
+                                            <li>Your Ad Account ID is in the URL or under Account Settings</li>
+                                        </ul>
+                                    </li>
+                                    <li><strong>Get Page ID:</strong>
+                                        <ul>
+                                            <li>Go to your Facebook Business Page</li>
+                                            <li>Go to Settings → Page Info to find your Page ID</li>
+                                        </ul>
+                                    </li>
+                                </ol>
+                                
+                                <div class="alert alert-warning">
+                                    <strong>Security Note:</strong> Never commit API tokens to version control. Use environment variables in production.
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card bg-light">
+                                    <div class="card-header">
+                                        <h6 class="mb-0">Configuration Properties</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <small class="text-muted">Add these to your application.properties:</small>
+                                        <pre class="mt-2"><code>facebook.access-token=YOUR_ACCESS_TOKEN
+facebook.ad-account-id=YOUR_AD_ACCOUNT_ID  
+facebook.page-id=YOUR_PAGE_ID</code></pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Google Ads Configuration -->
+                <div class="card mb-4">
+                    <div class="card-header bg-danger text-white">
+                        <h5 class="mb-0">
+                            <i class="fab fa-google me-2"></i>Google Ads API Setup
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <h6>Steps to Configure Google Ads API:</h6>
+                                <ol>
+                                    <li><strong>Create Google Ads Developer Token:</strong>
+                                        <ul>
+                                            <li>Go to <a href="https://ads.google.com" target="_blank">Google Ads</a></li>
+                                            <li>Navigate to Tools & Settings → API Center</li>
+                                            <li>Apply for a developer token (may require approval)</li>
+                                        </ul>
+                                    </li>
+                                    <li><strong>Set up OAuth 2.0:</strong>
+                                        <ul>
+                                            <li>Go to <a href="https://console.cloud.google.com" target="_blank">Google Cloud Console</a></li>
+                                            <li>Create a project and enable the Google Ads API</li>
+                                            <li>Create OAuth 2.0 credentials (Client ID and Secret)</li>
+                                        </ul>
+                                    </li>
+                                    <li><strong>Get Refresh Token:</strong>
+                                        <ul>
+                                            <li>Use the OAuth playground or generate via API</li>
+                                            <li>Ensure you have <code>https://www.googleapis.com/auth/adwords</code> scope</li>
+                                        </ul>
+                                    </li>
+                                    <li><strong>Find Customer ID:</strong>
+                                        <ul>
+                                            <li>Your Google Ads Customer ID (without dashes)</li>
+                                            <li>Found in the top right of Google Ads interface</li>
+                                        </ul>
+                                    </li>
+                                </ol>
+                                
+                                <div class="alert alert-info">
+                                    <strong>Note:</strong> Google Ads API requires approval and may have strict usage policies. 
+                                    Test with a sandbox environment first.
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card bg-light">
+                                    <div class="card-header">
+                                        <h6 class="mb-0">Configuration Properties</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <small class="text-muted">Add these to your application.properties:</small>
+                                        <pre class="mt-2"><code>google.ads.developer-token=YOUR_DEV_TOKEN
+google.ads.client-id=YOUR_CLIENT_ID
+google.ads.client-secret=YOUR_CLIENT_SECRET
+google.ads.refresh-token=YOUR_REFRESH_TOKEN
+google.ads.customer-id=YOUR_CUSTOMER_ID</code></pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Instagram Configuration -->
+                <div class="card mb-4">
+                    <div class="card-header bg-gradient text-white" style="background: linear-gradient(45deg, #405de6, #5851db, #833ab4, #c13584, #e1306c, #fd1d1d);">
+                        <h5 class="mb-0">
+                            <i class="fab fa-instagram me-2"></i>Instagram API Setup
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Good News:</strong> Instagram ads use the same Facebook Marketing API. 
+                            Once you configure Facebook API credentials above, Instagram campaigns will work automatically.
+                        </div>
+                        
+                        <h6>Additional Instagram Requirements:</h6>
+                        <ul>
+                            <li>Your Facebook Page must be connected to an Instagram Business Account</li>
+                            <li>Ensure your Facebook app has Instagram permissions</li>
+                            <li>Add <code>instagram_basic</code> and <code>pages_show_list</code> permissions</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Testing & Verification -->
+                <div class="card mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-check-circle me-2"></i>Testing Your Configuration
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Testing Steps:</h6>
+                                <ol>
+                                    <li>Add your API credentials to <code>application.properties</code></li>
+                                    <li>Restart your Spring Boot application</li>
+                                    <li>Create a test campaign with status "DRAFT"</li>
+                                    <li>Try changing status to "ACTIVE" or use "Publish to Platform" button</li>
+                                    <li>Check application logs for any API errors</li>
+                                </ol>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="alert alert-warning">
+                                    <h6>Common Issues:</h6>
+                                    <ul class="mb-0">
+                                        <li><strong>Access Token Expired:</strong> Tokens need periodic renewal</li>
+                                        <li><strong>Permissions Missing:</strong> Ensure all required scopes are granted</li>
+                                        <li><strong>Account Not Approved:</strong> Google Ads API requires approval</li>
+                                        <li><strong>Budget Too Low:</strong> Minimum daily budgets may apply</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Alternative: Manual Publishing -->
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-hands me-2"></i>Manual Publishing Alternative
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <p>Don't want to set up APIs right now? No problem! You can:</p>
+                        <ul>
+                            <li>Use the Marketing Dashboard to plan and organize campaigns</li>
+                            <li>Generate content using the Content Generator</li>
+                            <li>Copy campaign content and manually post to platforms</li>
+                            <li>Track performance manually by updating campaign metrics</li>
+                            <li>Set up APIs later when you're ready to automate</li>
+                        </ul>
+                        
+                        <div class="alert alert-light border">
+                            <strong>Pro Tip:</strong> Start with manual publishing to test your content and messaging, 
+                            then automate with APIs once you've optimized your campaigns.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

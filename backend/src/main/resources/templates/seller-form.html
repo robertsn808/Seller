@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seller Information - Real Estate Connect</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 700px; margin: 0 auto; background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { color: #333; font-size: 2rem; margin-bottom: 10px; }
+        .header p { color: #666; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #333; }
+        input, select, textarea { width: 100%; padding: 12px; border: 2px solid #e1e1e1; border-radius: 8px; font-size: 1rem; transition: border-color 0.3s; }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: #667eea; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
+        .checkbox-group { display: flex; align-items: center; }
+        .checkbox-group input { width: auto; margin-right: 10px; }
+        .error { color: #e74c3c; font-size: 0.9rem; margin-top: 5px; }
+        .btn { width: 100%; padding: 15px; background: linear-gradient(45deg, #667eea, #764ba2); color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        .back-link { display: inline-block; margin-bottom: 20px; color: #667eea; text-decoration: none; }
+        .back-link:hover { text-decoration: underline; }
+        @media (max-width: 768px) { 
+            .form-row, .form-row-3 { grid-template-columns: 1fr; }
+            .container { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-link">← Back to Home</a>
+        
+        <div class="header">
+            <h1>Tell Us About Your Property</h1>
+            <p>Share your property details so we can connect you with qualified buyers</p>
+        </div>
+        
+        <form th:action="@{/seller}" th:object="${seller}" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="name">Full Name *</label>
+                <input type="text" id="name" th:field="*{name}" required>
+                <div class="error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="email">Email *</label>
+                    <input type="email" id="email" th:field="*{email}" required>
+                    <div class="error" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="phone">Phone *</label>
+                    <input type="tel" id="phone" th:field="*{phone}" required>
+                    <div class="error" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}"></div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="propertyAddress">Property Address *</label>
+                <input type="text" id="propertyAddress" th:field="*{propertyAddress}" placeholder="Street address" required>
+                <div class="error" th:if="${#fields.hasErrors('propertyAddress')}" th:errors="*{propertyAddress}"></div>
+            </div>
+            
+            <div class="form-row-3">
+                <div class="form-group">
+                    <label for="city">City</label>
+                    <input type="text" id="city" th:field="*{city}">
+                </div>
+                
+                <div class="form-group">
+                    <label for="state">State</label>
+                    <input type="text" id="state" th:field="*{state}" maxlength="2">
+                </div>
+                
+                <div class="form-group">
+                    <label for="zipCode">ZIP Code</label>
+                    <input type="text" id="zipCode" th:field="*{zipCode}" maxlength="10">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="propertyType">Property Type</label>
+                    <select id="propertyType" th:field="*{propertyType}">
+                        <option value="">Select type</option>
+                        <option value="Single Family">Single Family</option>
+                        <option value="Condo">Condo</option>
+                        <option value="Townhouse">Townhouse</option>
+                        <option value="Multi-Family">Multi-Family</option>
+                        <option value="Land">Land</option>
+                        <option value="Commercial">Commercial</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="askingPrice">Asking Price *</label>
+                    <input type="number" id="askingPrice" th:field="*{askingPrice}" min="0" step="1000" required>
+                    <div class="error" th:if="${#fields.hasErrors('askingPrice')}" th:errors="*{askingPrice}"></div>
+                </div>
+            </div>
+            
+            <div class="form-row-3">
+                <div class="form-group">
+                    <label for="bedrooms">Bedrooms</label>
+                    <select id="bedrooms" th:field="*{bedrooms}">
+                        <option value="">Select</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5+</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="bathrooms">Bathrooms</label>
+                    <select id="bathrooms" th:field="*{bathrooms}">
+                        <option value="">Select</option>
+                        <option value="1">1</option>
+                        <option value="1.5">1.5</option>
+                        <option value="2">2</option>
+                        <option value="2.5">2.5</option>
+                        <option value="3">3</option>
+                        <option value="3.5">3.5</option>
+                        <option value="4">4+</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="squareFootage">Square Footage</label>
+                    <input type="number" id="squareFootage" th:field="*{squareFootage}" min="0">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="yearBuilt">Year Built</label>
+                    <input type="number" id="yearBuilt" th:field="*{yearBuilt}" min="1800" max="2024">
+                </div>
+                
+                <div class="form-group">
+                    <label for="condition">Property Condition</label>
+                    <select id="condition" th:field="*{condition}">
+                        <option value="">Select condition</option>
+                        <option value="Excellent">Excellent</option>
+                        <option value="Good">Good</option>
+                        <option value="Fair">Fair</option>
+                        <option value="Needs Work">Needs Work</option>
+                        <option value="Fixer Upper">Fixer Upper</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="sellingReason">Reason for Selling</label>
+                    <select id="sellingReason" th:field="*{sellingReason}">
+                        <option value="">Select reason</option>
+                        <option value="Relocation">Relocation</option>
+                        <option value="Upgrade">Upgrade</option>
+                        <option value="Downsize">Downsize</option>
+                        <option value="Financial">Financial</option>
+                        <option value="Investment">Investment</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="timeframe">Selling Timeframe</label>
+                    <select id="timeframe" th:field="*{timeframe}">
+                        <option value="">Select timeframe</option>
+                        <option value="ASAP">ASAP</option>
+                        <option value="30 days">Within 30 days</option>
+                        <option value="90 days">Within 90 days</option>
+                        <option value="6 months">Within 6 months</option>
+                        <option value="Flexible">Flexible</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="ownerFinancing" th:field="*{ownerFinancing}">
+                        <label for="ownerFinancing">Open to owner financing</label>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="needsRepairs" th:field="*{needsRepairs}">
+                        <label for="needsRepairs">Property needs repairs</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="openToCreativeFinancing" th:field="*{openToCreativeFinancing}">
+                    <label for="openToCreativeFinancing">Open to creative financing options (rent-to-own, lease option, etc.)</label>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="repairDetails">Repair Details (if applicable)</label>
+                <textarea id="repairDetails" th:field="*{repairDetails}" rows="3" placeholder="Describe any repairs needed..."></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="photos">Property Photos</label>
+                <input type="file" id="photos" name="photos" multiple accept="image/*" style="padding: 8px;">
+                <div style="font-size: 0.9rem; color: #666; margin-top: 5px;">
+                    Upload up to 10 photos (max 10MB each). Supported formats: JPG, PNG, GIF, WebP
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="additionalNotes">Additional Notes</label>
+                <textarea id="additionalNotes" th:field="*{additionalNotes}" rows="4" placeholder="Tell us anything else about your property, special features, or requirements..."></textarea>
+            </div>
+            
+            <button type="submit" class="btn">Submit Property Information</button>
+        </form>
+    </div>
+</body>
+</html>
