@@ -467,26 +467,6 @@ public class PropertyManagementController {
         return "redirect:/property/rooms";
     }
 
-    @PostMapping("/rooms/{id}/transactions")
-    public String addTransaction(@PathVariable Long id,
-                                 @RequestParam String description,
-                                 @RequestParam BigDecimal amount,
-                                 @RequestParam String paidBy,
-                                 HttpSession session,
-                                 RedirectAttributes redirectAttributes) {
-        String authCheck = redirectToLoginIfNotAuthenticated(session);
-        if (authCheck != null) return authCheck;
-
-        try {
-            transactionService.addTransaction(id, description, amount, paidBy);
-            redirectAttributes.addFlashAttribute("message", "Transaction added successfully!");
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Error adding transaction: " + e.getMessage());
-        }
-
-        return "redirect:/property/rooms/" + id;
-    }
-
     // Guest Management
     @GetMapping("/guests")
     public String listGuests(Model model, HttpSession session, @RequestParam(required = false) String search) {
