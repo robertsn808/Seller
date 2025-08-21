@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 300;
+        }
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+            padding: 8px 15px;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        .nav-links a:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .summary-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 30px;
+            text-align: center;
+        }
+        .summary-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 15px;
+        }
+        .summary-value {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h1>🏨 Property Management</h1>
+            <div class="nav-links">
+                <a href="/property/dashboard">Dashboard</a>
+                <a href="/property/rooms">Rooms</a>
+                <a href="/property/guests">Guests</a>
+                <a href="/property/bookings">Bookings</a>
+                <a href="/financials/dashboard">Financials</a>
+                <a href="/property/logout">Logout</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="summary-card" style="margin-bottom: 20px;">
+            <h2 class="summary-title">Total Holdings</h2>
+            <p class="summary-value">$1175.00</p>
+        </div>
+
+        <div class="summary-card" style="margin-bottom: 20px; text-align:left;">
+            <h2 class="summary-title">Room Balances</h2>
+            <table style="width:100%; border-collapse:collapse;">
+                <thead>
+                    <tr style="background:#eef1ff; text-align:left;">
+                        <th style="padding:8px;">Room</th>
+                        <th style="padding:8px;">Balance</th>
+                        <th style="padding:8px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="padding:8px; border-bottom:1px solid #f0f0f0;">102 - Deluxe Room</td>
+                        <td style="padding:8px; border-bottom:1px solid #f0f0f0;">$<span>800.00</span></td>
+                        <td style="padding:8px; border-bottom:1px solid #f0f0f0;">
+                            <a href="/property/rooms/2">View Room</a>
+                            |
+                            <a href="/financials/ledger?roomId=2">Finance View</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding:8px; border-bottom:1px solid #f0f0f0;">101 - Test Suite</td>
+                        <td style="padding:8px; border-bottom:1px solid #f0f0f0;">$<span>375.00</span></td>
+                        <td style="padding:8px; border-bottom:1px solid #f0f0f0;">
+                            <a href="/property/rooms/1">View Room</a>
+                            |
+                            <a href="/financials/ledger?roomId=1">Finance View</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="summary-card" style="text-align:left;">
+            <h2 class="summary-title">Recent Transactions</h2>
+            <div style="margin-bottom:10px;">
+                <a href="/financials/ledger">Open Full Ledger</a>
+                &nbsp;|&nbsp;
+                <a href="/financials/export.csv">Export CSV</a>
+            </div>
+            <table style="width:100%; border-collapse:collapse;">
+                <thead>
+                    <tr style="background:#eef1ff; text-align:left;">
+                        <th style="padding:8px;">Date</th>
+                        <th style="padding:8px;">Room</th>
+                        <th style="padding:8px;">Description</th>
+                        <th style="padding:8px;">Amount</th>
+                        <th style="padding:8px;">Paid By</th>
+                        <th style="padding:8px;">Received By</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="padding:8px; border-bottom:1px solid #f0f0f0;">08/21/2025 05:00</td>
+                        <td style="padding:8px; border-bottom:1px solid #f0f0f0;">102 - Deluxe Room</td>
+                        <td style="padding:8px; border-bottom:1px solid #f0f0f0;">Monthly Rent</td>
+                        <td style="padding:8px; border-bottom:1px solid #f0f0f0;">$<span>800.00</span></td>
+                        <td style="padding:8px; border-bottom:1px solid #f0f0f0;">Bob Johnson</td>
+                        <td style="padding:8px; border-bottom:1px solid #f0f0f0;">Unknown</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:8px; border-bottom:1px solid #f0f0f0;">08/21/2025 04:55</td>
+                        <td style="padding:8px; border-bottom:1px solid #f0f0f0;">101 - Test Suite</td>
+                        <td style="padding:8px; border-bottom:1px solid #f0f0f0;">Security Deposit</td>
+                        <td style="padding:8px; border-bottom:1px solid #f0f0f0;">$<span>200.00</span></td>
+                        <td style="padding:8px; border-bottom:1px solid #f0f0f0;">Jane Smith</td>
+                        <td style="padding:8px; border-bottom:1px solid #f0f0f0;">Unknown</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:8px; border-bottom:1px solid #f0f0f0;">08/21/2025 04:54</td>
+                        <td style="padding:8px; border-bottom:1px solid #f0f0f0;">101 - Test Suite</td>
+                        <td style="padding:8px; border-bottom:1px solid #f0f0f0;">Cleaning Fee</td>
+                        <td style="padding:8px; border-bottom:1px solid #f0f0f0;">$<span>25.00</span></td>
+                        <td style="padding:8px; border-bottom:1px solid #f0f0f0;">Property Manager</td>
+                        <td style="padding:8px; border-bottom:1px solid #f0f0f0;">Unknown</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:8px; border-bottom:1px solid #f0f0f0;">08/21/2025 04:52</td>
+                        <td style="padding:8px; border-bottom:1px solid #f0f0f0;">101 - Test Suite</td>
+                        <td style="padding:8px; border-bottom:1px solid #f0f0f0;">Test Payment</td>
+                        <td style="padding:8px; border-bottom:1px solid #f0f0f0;">$<span>150.00</span></td>
+                        <td style="padding:8px; border-bottom:1px solid #f0f0f0;">John Doe</td>
+                        <td style="padding:8px; border-bottom:1px solid #f0f0f0;">Unknown</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

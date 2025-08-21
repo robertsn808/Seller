@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Ledger</title>
+    <style>
+        body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background:#f5f7fa; color:#333; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:#fff; padding: 16px 0; }
+        .header-content { max-width: 1200px; margin: 0 auto; padding: 0 20px; display:flex; justify-content:space-between; }
+        .nav-links a { color:#fff; text-decoration:none; margin-left:16px; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .card { background:#fff; border-radius:10px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); padding:20px; }
+        table { width:100%; border-collapse: collapse; }
+        th, td { padding: 10px; border-bottom:1px solid #eee; text-align:left; }
+        thead th { background:#eef1ff; }
+        .filters { display:flex; gap:10px; margin-bottom:12px; align-items: center; }
+        .filters input, .filters select { padding:8px; }
+        .actions a { margin-right: 12px; }
+    </style>
+    <script>
+        function setTodayRange() {
+            const now = new Date();
+            const start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0,0,0);
+            const end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23,59,59);
+            document.getElementById('start').value = start.toISOString().slice(0,19);
+            document.getElementById('end').value = end.toISOString().slice(0,19);
+        }
+    </script>
+    </head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h2>🏨 Property Financial Ledger</h2>
+            <div class="nav-links">
+                <a href="/property/dashboard">Dashboard</a>
+                <a href="/financials/dashboard">Financials</a>
+                <a href="/property/logout">Logout</a>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="card">
+            <form method="get" action="/financials/ledger" class="filters">
+                <label>Room:
+                    <select name="roomId">
+                        <option value="" selected="selected">All</option>
+                        <option value="2">102 - Deluxe Room</option>
+                        <option value="1">101 - Test Suite</option>
+                    </select>
+                </label>
+                <label>Start:
+                    <input id="start" type="datetime-local" name="start" value="">
+                </label>
+                <label>End:
+                    <input id="end" type="datetime-local" name="end" value="">
+                </label>
+                <button type="submit">Filter</button>
+                <button type="button" onclick="setTodayRange()">Today</button>
+                <div class="actions">
+                    <a href="/financials/export.csv?roomId=&amp;start=&amp;end=">Export CSV</a>
+                </div>
+            </form>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Room</th>
+                        <th>Description</th>
+                        <th>Amount</th>
+                        <th>Paid By</th>
+                        <th>Received By</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>08/21/2025 05:00</td>
+                        <td>102 - Deluxe Room</td>
+                        <td>Monthly Rent</td>
+                        <td>$<span>800.00</span></td>
+                        <td>Bob Johnson</td>
+                        <td>Unknown</td>
+                    </tr>
+                    <tr>
+                        <td>08/21/2025 04:55</td>
+                        <td>101 - Test Suite</td>
+                        <td>Security Deposit</td>
+                        <td>$<span>200.00</span></td>
+                        <td>Jane Smith</td>
+                        <td>Unknown</td>
+                    </tr>
+                    <tr>
+                        <td>08/21/2025 04:54</td>
+                        <td>101 - Test Suite</td>
+                        <td>Cleaning Fee</td>
+                        <td>$<span>25.00</span></td>
+                        <td>Property Manager</td>
+                        <td>Unknown</td>
+                    </tr>
+                    <tr>
+                        <td>08/21/2025 04:52</td>
+                        <td>101 - Test Suite</td>
+                        <td>Test Payment</td>
+                        <td>$<span>150.00</span></td>
+                        <td>John Doe</td>
+                        <td>Unknown</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
