@@ -86,7 +86,7 @@ public class HomeController {
     @PostMapping("/seller")
     public String submitSeller(@Valid @ModelAttribute("seller") Seller seller, 
                               BindingResult result,
-                              @RequestParam("photos") List<MultipartFile> photos,
+                              @RequestParam(value = "photos", required = false) List<MultipartFile> photos,
                               RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) {
             return "seller-form";
