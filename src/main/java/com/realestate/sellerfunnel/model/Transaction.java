@@ -1,6 +1,7 @@
 package com.realestate.sellerfunnel.model;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -14,6 +15,7 @@ public class Transaction {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_id", nullable = false)
+    @JsonIgnoreProperties("transactions")
     private Room room;
 
     @Column(name = "description")

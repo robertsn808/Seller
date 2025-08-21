@@ -2,6 +2,7 @@ package com.realestate.sellerfunnel.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -57,6 +58,7 @@ public class Room {
     private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties("room")
     private List<Transaction> transactions = new ArrayList<>();
 
     @Column(name = "balance")
