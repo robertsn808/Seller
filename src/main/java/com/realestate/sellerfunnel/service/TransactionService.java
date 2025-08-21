@@ -20,11 +20,12 @@ public class TransactionService {
     private RoomRepository roomRepository;
 
     @Transactional
-    public Transaction addTransaction(Long roomId, String description, BigDecimal amount, String paidBy) {
+    public Transaction addTransaction(Long roomId, String description, BigDecimal amount, String paidBy, String collectedBy) {
         Room room = roomRepository.findById(roomId)
                 .orElseThrow(() -> new RuntimeException("Room not found with ID: " + roomId));
 
         Transaction transaction = new Transaction(room, description, amount, paidBy);
+        transaction.setCollectedBy(collectedBy);
         room.addTransaction(transaction);
 
         transactionRepository.save(transaction);

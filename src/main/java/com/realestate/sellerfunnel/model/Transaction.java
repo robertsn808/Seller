@@ -25,6 +25,9 @@ public class Transaction {
     @Column(name = "paid_by")
     private String paidBy;
 
+    @Column(name = "collected_by")
+    private String collectedBy; // User/staff who received the payment
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
@@ -82,6 +85,14 @@ public class Transaction {
 
     public void setPaidBy(String paidBy) {
         this.paidBy = paidBy;
+    }
+
+    public String getCollectedBy() {
+        return collectedBy;
+    }
+
+    public void setCollectedBy(String collectedBy) {
+        this.collectedBy = collectedBy;
     }
 
     public LocalDateTime getCreatedAt() {

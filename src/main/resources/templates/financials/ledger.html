@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Ledger</title>
+    <style>
+        body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background:#f5f7fa; color:#333; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:#fff; padding: 16px 0; }
+        .header-content { max-width: 1200px; margin: 0 auto; padding: 0 20px; display:flex; justify-content:space-between; }
+        .nav-links a { color:#fff; text-decoration:none; margin-left:16px; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .card { background:#fff; border-radius:10px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); padding:20px; }
+        table { width:100%; border-collapse: collapse; }
+        th, td { padding: 10px; border-bottom:1px solid #eee; text-align:left; }
+        thead th { background:#eef1ff; }
+        .filters { display:flex; gap:10px; margin-bottom:12px; align-items: center; }
+        .filters input, .filters select { padding:8px; }
+        .actions a { margin-right: 12px; }
+    </style>
+    <script>
+        function setTodayRange() {
+            const now = new Date();
+            const start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0,0,0);
+            const end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23,59,59);
+            document.getElementById('start').value = start.toISOString().slice(0,19);
+            document.getElementById('end').value = end.toISOString().slice(0,19);
+        }
+    </script>
+    </head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h2>🏨 Property Financial Ledger</h2>
+            <div class="nav-links">
+                <a href="/property/dashboard">Dashboard</a>
+                <a href="/financials/dashboard">Financials</a>
+                <a href="/property/logout">Logout</a>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="card">
+            <form method="get" action="/financials/ledger" class="filters">
+                <label>Room:
+                    <select name="roomId">
+                        <option value="" th:selected="${selectedRoomId == null}">All</option>
+                        <option th:each="r : ${rooms}" th:value="${r.id}" th:text="${r.displayName}" th:selected="${selectedRoomId == r.id}"></option>
+                    </select>
+                </label>
+                <label>Start:
+                    <input id="start" type="datetime-local" name="start" th:value="${start}">
+                </label>
+                <label>End:
+                    <input id="end" type="datetime-local" name="end" th:value="${end}">
+                </label>
+                <button type="submit">Filter</button>
+                <button type="button" onclick="setTodayRange()">Today</button>
+                <div class="actions">
+                    <a th:href="@{/financials/export.csv(roomId=${selectedRoomId}, start=${start}, end=${end})}">Export CSV</a>
+                </div>
+            </form>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Room</th>
+                        <th>Description</th>
+                        <th>Amount</th>
+                        <th>Paid By</th>
+                        <th>Received By</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="t : ${transactions}">
+                        <td th:text="${#temporals.format(t.createdAt,'MM/dd/yyyy HH:mm')}">01/01/2025 12:00</td>
+                        <td th:text="${t.room != null ? t.room.displayName : '-'}">101</td>
+                        <td th:text="${t.description}">Rent</td>
+                        <td>$<span th:text="${#numbers.formatDecimal(t.amount,1,2)}">0.00</span></td>
+                        <td th:text="${t.paidBy}">Guest</td>
+                        <td th:text="${t.collectedBy != null ? t.collectedBy : '—'}">Staff</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
+

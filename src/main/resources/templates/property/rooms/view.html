@@ -323,6 +323,7 @@
                                     <th style="padding:8px;">Description</th>
                                     <th style="padding:8px;">Amount</th>
                                     <th style="padding:8px;">Paid By</th>
+                                    <th style="padding:8px;">Received By</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -331,6 +332,7 @@
                                     <td style="padding:8px; border-bottom:1px solid #f0f0f0;" th:text="${t.description}">Payment</td>
                                     <td style="padding:8px; border-bottom:1px solid #f0f0f0;"><strong>$</strong><span th:text="${#numbers.formatDecimal(t.amount,1,2)}">0.00</span></td>
                                     <td style="padding:8px; border-bottom:1px solid #f0f0f0;" th:text="${t.paidBy}">Guest</td>
+                                    <td style="padding:8px; border-bottom:1px solid #f0f0f0;" th:text="${t.collectedBy != null ? t.collectedBy : '—'}">Staff</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -352,6 +354,10 @@
                         <div class="info-row">
                             <label for="paidBy" class="info-label">Paid By:</label>
                             <input type="text" id="paidBy" name="paidBy" required class="info-value" style="width: 60%;">
+                        </div>
+                        <div class="info-row">
+                            <label for="collectedBy" class="info-label">Received By:</label>
+                            <input type="text" id="collectedBy" name="collectedBy" placeholder="Staff name or initials" class="info-value" style="width: 60%;">
                         </div>
                         <div class="actions">
                             <button type="submit" class="btn btn-primary">Add Transaction</button>

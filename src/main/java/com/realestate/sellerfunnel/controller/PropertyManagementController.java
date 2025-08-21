@@ -280,6 +280,30 @@ public class PropertyManagementController {
         }
     }
 
+    // Add a transaction to a room (ledger entry)
+    @PostMapping("/rooms/{id}/transactions")
+    public String addRoomTransaction(@PathVariable Long id,
+                                     @RequestParam String description,
+                                     @RequestParam BigDecimal amount,
+                                     @RequestParam String paidBy,
+                                     @RequestParam(required = false) String collectedBy,
+                                     HttpSession session,
+                                     RedirectAttributes redirectAttributes) {
+        String authCheck = redirectToLoginIfNotAuthenticated(session);
+        if (authCheck != null) return authCheck;
+        try {
+            if (collectedBy == null || collectedBy.trim().isEmpty()) {
+                // fallback to a simple user hint in session if ever used; else mark as Unknown
+                collectedBy = "Unknown";
+            }
+            transactionService.addTransaction(id, description, amount, paidBy, collectedBy);
+            redirectAttributes.addFlashAttribute("message", "Transaction added successfully.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Failed to add transaction: " + e.getMessage());
+        }
+        return "redirect:/property/rooms/" + id;
+    }
+
     @GetMapping("/rooms/{id}/edit")
     public String editRoom(@PathVariable Long id, Model model, HttpSession session, RedirectAttributes redirectAttributes) {
         logger.info("=== EDIT ROOM GET REQUEST ===");
@@ -1207,4 +1231,3 @@ public class PropertyManagementController {
         }
     }
 }
-
