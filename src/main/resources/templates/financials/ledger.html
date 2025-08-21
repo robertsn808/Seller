@@ -45,7 +45,7 @@
                 <label>Room:
                     <select name="roomId">
                         <option value="" th:selected="${selectedRoomId == null}">All</option>
-                        <option th:each="r : ${rooms}" th:value="${r.id}" th:text="${r.displayName}" th:selected="${selectedRoomId == r.id}"></option>
+                        <option th:each="r : ${rooms}" th:value="${r.id}" th:text="${r.displayName}" th:selected="${selectedRoomId != null && selectedRoomId == r.id}"></option>
                     </select>
                 </label>
                 <label>Start:
@@ -74,10 +74,10 @@
                 </thead>
                 <tbody>
                     <tr th:each="t : ${transactions}">
-                        <td th:text="${#temporals.format(t.createdAt,'MM/dd/yyyy HH:mm')}">01/01/2025 12:00</td>
+                        <td th:text="${t.createdAt != null ? #temporals.format(t.createdAt,'MM/dd/yyyy HH:mm') : ''}">01/01/2025 12:00</td>
                         <td th:text="${t.room != null ? t.room.displayName : '-'}">101</td>
                         <td th:text="${t.description}">Rent</td>
-                        <td>$<span th:text="${#numbers.formatDecimal(t.amount,1,2)}">0.00</span></td>
+                        <td>$<span th:text="${t.amount != null ? #numbers.formatDecimal(t.amount,1,2) : '0.00'}">0.00</span></td>
                         <td th:text="${t.paidBy}">Guest</td>
                         <td th:text="${t.collectedBy != null ? t.collectedBy : '—'}">Staff</td>
                     </tr>
@@ -87,4 +87,3 @@
     </div>
 </body>
 </html>
-

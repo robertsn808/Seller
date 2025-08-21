@@ -83,7 +83,8 @@
     <div class="container">
         <div class="summary-card" style="margin-bottom: 20px;">
             <h2 class="summary-title">Total Holdings</h2>
-            <p class="summary-value" th:text="${'$' + #numbers.formatDecimal(totalHoldings, 1, 2)}">$0.00</p>
+            <p class="summary-value" th:text="${totalHoldings != null ? 
+                '$' + #numbers.formatDecimal(totalHoldings, 1, 2) : '$0.00'}">$0.00</p>
         </div>
 
         <div class="summary-card" style="margin-bottom: 20px; text-align:left;">
@@ -99,9 +100,9 @@
                 <tbody>
                     <tr th:each="r : ${roomsByBalance}">
                         <td style="padding:8px; border-bottom:1px solid #f0f0f0;" th:text="${r.displayName}">101 - Ocean</td>
-                        <td style="padding:8px; border-bottom:1px solid #f0f0f0;">$<span th:text="${#numbers.formatDecimal(r.balance,1,2)}">0.00</span></td>
+                        <td style="padding:8px; border-bottom:1px solid #f0f0f0;">$<span th:text="${r.balance != null ? #numbers.formatDecimal(r.balance,1,2) : '0.00'}">0.00</span></td>
                         <td style="padding:8px; border-bottom:1px solid #f0f0f0;">
-                            <a th:href="@{/property/rooms/{id}(id=${r.id})}">View Ledger</a>
+                            <a th:href="@{/property/rooms/{id}(id=${r.id})}">View Room</a>
                             |
                             <a th:href="@{/financials/ledger(roomId=${r.id})}">Finance View</a>
                         </td>
@@ -130,10 +131,10 @@
                 </thead>
                 <tbody>
                     <tr th:each="t : ${recentTransactions}">
-                        <td style="padding:8px; border-bottom:1px solid #f0f0f0;" th:text="${#temporals.format(t.createdAt,'MM/dd/yyyy HH:mm')}">01/01/2025 12:00</td>
+                        <td style="padding:8px; border-bottom:1px solid #f0f0f0;" th:text="${t.createdAt != null ? #temporals.format(t.createdAt,'MM/dd/yyyy HH:mm') : ''}">01/01/2025 12:00</td>
                         <td style="padding:8px; border-bottom:1px solid #f0f0f0;" th:text="${t.room != null ? t.room.displayName : '-'}">101</td>
                         <td style="padding:8px; border-bottom:1px solid #f0f0f0;" th:text="${t.description}">Rent</td>
-                        <td style="padding:8px; border-bottom:1px solid #f0f0f0;">$<span th:text="${#numbers.formatDecimal(t.amount,1,2)}">0.00</span></td>
+                        <td style="padding:8px; border-bottom:1px solid #f0f0f0;">$<span th:text="${t.amount != null ? #numbers.formatDecimal(t.amount,1,2) : '0.00'}">0.00</span></td>
                         <td style="padding:8px; border-bottom:1px solid #f0f0f0;" th:text="${t.paidBy}">Guest</td>
                         <td style="padding:8px; border-bottom:1px solid #f0f0f0;" th:text="${t.collectedBy}">Staff</td>
                     </tr>
