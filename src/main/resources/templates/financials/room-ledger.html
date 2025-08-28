@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Room Ledger - Property Management</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 300;
+        }
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+            padding: 8px 15px;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        .nav-links a:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .summary-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+        .summary-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 15px;
+        }
+        .summary-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #667eea;
+        }
+        .room-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .stat-box {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .stat-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-bottom: 5px;
+        }
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+        .badge-success {
+            background-color: #28a745;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.8em;
+        }
+        .badge-danger {
+            background-color: #dc3545;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.8em;
+        }
+        .text-success {
+            color: #28a745 !important;
+        }
+        .text-danger {
+            color: #dc3545 !important;
+        }
+        .ledger-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+        .ledger-table th {
+            background: #eef1ff;
+            padding: 12px 8px;
+            text-align: left;
+            font-weight: 600;
+        }
+        .ledger-table td {
+            padding: 12px 8px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .ledger-table tbody tr:hover {
+            background-color: #f8f9ff;
+        }
+        .breadcrumb {
+            margin-bottom: 20px;
+        }
+        .breadcrumb a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h1>🏨 Property Management</h1>
+            <div class="nav-links">
+                <a href="/property/dashboard">Dashboard</a>
+                <a href="/property/rooms">Rooms</a>
+                <a href="/property/guests">Guests</a>
+                <a href="/property/bookings">Bookings</a>
+                <a href="/financials/dashboard">Financials</a>
+                <a href="/property/logout">Logout</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="breadcrumb">
+            <a href="/financials/dashboard">Financial Dashboard</a> &gt; 
+            <span th:text="${ledgerSummary != null ? ledgerSummary.room.displayName + ' Ledger' : 'Room Ledger'}">Room Ledger</span>
+        </div>
+
+        <!-- Room Summary -->
+        <div th:if="${ledgerSummary != null}" class="room-summary">
+            <div class="stat-box">
+                <div class="stat-label">Room</div>
+                <div class="stat-value" th:text="${ledgerSummary.room.displayName}">101 - Ocean View</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Current Balance</div>
+                <div class="stat-value" th:classappend="${ledgerSummary.currentBalance.compareTo(T(java.math.BigDecimal).ZERO) >= 0 ? 'text-danger' : 'text-success'}"
+                     th:text="'$' + ${#numbers.formatDecimal(ledgerSummary.currentBalance, 1, 2)}">$0.00</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Total Payments</div>
+                <div class="stat-value text-success" th:text="'$' + ${#numbers.formatDecimal(ledgerSummary.totalPayments, 1, 2)}">$0.00</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Total Charges</div>
+                <div class="stat-value text-danger" th:text="'$' + ${#numbers.formatDecimal(ledgerSummary.totalCharges, 1, 2)}">$0.00</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Total Transactions</div>
+                <div class="stat-value" th:text="${ledgerSummary.transactionCount}">0</div>
+            </div>
+        </div>
+
+        <!-- Add New Transaction Form -->
+        <div class="summary-card" style="text-align: left;">
+            <h3 class="summary-title">Add Transaction</h3>
+            <form th:action="@{/property/rooms/{id}/transactions(id=${roomId})}" method="post" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; align-items: end;">
+                <div>
+                    <label for="description">Description:</label>
+                    <input type="text" id="description" name="description" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                </div>
+                <div>
+                    <label for="amount">Amount:</label>
+                    <input type="number" id="amount" name="amount" step="0.01" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                </div>
+                <div>
+                    <label for="paidBy">Paid By:</label>
+                    <input type="text" id="paidBy" name="paidBy" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                </div>
+                <div>
+                    <label for="collectedBy">Collected By:</label>
+                    <input type="text" id="collectedBy" name="collectedBy" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                </div>
+                <div>
+                    <button type="submit" style="padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer;">Add Transaction</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Full Ledger -->
+        <div class="summary-card" style="text-align: left;">
+            <h3 class="summary-title">Complete Transaction Ledger</h3>
+            <div style="margin-bottom: 15px;">
+                <a th:href="@{/financials/export.csv(roomId=${roomId})}" style="padding: 8px 15px; background: #28a745; color: white; text-decoration: none; border-radius: 4px;">Export CSV</a>
+                <a th:href="@{/property/rooms/{id}(id=${roomId})}" style="margin-left: 10px; padding: 8px 15px; background: #6c757d; color: white; text-decoration: none; border-radius: 4px;">View Room Details</a>
+            </div>
+            
+            <div style="overflow-x: auto;">
+                <table class="ledger-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Category</th>
+                            <th>Description</th>
+                            <th>Amount</th>
+                            <th>Running Balance</th>
+                            <th>Paid By</th>
+                            <th>Received By</th>
+                            <th>Reference</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="t : ${roomLedger}" th:if="${roomLedger != null and not #lists.isEmpty(roomLedger)}">
+                            <td th:text="${t.createdAt != null ? #temporals.format(t.createdAt,'MM/dd/yyyy HH:mm') : ''}">01/01/2025 12:00</td>
+                            <td>
+                                <span th:text="${t.transactionType ?: 'PAYMENT'}" 
+                                      th:class="${(t.transactionType == 'PAYMENT' || t.transactionType == 'DEPOSIT' || t.transactionType == 'REFUND') ? 'badge-success' : 'badge-danger'}">PAYMENT</span>
+                            </td>
+                            <td th:text="${t.transactionCategory ?: 'RENT'}">RENT</td>
+                            <td th:text="${t.description}">Monthly rent payment</td>
+                            <td th:classappend="${(t.transactionType == 'CHARGE' || t.transactionType == 'FEE') ? 'text-danger' : 'text-success'}">
+                                <span th:text="${t.isCredit() ? '+' : '-'}">+</span>$<span th:text="${t.amount != null ? #numbers.formatDecimal(t.amount,1,2) : '0.00'}">0.00</span>
+                            </td>
+                            <td th:classappend="${t.runningBalance != null and t.runningBalance.compareTo(T(java.math.BigDecimal).ZERO) >= 0 ? 'text-danger' : 'text-success'}">
+                                $<span th:text="${t.runningBalance != null ? #numbers.formatDecimal(t.runningBalance,1,2) : '0.00'}">0.00</span>
+                            </td>
+                            <td th:text="${t.paidBy ?: '-'}">John Doe</td>
+                            <td th:text="${t.collectedBy ?: '-'}">Manager</td>
+                            <td th:text="${t.referenceNumber ?: '-'}">-</td>
+                            <td th:text="${t.notes ?: '-'}" style="max-width: 200px; overflow: hidden; text-overflow: ellipsis;">-</td>
+                        </tr>
+                        <tr th:if="${roomLedger == null or #lists.isEmpty(roomLedger)}">
+                            <td colspan="10" style="text-align: center; padding: 20px; color: #6c757d;">No transactions found for this room.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

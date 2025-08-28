@@ -63,6 +63,20 @@
             font-weight: 700;
             color: #667eea;
         }
+        .badge-success {
+            background-color: #28a745;
+            color: white;
+        }
+        .badge-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+        .text-success {
+            color: #28a745 !important;
+        }
+        .text-danger {
+            color: #dc3545 !important;
+        }
     </style>
 </head>
 <body>
@@ -81,10 +95,31 @@
     </div>
 
     <div class="container">
-        <div class="summary-card" style="margin-bottom: 20px;">
-            <h2 class="summary-title">Total Holdings</h2>
-            <p class="summary-value" th:text="${totalHoldings != null ? 
-                '$' + #numbers.formatDecimal(totalHoldings, 1, 2) : '$0.00'}">$0.00</p>
+        <!-- Financial Summary Cards -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px;">
+            <div class="summary-card">
+                <h3 class="summary-title">Total Holdings</h3>
+                <p class="summary-value" th:text="${totalHoldings != null ? 
+                    '$' + #numbers.formatDecimal(totalHoldings, 1, 2) : '$0.00'}">$0.00</p>
+            </div>
+            
+            <div class="summary-card" th:if="${financialSummary != null}">
+                <h3 class="summary-title">Total Payments</h3>
+                <p class="summary-value" style="color: #28a745;" th:text="${financialSummary.totalPayments != null ? 
+                    '$' + #numbers.formatDecimal(financialSummary.totalPayments, 1, 2) : '$0.00'}">$0.00</p>
+            </div>
+            
+            <div class="summary-card" th:if="${financialSummary != null}">
+                <h3 class="summary-title">Total Charges</h3>
+                <p class="summary-value" style="color: #dc3545;" th:text="${financialSummary.totalCharges != null ? 
+                    '$' + #numbers.formatDecimal(financialSummary.totalCharges, 1, 2) : '$0.00'}">$0.00</p>
+            </div>
+            
+            <div class="summary-card" th:if="${financialSummary != null}">
+                <h3 class="summary-title">Rooms with Balance</h3>
+                <p class="summary-value" th:text="${financialSummary.roomsWithBalance != null ? 
+                    financialSummary.roomsWithBalance + ' / ' + financialSummary.totalRooms : '0 / 0'}">0 / 0</p>
+            </div>
         </div>
 
         <div class="summary-card" style="margin-bottom: 20px; text-align:left;">
@@ -105,6 +140,8 @@
                             <a th:href="@{/property/rooms/{id}(id=${r.id})}">View Room</a>
                             |
                             <a th:href="@{/financials/ledger(roomId=${r.id})}">Finance View</a>
+                            |
+                            <a th:href="@{/financials/room/{roomId}/ledger(roomId=${r.id})}">Full Ledger</a>
                         </td>
                     </tr>
                 </tbody>
@@ -123,8 +160,10 @@
                     <tr style="background:#eef1ff; text-align:left;">
                         <th style="padding:8px;">Date</th>
                         <th style="padding:8px;">Room</th>
+                        <th style="padding:8px;">Type</th>
                         <th style="padding:8px;">Description</th>
                         <th style="padding:8px;">Amount</th>
+                        <th style="padding:8px;">Running Balance</th>
                         <th style="padding:8px;">Paid By</th>
                         <th style="padding:8px;">Received By</th>
                     </tr>
@@ -133,10 +172,18 @@
                     <tr th:each="t : ${recentTransactions}">
                         <td style="padding:8px; border-bottom:1px solid #f0f0f0;" th:text="${t.createdAt != null ? #temporals.format(t.createdAt,'MM/dd/yyyy HH:mm') : ''}">01/01/2025 12:00</td>
                         <td style="padding:8px; border-bottom:1px solid #f0f0f0;" th:text="${t.room != null ? t.room.displayName : '-'}">101</td>
+                        <td style="padding:8px; border-bottom:1px solid #f0f0f0;">
+                            <span th:text="${t.transactionType ?: 'PAYMENT'}" 
+                                  th:class="${(t.transactionType == 'PAYMENT' || t.transactionType == 'DEPOSIT') ? 'badge-success' : 'badge-danger'}"
+                                  style="padding:2px 6px; border-radius:3px; font-size:0.8em;">PAYMENT</span>
+                        </td>
                         <td style="padding:8px; border-bottom:1px solid #f0f0f0;" th:text="${t.description}">Rent</td>
-                        <td style="padding:8px; border-bottom:1px solid #f0f0f0;">$<span th:text="${t.amount != null ? #numbers.formatDecimal(t.amount,1,2) : '0.00'}">0.00</span></td>
-                        <td style="padding:8px; border-bottom:1px solid #f0f0f0;" th:text="${t.paidBy}">Guest</td>
-                        <td style="padding:8px; border-bottom:1px solid #f0f0f0;" th:text="${t.collectedBy}">Staff</td>
+                        <td style="padding:8px; border-bottom:1px solid #f0f0f0; color: #28a745;" th:classappend="${(t.transactionType == 'CHARGE' || t.transactionType == 'FEE') ? 'text-danger' : 'text-success'}">
+                            <span th:text="${(t.transactionType == 'PAYMENT' || t.transactionType == 'DEPOSIT') ? '+' : '-'}">+</span>$<span th:text="${t.amount != null ? #numbers.formatDecimal(t.amount,1,2) : '0.00'}">0.00</span>
+                        </td>
+                        <td style="padding:8px; border-bottom:1px solid #f0f0f0;">$<span th:text="${t.runningBalance != null ? #numbers.formatDecimal(t.runningBalance,1,2) : '0.00'}">0.00</span></td>
+                        <td style="padding:8px; border-bottom:1px solid #f0f0f0;" th:text="${t.paidBy ?: '-'}">Guest</td>
+                        <td style="padding:8px; border-bottom:1px solid #f0f0f0;" th:text="${t.collectedBy ?: '-'}">Staff</td>
                     </tr>
                 </tbody>
             </table>

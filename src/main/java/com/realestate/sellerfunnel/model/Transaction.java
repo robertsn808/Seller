@@ -30,6 +30,21 @@ public class Transaction {
     @Column(name = "collected_by")
     private String collectedBy; // User/staff who received the payment
 
+    @Column(name = "transaction_type")
+    private String transactionType; // PAYMENT, CHARGE, REFUND, FEE, DEPOSIT
+
+    @Column(name = "transaction_category")
+    private String transactionCategory; // RENT, UTILITIES, DAMAGES, DEPOSIT, LATE_FEE, etc.
+
+    @Column(name = "running_balance")
+    private BigDecimal runningBalance; // Running balance after this transaction
+
+    @Column(name = "reference_number")
+    private String referenceNumber; // External reference (check number, payment ID, etc.)
+
+    @Column(name = "notes", length = 500)
+    private String notes; // Additional notes about the transaction
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
@@ -46,6 +61,17 @@ public class Transaction {
         this.description = description;
         this.amount = amount;
         this.paidBy = paidBy;
+        this.transactionType = "PAYMENT"; // Default to PAYMENT
+        this.transactionCategory = "RENT"; // Default to RENT
+    }
+
+    public Transaction(Room room, String description, BigDecimal amount, String paidBy, String transactionType, String transactionCategory) {
+        this.room = room;
+        this.description = description;
+        this.amount = amount;
+        this.paidBy = paidBy;
+        this.transactionType = transactionType;
+        this.transactionCategory = transactionCategory;
     }
 
     // Getters and Setters
@@ -103,5 +129,60 @@ public class Transaction {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getTransactionType() {
+        return transactionType;
+    }
+
+    public void setTransactionType(String transactionType) {
+        this.transactionType = transactionType;
+    }
+
+    public String getTransactionCategory() {
+        return transactionCategory;
+    }
+
+    public void setTransactionCategory(String transactionCategory) {
+        this.transactionCategory = transactionCategory;
+    }
+
+    public BigDecimal getRunningBalance() {
+        return runningBalance;
+    }
+
+    public void setRunningBalance(BigDecimal runningBalance) {
+        this.runningBalance = runningBalance;
+    }
+
+    public String getReferenceNumber() {
+        return referenceNumber;
+    }
+
+    public void setReferenceNumber(String referenceNumber) {
+        this.referenceNumber = referenceNumber;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
+    }
+
+    // Helper methods
+    public boolean isCredit() {
+        return "PAYMENT".equals(transactionType) || "DEPOSIT".equals(transactionType) || "REFUND".equals(transactionType);
+    }
+
+    public boolean isDebit() {
+        return "CHARGE".equals(transactionType) || "FEE".equals(transactionType);
+    }
+
+    public String getFormattedAmount() {
+        if (amount == null) return "$0.00";
+        String prefix = isCredit() ? "+" : "-";
+        return prefix + "$" + amount.abs().toString();
     }
 }

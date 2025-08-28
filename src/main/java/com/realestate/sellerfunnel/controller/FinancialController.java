@@ -8,9 +8,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import jakarta.servlet.http.HttpSession;
 import java.math.BigDecimal;
+import java.util.List;
 
 @Controller
 @RequestMapping("/financials")
@@ -30,8 +32,9 @@ public class FinancialController {
             return "redirect:/property/login";
         }
 
-        BigDecimal totalHoldings = financialService.calculateTotalHoldings();
-        model.addAttribute("totalHoldings", totalHoldings);
+        FinancialService.FinancialSummary summary = financialService.getFinancialSummary();
+        model.addAttribute("financialSummary", summary);
+        model.addAttribute("totalHoldings", summary.getTotalHoldings());
         model.addAttribute("roomsByBalance", financialService.listRoomsByBalanceDesc());
         model.addAttribute("recentTransactions", financialService.recentTransactions());
 
@@ -87,5 +90,21 @@ public class FinancialController {
             txs = financialService.recentTransactions();
         }
         return financialService.exportCsv(txs);
+    }
+
+    @GetMapping("/room/{roomId}/ledger")
+    public String getRoomLedger(@PathVariable Long roomId, Model model, HttpSession session) {
+        if (!isAuthenticated(session)) {
+            return "redirect:/property/login";
+        }
+        
+        FinancialService.RoomLedgerSummary ledgerSummary = financialService.getRoomLedgerSummary(roomId);
+        List<com.realestate.sellerfunnel.model.Transaction> fullLedger = financialService.getRoomLedger(roomId);
+        
+        model.addAttribute("ledgerSummary", ledgerSummary);
+        model.addAttribute("roomLedger", fullLedger);
+        model.addAttribute("roomId", roomId);
+        
+        return "financials/room-ledger";
     }
 }
