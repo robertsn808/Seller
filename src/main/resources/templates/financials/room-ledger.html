@@ -8,14 +8,14 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f5f7fa;
-            color: #333;
+            background: #1a1a1a;
+            color: #e0e0e0;
         }
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
             color: white;
             padding: 20px 0;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
         .header-content {
             max-width: 1200px;
@@ -38,7 +38,7 @@
             transition: background 0.3s;
         }
         .nav-links a:hover {
-            background: rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.1);
         }
         .container {
             max-width: 1200px;
@@ -46,22 +46,23 @@
             padding: 20px;
         }
         .summary-card {
-            background: white;
+            background: #2d3748;
             border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.4);
             padding: 30px;
             margin-bottom: 20px;
+            border: 1px solid #4a5568;
         }
         .summary-title {
             font-size: 1.5rem;
             font-weight: 600;
-            color: #495057;
+            color: #a0aec0;
             margin-bottom: 15px;
         }
         .summary-value {
             font-size: 2rem;
             font-weight: 700;
-            color: #667eea;
+            color: #63b3ed;
         }
         .room-summary {
             display: grid;
@@ -70,68 +71,89 @@
             margin-bottom: 30px;
         }
         .stat-box {
-            background: white;
+            background: #1a202c;
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
             text-align: center;
+            border: 1px solid #4a5568;
         }
         .stat-label {
             font-size: 0.9rem;
-            color: #6c757d;
+            color: #a0aec0;
             margin-bottom: 5px;
         }
         .stat-value {
             font-size: 1.8rem;
             font-weight: 600;
+            color: #e2e8f0;
         }
         .badge-success {
-            background-color: #28a745;
+            background-color: #38a169;
             color: white;
             padding: 2px 6px;
             border-radius: 3px;
             font-size: 0.8em;
         }
         .badge-danger {
-            background-color: #dc3545;
+            background-color: #e53e3e;
             color: white;
             padding: 2px 6px;
             border-radius: 3px;
             font-size: 0.8em;
         }
         .text-success {
-            color: #28a745 !important;
+            color: #68d391 !important;
         }
         .text-danger {
-            color: #dc3545 !important;
+            color: #fc8181 !important;
         }
         .ledger-table {
             width: 100%;
             border-collapse: collapse;
-            background: white;
+            background: #2d3748;
         }
         .ledger-table th {
-            background: #eef1ff;
+            background: #4a5568;
             padding: 12px 8px;
             text-align: left;
             font-weight: 600;
+            color: #e2e8f0;
         }
         .ledger-table td {
             padding: 12px 8px;
-            border-bottom: 1px solid #f0f0f0;
+            border-bottom: 1px solid #4a5568;
+            color: #e2e8f0;
         }
         .ledger-table tbody tr:hover {
-            background-color: #f8f9ff;
+            background-color: #1a202c;
         }
         .breadcrumb {
             margin-bottom: 20px;
         }
         .breadcrumb a {
-            color: #667eea;
+            color: #63b3ed;
             text-decoration: none;
         }
         .breadcrumb a:hover {
             text-decoration: underline;
+            color: #90cdf4;
+        }
+        input, select, textarea {
+            background: #4a5568 !important;
+            color: #e2e8f0 !important;
+            border: 1px solid #718096 !important;
+        }
+        button {
+            background: #4a5568 !important;
+            color: #e2e8f0 !important;
+            border: none !important;
+        }
+        button:hover {
+            background: #2d3748 !important;
+        }
+        label {
+            color: #e2e8f0 !important;
         }
     </style>
 </head>

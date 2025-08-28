@@ -8,14 +8,14 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background: #f5f7fa; 
-            color: #333; 
+            background: #1a1a1a; 
+            color: #e0e0e0; 
         }
         .header { 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%); 
             color: white; 
             padding: 20px 0; 
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3); 
         }
         .header-content { 
             max-width: 1200px; 
@@ -38,7 +38,7 @@
             transition: background 0.3s; 
         }
         .nav-links a:hover { 
-            background: rgba(255,255,255,0.2); 
+            background: rgba(255,255,255,0.1); 
         }
         .container { 
             max-width: 1200px; 
@@ -49,25 +49,26 @@
             display: inline-block;
             margin-bottom: 20px;
             padding: 8px 15px;
-            background: #6c757d;
+            background: #4a5568;
             color: white;
             text-decoration: none;
             border-radius: 5px;
             transition: background 0.3s;
         }
         .back-link:hover {
-            background: #5a6268;
+            background: #2d3748;
             text-decoration: none;
             color: white;
         }
         .room-details {
-            background: white;
+            background: #2d3748;
             border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.4);
             overflow: hidden;
+            border: 1px solid #4a5568;
         }
         .room-header {
-            background: linear-gradient(45deg, #667eea, #764ba2);
+            background: linear-gradient(45deg, #4a5568, #2d3748);
             color: white;
             padding: 30px;
             text-align: center;
@@ -85,12 +86,12 @@
             margin-top: 10px;
         }
         .status-vacant {
-            background: #d4edda;
-            color: #155724;
+            background: #38a169;
+            color: white;
         }
         .status-occupied {
-            background: #f8d7da;
-            color: #721c24;
+            background: #e53e3e;
+            color: white;
         }
         .room-content {
             padding: 30px;
@@ -102,16 +103,17 @@
             margin-bottom: 30px;
         }
         .info-section {
-            background: #f8f9fa;
+            background: #1a202c;
             padding: 20px;
             border-radius: 8px;
+            border: 1px solid #4a5568;
         }
         .section-title {
             font-size: 1.2rem;
             font-weight: 600;
             margin-bottom: 15px;
-            color: #495057;
-            border-bottom: 2px solid #dee2e6;
+            color: #a0aec0;
+            border-bottom: 2px solid #4a5568;
             padding-bottom: 8px;
         }
         .info-row {
@@ -122,23 +124,24 @@
         }
         .info-label {
             font-weight: 600;
-            color: #555;
+            color: #cbd5e0;
         }
         .info-value {
-            color: #333;
+            color: #e2e8f0;
         }
         .booking-history {
-            background: #f8f9fa;
+            background: #1a202c;
             padding: 20px;
             border-radius: 8px;
             margin-top: 20px;
+            border: 1px solid #4a5568;
         }
         .booking-item {
-            background: white;
+            background: #2d3748;
             padding: 15px;
             border-radius: 5px;
             margin-bottom: 10px;
-            border-left: 4px solid #667eea;
+            border-left: 4px solid #63b3ed;
         }
         .booking-item:last-child {
             margin-bottom: 0;
@@ -148,7 +151,7 @@
             gap: 15px;
             justify-content: center;
             padding: 20px 30px;
-            background: #f8f9fa;
+            background: #1a202c;
         }
         .btn {
             padding: 12px 24px;
@@ -166,20 +169,20 @@
             text-decoration: none;
         }
         .btn-primary {
-            background: linear-gradient(45deg, #667eea, #764ba2);
+            background: linear-gradient(45deg, #4a5568, #2d3748);
             color: white;
         }
         .btn-warning {
-            background: #ffc107;
-            color: #333;
+            background: #ed8936;
+            color: white;
         }
         .btn-danger {
-            background: #dc3545;
+            background: #e53e3e;
             color: white;
         }
         .current-booking {
-            background: #e7f3ff;
-            border: 1px solid #b8daff;
+            background: #2c5282;
+            border: 1px solid #4299e1;
             padding: 20px;
             border-radius: 8px;
             margin-bottom: 20px;
@@ -190,20 +193,46 @@
             margin-bottom: 20px;
         }
         .alert-success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
+            background: #276749;
+            color: #9ae6b4;
+            border: 1px solid #38a169;
         }
         .alert-danger {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
+            background: #742a2a;
+            color: #fc8181;
+            border: 1px solid #e53e3e;
         }
         .text-success {
-            color: #28a745 !important;
+            color: #68d391 !important;
         }
         .text-danger {
-            color: #dc3545 !important;
+            color: #fc8181 !important;
+        }
+        table {
+            background: #2d3748 !important;
+            color: #e2e8f0 !important;
+        }
+        th {
+            background: #4a5568 !important;
+            color: #e2e8f0 !important;
+        }
+        td {
+            color: #e2e8f0 !important;
+            border-bottom: 1px solid #4a5568 !important;
+        }
+        a {
+            color: #63b3ed;
+        }
+        a:hover {
+            color: #90cdf4;
+        }
+        input, select, textarea {
+            background: #4a5568 !important;
+            color: #e2e8f0 !important;
+            border: 1px solid #718096 !important;
+        }
+        button {
+            border: none !important;
         }
     </style>
 </head>
