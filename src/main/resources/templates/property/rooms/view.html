@@ -317,7 +317,7 @@
                     <h3 class="section-title">Transaction Ledger</h3>
                     <div class="info-row">
                         <span class="info-label">Current Balance:</span>
-                        <span class="info-value" th:classappend="${room.balance != null and room.balance.compareTo(T(java.math.BigDecimal).ZERO) >= 0 ? 'text-danger' : 'text-success'}">
+                        <span class="info-value">
                             $<span th:text="${room.balance != null ? #numbers.formatDecimal(room.balance, 1, 2) : '0.00'}">0.00</span>
                         </span>
                     </div>
@@ -346,14 +346,13 @@
                                 <tr th:each="t : ${room.transactions}">
                                     <td style="padding:8px; border-bottom:1px solid #f0f0f0;" th:text="${#temporals.format(t.createdAt,'MM/dd/yyyy HH:mm')}">01/01/2025 12:00</td>
                                     <td style="padding:8px; border-bottom:1px solid #f0f0f0;">
-                                        <span th:text="${t.transactionType ?: 'PAYMENT'}" 
-                                              th:style="${(t.transactionType == 'PAYMENT' || t.transactionType == 'DEPOSIT') ? 'color: #28a745; font-weight: bold;' : 'color: #dc3545; font-weight: bold;'}">PAYMENT</span>
+                                        <span th:text="${t.transactionType ?: 'PAYMENT'}">PAYMENT</span>
                                     </td>
                                     <td style="padding:8px; border-bottom:1px solid #f0f0f0;" th:text="${t.description}">Payment</td>
-                                    <td style="padding:8px; border-bottom:1px solid #f0f0f0;" th:style="${(t.transactionType == 'CHARGE' || t.transactionType == 'FEE') ? 'color: #dc3545;' : 'color: #28a745;'}">
-                                        <span th:text="${(t.transactionType == 'PAYMENT' || t.transactionType == 'DEPOSIT') ? '+' : '-'}">+</span><strong>$</strong><span th:text="${#numbers.formatDecimal(t.amount,1,2)}">0.00</span>
+                                    <td style="padding:8px; border-bottom:1px solid #f0f0f0;">
+                                        <strong>$</strong><span th:text="${#numbers.formatDecimal(t.amount,1,2)}">0.00</span>
                                     </td>
-                                    <td style="padding:8px; border-bottom:1px solid #f0f0f0;" th:style="${t.runningBalance != null and t.runningBalance.compareTo(T(java.math.BigDecimal).ZERO) >= 0 ? 'color: #dc3545;' : 'color: #28a745;'}">
+                                    <td style="padding:8px; border-bottom:1px solid #f0f0f0;">
                                         <strong>$</strong><span th:text="${t.runningBalance != null ? #numbers.formatDecimal(t.runningBalance,1,2) : '0.00'}">0.00</span>
                                     </td>
                                     <td style="padding:8px; border-bottom:1px solid #f0f0f0;" th:text="${t.paidBy ?: '—'}">Guest</td>
